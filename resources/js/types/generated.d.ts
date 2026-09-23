@@ -1,3 +1,8 @@
+declare namespace App {
+namespace Enums {
+export type OnboardingStatus = 'draft' | 'pending' | 'approved' | 'rejected';
+}
+}
 declare namespace Illuminate {
 export type CursorPaginator<TKey, TValue> = {
 data: TKey extends string ? Record<TKey, TValue> : TValue[],
