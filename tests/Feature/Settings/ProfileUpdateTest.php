@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Membership;
 use App\Models\User;
 
 test('profile page is displayed', function () {
@@ -82,4 +83,22 @@ test('correct password must be provided to delete account', function () {
         ->assertRedirect(route('profile.edit'));
 
     expect($user->fresh())->not->toBeNull();
+});
+
+test('the only owner of a business cannot delete their account', function () {
+    $owner = Membership::factory()->owner()->create();
+
+    $response = $this
+        ->actingAs($owner->user)
+        ->from(route('profile.edit'))
+        ->delete(route('profile.destroy'), [
+            'password' => 'password',
+        ]);
+
+    $response
+        ->assertSessionHasErrors('membership')
+        ->assertRedirect(route('profile.edit'));
+
+    $this->assertAuthenticatedAs($owner->user);
+    expect($owner->user->fresh())->not->toBeNull();
 });
