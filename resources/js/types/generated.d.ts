@@ -1,4 +1,19 @@
 declare namespace App {
+namespace Data {
+export type CurrentWorkspaceData = {
+business_id: string,
+business_name: string,
+onboarding_status: App.Enums.OnboardingStatus,
+is_suspended: boolean,
+role: App.Enums.MembershipRole,
+abilities: App.Enums.Ability[],
+};
+export type WorkspaceOptionData = {
+business_id: string,
+business_name: string,
+role: App.Enums.MembershipRole,
+};
+}
 namespace Enums {
 export type Ability = 'scan' | 'view_today_activity' | 'view_reports' | 'view_statements' | 'manage_offers' | 'void_vouchers' | 'manage_business' | 'manage_outlets' | 'manage_staff' | 'manage_public_content';
 export type MembershipRole = 'owner' | 'manager' | 'cashier';

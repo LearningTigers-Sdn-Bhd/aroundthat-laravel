@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Membership;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -25,6 +26,7 @@ test('users with a temporary password can open the security page', function () {
 
 test('changing the password clears the temporary password requirement', function () {
     $user = User::factory()->mustChangePassword()->create();
+    Membership::factory()->for($user)->create();
 
     $response = $this
         ->actingAs($user)
