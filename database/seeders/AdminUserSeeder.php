@@ -24,13 +24,16 @@ class AdminUserSeeder extends Seeder
             throw new RuntimeException('Set ADMIN_SEED_PASSWORD to at least 12 characters before seeding the Admin account.');
         }
 
-        User::firstOrCreate(
-            ['email' => $email],
-            [
-                'name' => 'Admin',
-                'password' => $password,
-                'email_verified_at' => now(),
-            ],
-        );
+        if (User::where('email', $email)->exists()) {
+            return;
+        }
+
+        (new User)->forceFill([
+            'name' => 'Admin',
+            'email' => $email,
+            'password' => $password,
+            'email_verified_at' => now(),
+            'is_admin' => true,
+        ])->save();
     }
 }

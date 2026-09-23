@@ -13,6 +13,7 @@ test('creates a verified Admin login with a hashed configured password', functio
     $admin = User::where('email', 'admin@example.com')->firstOrFail();
 
     expect($admin->name)->toBe('Admin');
+    expect($admin->is_admin)->toBeTrue();
     expect($admin->hasVerifiedEmail())->toBeTrue();
     expect(Hash::check('long-secret-password', $admin->password))->toBeTrue();
 });
