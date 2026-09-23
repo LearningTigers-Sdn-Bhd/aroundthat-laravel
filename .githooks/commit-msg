@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+#
+# Enforce Conventional Commits on the first line of the commit message.
+#
+#   <type>(<optional scope>)!: <description>
+#
+# Enable once per clone:
+#   git config core.hooksPath .githooks
+
+commit_message_file="$1"
+subject=$(head -n 1 "$commit_message_file")
+
+case "$subject" in
+    Merge\ *|Revert\ *|fixup!\ *|squash!\ *|amend!\ *)
+        exit 0
+        ;;
+esac
+
+types="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert|init"
+pattern="^($types)(\([a-z0-9._/-]+\))?!?: .+"
+
+if ! printf '%s' "$subject" | grep -Eq "$pattern"; then
+    echo "✖ Invalid commit message:"
+    echo ""
+    echo "    $subject"
+    echo ""
+    echo "Use Conventional Commits: <type>(<scope>): <description>"
+    echo ""
+    echo "  Types: $(printf '%s' "$types" | sed 's/|/, /g')"
+    echo "  Scope: optional, lowercase (e.g. auth, docker, deps)"
+    echo ""
+    echo "  Examples:"
+    echo "    feat(auth): add passkey login"
+    echo "    fix: handle empty search query"
+    echo "    chore(deps)!: drop PHP 8.3 support"
+    exit 1
+fi
+
+if [ "${#subject}" -gt 100 ]; then
+    echo "✖ Commit subject is ${#subject} characters. Keep it at 100 or fewer."
+    exit 1
+fi
