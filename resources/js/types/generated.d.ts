@@ -1,5 +1,7 @@
 declare namespace App {
 namespace Enums {
+export type Ability = 'scan' | 'view_today_activity' | 'view_reports' | 'view_statements' | 'manage_offers' | 'void_vouchers' | 'manage_business' | 'manage_outlets' | 'manage_staff' | 'manage_public_content';
+export type MembershipRole = 'owner' | 'manager' | 'cashier';
 export type OnboardingStatus = 'draft' | 'pending' | 'approved' | 'rejected';
 }
 }

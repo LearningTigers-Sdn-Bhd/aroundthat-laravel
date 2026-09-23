@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -66,6 +67,24 @@ class User extends Authenticatable implements MustVerifyEmail
     public function suspendedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'suspended_by_id');
+    }
+
+    /**
+     * @return HasMany<Membership, $this>
+     */
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(Membership::class);
+    }
+
+    /**
+     * The user's membership at the business, suspended or not.
+     */
+    public function membershipFor(Business|string $business): ?Membership
+    {
+        $businessId = $business instanceof Business ? $business->getKey() : $business;
+
+        return $this->memberships->firstWhere('business_id', $businessId);
     }
 
     public function isSuspended(): bool
