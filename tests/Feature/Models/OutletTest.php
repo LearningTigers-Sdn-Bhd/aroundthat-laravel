@@ -1,9 +1,9 @@
 <?php
 
+use App\Models\Activity;
 use App\Models\Business;
 use App\Models\Outlet;
 use Illuminate\Database\QueryException;
-use Spatie\Activitylog\Models\Activity;
 
 test('operational outlets are approved, active, unarchived and belong to an approved active business', function () {
     $business = Business::factory()->approved()->create();

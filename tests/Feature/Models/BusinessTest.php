@@ -1,10 +1,10 @@
 <?php
 
 use App\Enums\OnboardingStatus;
+use App\Models\Activity;
 use App\Models\Business;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
-use Spatie\Activitylog\Models\Activity;
 
 test('new businesses start as drafts', function () {
     $business = Business::factory()->create();

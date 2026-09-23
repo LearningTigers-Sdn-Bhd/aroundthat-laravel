@@ -2,9 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\Business;
+use App\Models\Membership;
+use App\Models\Outlet;
 use App\Models\User;
+use App\Support\ActivityLog\AuditTrail;
 use App\Support\Workspace;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -19,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->scoped(Workspace::class);
+        $this->app->scoped(AuditTrail::class);
     }
 
     /**
@@ -44,6 +50,13 @@ class AppServiceProvider extends ServiceProvider
     protected function configureDefaults(): void
     {
         Date::use(CarbonImmutable::class);
+
+        Relation::enforceMorphMap([
+            'user' => User::class,
+            'business' => Business::class,
+            'outlet' => Outlet::class,
+            'membership' => Membership::class,
+        ]);
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),
