@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Ability;
 use App\Enums\MembershipRole;
+use App\Models\Concerns\LocksForUpdate;
 use Database\Factories\MembershipFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -35,7 +36,7 @@ use Spatie\Activitylog\Support\LogOptions;
 class Membership extends Model
 {
     /** @use HasFactory<MembershipFactory> */
-    use HasFactory, HasUuids, LogsActivity;
+    use HasFactory, HasUuids, LocksForUpdate, LogsActivity;
 
     /**
      * Get the attributes that should be cast.

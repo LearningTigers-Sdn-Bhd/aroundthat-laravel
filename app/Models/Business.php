@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\OnboardingStatus;
 use App\Models\Concerns\HasOnboarding;
+use App\Models\Concerns\LocksForUpdate;
 use Database\Factories\BusinessFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -31,7 +33,7 @@ use Spatie\Activitylog\Support\LogOptions;
 class Business extends Model
 {
     /** @use HasFactory<BusinessFactory> */
-    use HasFactory, HasOnboarding, HasUuids, LogsActivity;
+    use HasFactory, HasOnboarding, HasUuids, LocksForUpdate, LogsActivity;
 
     /**
      * Log every owner- or admin-visible field, old and new.
@@ -48,6 +50,14 @@ class Business extends Model
             ])
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
+    }
+
+    /**
+     * Whether members can change it: not suspended and not waiting for review.
+     */
+    public function isWritable(): bool
+    {
+        return ! $this->isSuspended() && $this->onboarding_status !== OnboardingStatus::Pending;
     }
 
     /**

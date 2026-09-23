@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasOnboarding;
+use App\Models\Concerns\LocksForUpdate;
 use Database\Factories\OutletFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -40,7 +41,7 @@ use Spatie\Activitylog\Support\LogOptions;
 class Outlet extends Model
 {
     /** @use HasFactory<OutletFactory> */
-    use HasFactory, HasOnboarding, HasUuids, LogsActivity;
+    use HasFactory, HasOnboarding, HasUuids, LocksForUpdate, LogsActivity;
 
     /**
      * Get the attributes that should be cast.

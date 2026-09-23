@@ -43,3 +43,9 @@ test('system admins get no business rights without a membership', function () {
 
     expect($admin->can('update', Business::factory()->create()))->toBeFalse();
 });
+
+test('owners cannot update a business that is suspended or waiting for review', function (string $state) {
+    $membership = Membership::factory()->owner()->for(Business::factory()->{$state}())->create();
+
+    expect($membership->user->can('update', $membership->business))->toBeFalse();
+})->with(['pending', 'suspended']);

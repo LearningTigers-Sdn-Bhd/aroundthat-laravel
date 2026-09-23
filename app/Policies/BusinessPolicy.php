@@ -19,9 +19,12 @@ class BusinessPolicy
         return $user->membershipFor($business)?->isActive() ?? false;
     }
 
+    /**
+     * Change business details, unless it is suspended or waiting for review.
+     */
     public function update(User $user, Business $business): bool
     {
-        return $this->memberCan($user, $business, Ability::ManageBusiness);
+        return $business->isWritable() && $this->memberCan($user, $business, Ability::ManageBusiness);
     }
 
     /**
@@ -30,6 +33,7 @@ class BusinessPolicy
     public function submit(User $user, Business $business): bool
     {
         return $business->onboarding_status->canBeSubmitted()
+            && ! $business->isSuspended()
             && $this->memberCan($user, $business, Ability::ManageBusiness);
     }
 }
