@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OnboardingStatus;
 use App\Models\Concerns\HasOnboarding;
 use App\Models\Concerns\LocksForUpdate;
 use Database\Factories\OutletFactory;
@@ -100,6 +101,17 @@ class Outlet extends Model
     public function hostedOutlets(): HasMany
     {
         return $this->hasMany(Outlet::class, 'host_outlet_id');
+    }
+
+    /**
+     * Whether members can change it: not archived, not suspended, not waiting for review, and its business not suspended.
+     */
+    public function isWritable(): bool
+    {
+        return ! $this->isArchived()
+            && ! $this->isSuspended()
+            && $this->onboarding_status !== OnboardingStatus::Pending
+            && ! $this->business->isSuspended();
     }
 
     public function isArchived(): bool

@@ -22,12 +22,16 @@ class OutletPolicy
 
     public function create(User $user, Business $business): bool
     {
-        return $this->memberCan($user, $business, Ability::ManageOutlets);
+        return ! $business->isSuspended()
+            && $this->memberCan($user, $business, Ability::ManageOutlets);
     }
 
+    /**
+     * Change outlet details, unless it is archived, suspended or waiting for review.
+     */
     public function update(User $user, Outlet $outlet): bool
     {
-        return ! $outlet->isArchived()
+        return $outlet->isWritable()
             && $this->memberCan($user, $outlet->business_id, Ability::ManageOutlets);
     }
 
@@ -39,5 +43,14 @@ class OutletPolicy
         return $outlet->onboarding_status->canBeSubmitted()
             && $outlet->business->isApproved()
             && $this->update($user, $outlet);
+    }
+
+    /**
+     * Archive or restore an outlet the business no longer operates.
+     */
+    public function archive(User $user, Outlet $outlet): bool
+    {
+        return ! $outlet->business->isSuspended()
+            && $this->memberCan($user, $outlet->business_id, Ability::ManageOutlets);
     }
 }

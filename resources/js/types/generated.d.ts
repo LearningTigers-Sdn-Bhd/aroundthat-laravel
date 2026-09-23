@@ -13,11 +13,43 @@ business_id: string,
 business_name: string,
 role: App.Enums.MembershipRole,
 };
+namespace Forms {
+export type BusinessDetailsData = {
+name: string,
+contact_email: string,
+timezone: string,
+registered_name: string | null,
+registration_number: string | null,
+contact_phone: string | null,
+address: string | null,
+};
+export type OnboardBusinessData = {
+business: App.Data.Forms.BusinessDetailsData,
+owner_method: App.Enums.OwnerMethod,
+owner_email: string,
+owner_name: string | null,
+owner_password: string | null,
+approve_immediately: boolean,
+};
+export type OutletDetailsData = {
+name: string,
+address_line_1: string,
+city: string,
+state: string,
+postcode: string,
+country_code: string,
+timezone: string,
+address_line_2: string | null,
+contact_email: string | null,
+contact_phone: string | null,
+};
+}
 }
 namespace Enums {
 export type Ability = 'scan' | 'view_today_activity' | 'view_reports' | 'view_statements' | 'manage_offers' | 'void_vouchers' | 'manage_business' | 'manage_outlets' | 'manage_staff' | 'manage_public_content';
 export type MembershipRole = 'owner' | 'manager' | 'cashier';
 export type OnboardingStatus = 'draft' | 'pending' | 'approved' | 'rejected';
+export type OwnerMethod = 'existing' | 'temporary_password';
 }
 }
 declare namespace Illuminate {

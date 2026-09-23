@@ -56,3 +56,15 @@ test('owners cannot resubmit an outlet that is pending or approved', function (s
 
     expect($owner->user->can('submit', $outlet))->toBeFalse();
 })->with(['pending', 'approved']);
+
+test('only owners of an active business can archive outlets', function () {
+    $outlet = Outlet::factory()->create();
+    $owner = Membership::factory()->owner()->for($outlet->business)->create();
+    $manager = Membership::factory()->manager()->for($outlet->business)->withOutlets($outlet)->create();
+    $suspendedBusinessOutlet = Outlet::factory()->for(Business::factory()->suspended())->create();
+    $suspendedBusinessOwner = Membership::factory()->owner()->for($suspendedBusinessOutlet->business)->create();
+
+    expect($owner->user->can('archive', $outlet))->toBeTrue();
+    expect($manager->user->can('archive', $outlet))->toBeFalse();
+    expect($suspendedBusinessOwner->user->can('archive', $suspendedBusinessOutlet))->toBeFalse();
+});
