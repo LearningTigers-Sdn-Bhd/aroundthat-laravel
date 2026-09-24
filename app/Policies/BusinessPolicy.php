@@ -28,6 +28,14 @@ class BusinessPolicy
     }
 
     /**
+     * Change what visitors see about the business, under the same conditions as its details.
+     */
+    public function updatePublicProfile(User $user, Business $business): bool
+    {
+        return $business->isWritable() && $this->memberCan($user, $business, Ability::ManagePublicContent);
+    }
+
+    /**
      * Send a draft or rejected business to admin review.
      */
     public function submit(User $user, Business $business): bool

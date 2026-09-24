@@ -26,7 +26,7 @@ test('an owner opens their business details and can submit a draft', function ()
         ->assertInertia(fn (Assert $page) => $page
             ->component('app/business/edit')
             ->where('business.id', $owner->business_id)
-            ->where('can', ['update' => true, 'submit' => true]));
+            ->where('can', ['update' => true, 'submit' => true, 'updatePublicProfile' => true]));
 });
 
 test('staff without the manage business ability cannot open the business details', function () {

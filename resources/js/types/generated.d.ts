@@ -15,6 +15,12 @@ rejection_reason: string | null,
 is_suspended: boolean,
 is_writable: boolean,
 };
+export type BusinessPlaceData = {
+slug: string,
+summary: string | null,
+description: string | null,
+logo: App.Data.ImageData | null,
+};
 export type CategoryOptionData = {
 id: string,
 name: string,
@@ -263,6 +269,10 @@ registered_name: string | null,
 registration_number: string | null,
 contact_phone: string | null,
 address: string | null,
+};
+export type BusinessPublicProfileData = {
+summary: string | null,
+description: string | null,
 };
 export type CategoryData = {
 name: string,

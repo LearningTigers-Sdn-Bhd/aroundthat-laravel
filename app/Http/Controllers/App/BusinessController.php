@@ -5,6 +5,7 @@ namespace App\Http\Controllers\App;
 use App\Actions\Businesses\SubmitBusiness;
 use App\Actions\Businesses\UpdateBusiness;
 use App\Data\BusinessData;
+use App\Data\BusinessPlaceData;
 use App\Data\Forms\BusinessDetailsData;
 use App\Data\LocationOptionsData;
 use App\Enums\Ability;
@@ -32,10 +33,12 @@ class BusinessController extends Controller
 
         return Inertia::render('app/business/edit', [
             'business' => BusinessData::fromModel($business),
+            'place' => BusinessPlaceData::fromModel($business),
             'locationOptions' => LocationOptionsData::current(),
             'can' => [
                 'update' => $request->user()->can('update', $business),
                 'submit' => $request->user()->can('submit', $business),
+                'updatePublicProfile' => $request->user()->can('updatePublicProfile', $business),
             ],
         ]);
     }

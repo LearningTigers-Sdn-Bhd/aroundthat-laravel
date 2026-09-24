@@ -29,10 +29,12 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property string|null $contact_phone
  * @property string|null $address
  * @property string $timezone
+ * @property string|null $summary
+ * @property string|null $description
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'registered_name', 'registration_number', 'contact_email', 'contact_phone', 'address', 'timezone'])]
+#[Fillable(['name', 'registered_name', 'registration_number', 'contact_email', 'contact_phone', 'address', 'timezone', 'summary', 'description'])]
 class Business extends Model
 {
     /** @use HasFactory<BusinessFactory> */

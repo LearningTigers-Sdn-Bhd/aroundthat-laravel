@@ -1,6 +1,8 @@
 import { Form, Head, usePage } from '@inertiajs/react';
 import ActionButton from '@/components/action-button';
 import ComboboxField from '@/components/combobox-field';
+import ConfirmDialog from '@/components/confirm-dialog';
+import FormDialog from '@/components/form-dialog';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import Notice from '@/components/notice';
@@ -8,17 +10,24 @@ import PageErrors from '@/components/page-errors';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
 import TextField from '@/components/text-field';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { formatDateTime } from '@/lib/format';
 import { timezoneOptions } from '@/lib/locations';
 import { edit, submit, update } from '@/routes/business';
+import {
+    destroy as destroyLogo,
+    store as storeLogo,
+} from '@/routes/business/logo';
+import { update as updatePublic } from '@/routes/business/public';
 
 type Props = {
     business: App.Data.BusinessData;
+    place: App.Data.BusinessPlaceData;
     locationOptions: App.Data.LocationOptionsData;
-    can: { update: boolean; submit: boolean };
+    can: { update: boolean; submit: boolean; updatePublicProfile: boolean };
 };
 
 const detailFields = [
@@ -33,6 +42,7 @@ const detailFields = [
 
 export default function EditBusiness({
     business,
+    place,
     locationOptions,
     can,
 }: Props) {
@@ -140,8 +150,147 @@ export default function EditBusiness({
                         </fieldset>
                     )}
                 </Form>
+
+                <PublicProfile
+                    place={place}
+                    canUpdate={can.updatePublicProfile}
+                />
             </div>
         </>
+    );
+}
+
+/**
+ * The summary, description and logo visitors see on the business page. Name and contacts come from the details above.
+ */
+function PublicProfile({
+    place,
+    canUpdate,
+}: {
+    place: App.Data.BusinessPlaceData;
+    canUpdate: boolean;
+}) {
+    return (
+        <section className="space-y-6 border-t pt-6">
+            <Heading
+                variant="small"
+                title="Public profile"
+                description="Shown to visitors on every outlet's page. The name and contacts above are used as they are."
+            />
+
+            <div className="flex flex-wrap items-center gap-4">
+                {place.logo ? (
+                    <img
+                        src={place.logo.url}
+                        alt={place.logo.alt_text}
+                        className="size-20 rounded-md border object-contain"
+                    />
+                ) : (
+                    <div className="flex size-20 items-center justify-center rounded-md border border-dashed text-xs text-muted-foreground">
+                        No logo
+                    </div>
+                )}
+                {canUpdate && (
+                    <div className="flex gap-2">
+                        <FormDialog
+                            trigger={
+                                <Button variant="outline">
+                                    {place.logo ? 'Replace logo' : 'Add logo'}
+                                </Button>
+                            }
+                            title="Logo"
+                            description="JPEG, PNG or WebP, up to 10 MB. A square image works best."
+                            form={storeLogo.form()}
+                            submitLabel="Upload"
+                        >
+                            {(errors) => (
+                                <>
+                                    <input
+                                        type="hidden"
+                                        name="kind"
+                                        value="logo"
+                                    />
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="file">Image</Label>
+                                        <Input
+                                            id="file"
+                                            name="file"
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            aria-invalid={!!errors.file}
+                                            required
+                                        />
+                                        <InputError message={errors.file} />
+                                    </div>
+                                    <TextField
+                                        name="alt_text"
+                                        label="Description"
+                                        defaultValue={place.logo?.alt_text}
+                                        placeholder="Kopi Corner logo"
+                                        maxLength={250}
+                                        error={errors.alt_text}
+                                        required
+                                    />
+                                </>
+                            )}
+                        </FormDialog>
+                        {place.logo && (
+                            <ConfirmDialog
+                                trigger={
+                                    <Button variant="ghost">Remove</Button>
+                                }
+                                title="Remove the logo?"
+                                form={destroyLogo.form()}
+                                confirmLabel="Remove"
+                                destructive
+                            />
+                        )}
+                    </div>
+                )}
+            </div>
+
+            <Form {...updatePublic.form()} options={{ preserveScroll: true }}>
+                {({ processing, errors }) => (
+                    <fieldset
+                        disabled={!canUpdate}
+                        className="space-y-6 disabled:opacity-60"
+                    >
+                        <div className="grid gap-2">
+                            <Label htmlFor="summary">Summary</Label>
+                            <Textarea
+                                id="summary"
+                                name="summary"
+                                rows={2}
+                                maxLength={280}
+                                defaultValue={place.summary ?? ''}
+                                aria-invalid={!!errors.summary}
+                            />
+                            <InputError message={errors.summary} />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="description">
+                                About the business
+                            </Label>
+                            <Textarea
+                                id="description"
+                                name="description"
+                                rows={5}
+                                maxLength={5000}
+                                defaultValue={place.description ?? ''}
+                                aria-invalid={!!errors.description}
+                            />
+                            <InputError message={errors.description} />
+                        </div>
+                        {canUpdate && (
+                            <Button type="submit" disabled={processing}>
+                                {processing && <Spinner />}
+                                Save public profile
+                            </Button>
+                        )}
+                    </fieldset>
+                )}
+            </Form>
+        </section>
     );
 }
 

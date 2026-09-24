@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\App\BusinessController;
+use App\Http\Controllers\App\BusinessPublicProfileController;
 use App\Http\Controllers\App\InvitationController;
 use App\Http\Controllers\App\OutletController;
 use App\Http\Controllers\App\OutletHoursController;
@@ -16,6 +17,11 @@ Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(functi
     Route::get('business', [BusinessController::class, 'edit'])->name('business.edit');
     Route::put('business', [BusinessController::class, 'update'])->name('business.update');
     Route::post('business/submit', [BusinessController::class, 'submit'])->name('business.submit');
+    Route::controller(BusinessPublicProfileController::class)->prefix('business')->name('business.')->group(function () {
+        Route::put('public', 'update')->name('public.update');
+        Route::post('logo', 'storeLogo')->name('logo.store');
+        Route::delete('logo', 'destroyLogo')->name('logo.destroy');
+    });
 
     Route::resource('outlets', OutletController::class)->only(['index', 'create', 'store', 'edit', 'update']);
 

@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('contact_phone')->nullable();
             $table->text('address')->nullable();
             $table->string('timezone')->default('Asia/Kuala_Lumpur');
+            $table->string('summary', 280)->nullable();
+            $table->text('description')->nullable();
             $table->string('onboarding_status')->default('draft');
             $table->timestampTz('submitted_at')->nullable();
             $table->timestampTz('approved_at')->nullable();
