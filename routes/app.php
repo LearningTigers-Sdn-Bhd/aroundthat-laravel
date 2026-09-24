@@ -3,6 +3,7 @@
 use App\Http\Controllers\App\BusinessController;
 use App\Http\Controllers\App\InvitationController;
 use App\Http\Controllers\App\OutletController;
+use App\Http\Controllers\App\OutletHoursController;
 use App\Http\Controllers\App\OutletPublicProfileController;
 use App\Http\Controllers\App\OutletStatusController;
 use App\Http\Controllers\App\StaffController;
@@ -24,6 +25,11 @@ Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(functi
     });
 
     Route::controller(OutletPublicProfileController::class)->prefix('outlets/{outlet}/public')->name('outlets.public.')->group(function () {
+        Route::get('/', 'edit')->name('edit');
+        Route::put('/', 'update')->name('update');
+    });
+
+    Route::controller(OutletHoursController::class)->prefix('outlets/{outlet}/hours')->name('outlets.hours.')->group(function () {
         Route::get('/', 'edit')->name('edit');
         Route::put('/', 'update')->name('update');
     });

@@ -8,6 +8,7 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { formatDateTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { archive, edit, restore, submit } from '@/routes/outlets';
+import { edit as editHours } from '@/routes/outlets/hours';
 import { edit as editPublic } from '@/routes/outlets/public';
 import type { NavItem } from '@/types';
 
@@ -30,7 +31,10 @@ export default function OutletHeader({ outlet, can }: Props) {
     const tabs: NavItem[] = [
         { title: 'Details', href: edit(outlet.id) },
         ...(canManagePublicContent
-            ? [{ title: 'Public page', href: editPublic(outlet.id) }]
+            ? [
+                  { title: 'Public page', href: editPublic(outlet.id) },
+                  { title: 'Hours', href: editHours(outlet.id) },
+              ]
             : []),
     ];
 

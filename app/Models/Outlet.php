@@ -47,6 +47,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property string|null $whatsapp
  * @property string|null $facebook
  * @property string|null $instagram
+ * @property array<int, list<array{opens: string, closes: string}>>|null $regular_hours
  * @property bool $is_listed
  * @property Carbon|null $archived_at
  * @property Carbon|null $created_at
@@ -54,7 +55,7 @@ use Spatie\Activitylog\Support\LogOptions;
  */
 #[Fillable([
     'name', 'contact_email', 'contact_phone', 'address_line_1', 'address_line_2', 'city', 'state', 'postcode', 'country_code', 'timezone',
-    'summary', 'description', 'category_id', 'latitude', 'longitude', 'google_maps_url', 'website', 'whatsapp', 'facebook', 'instagram', 'is_listed',
+    'summary', 'description', 'category_id', 'latitude', 'longitude', 'google_maps_url', 'website', 'whatsapp', 'facebook', 'instagram', 'regular_hours', 'is_listed',
 ])]
 class Outlet extends Model
 {
@@ -81,6 +82,7 @@ class Outlet extends Model
             'archived_at' => 'datetime',
             'latitude' => 'decimal:6',
             'longitude' => 'decimal:6',
+            'regular_hours' => 'array',
             'is_listed' => 'boolean',
         ];
     }
@@ -126,6 +128,16 @@ class Outlet extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class)->orderBy('name');
+    }
+
+    /**
+     * Dates with different hours, such as public holidays, oldest first.
+     *
+     * @return HasMany<OutletDateException, $this>
+     */
+    public function dateExceptions(): HasMany
+    {
+        return $this->hasMany(OutletDateException::class)->orderBy('date');
     }
 
     /**
@@ -187,6 +199,7 @@ class Outlet extends Model
             blank($this->summary) ? 'summary' : null,
             blank($this->category_id) ? 'category_id' : null,
             $this->latitude === null || $this->longitude === null ? 'coordinates' : null,
+            blank($this->regular_hours) ? 'hours' : null,
         ]));
     }
 
@@ -213,6 +226,7 @@ class Outlet extends Model
                 $this->qualifyColumn('category_id'),
                 $this->qualifyColumn('latitude'),
                 $this->qualifyColumn('longitude'),
+                $this->qualifyColumn('regular_hours'),
             ])
             ->where($this->qualifyColumn('summary'), '<>', '');
     }

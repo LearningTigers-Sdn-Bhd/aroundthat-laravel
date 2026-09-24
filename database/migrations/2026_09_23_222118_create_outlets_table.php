@@ -36,6 +36,7 @@ return new class extends Migration
             $table->string('whatsapp', 30)->nullable();
             $table->string('facebook', 500)->nullable();
             $table->string('instagram', 500)->nullable();
+            $table->jsonb('regular_hours')->nullable();
             $table->boolean('is_listed')->default(false);
             $table->string('onboarding_status')->default('draft');
             $table->timestampTz('submitted_at')->nullable();

@@ -27,6 +27,12 @@ is_suspended: boolean,
 role: App.Enums.MembershipRole,
 abilities: App.Enums.Ability[],
 };
+export type DateExceptionData = {
+date: string,
+is_closed: boolean,
+periods: App.Data.OpeningPeriodData[],
+note: string | null,
+};
 export type InvitationData = {
 id: string,
 email: string,
@@ -63,6 +69,10 @@ suspended_at: string | null,
 suspension_reason: string | null,
 joined_at: string | null,
 };
+export type OpeningPeriodData = {
+opens: string,
+closes: string,
+};
 export type OutletData = {
 id: string,
 name: string,
@@ -84,6 +94,11 @@ archived_at: string | null,
 is_operational: boolean,
 is_writable: boolean,
 is_public: boolean,
+};
+export type OutletHoursData = {
+regular_hours: Record<string, App.Data.OpeningPeriodData[]>,
+date_exceptions: App.Data.DateExceptionData[],
+timezone: string,
 };
 export type OutletOptionData = {
 id: string,
@@ -267,6 +282,21 @@ owner_email: string,
 owner_name: string | null,
 owner_password: string | null,
 approve_immediately: boolean,
+};
+export type OpeningHoursData = {
+regular_hours: {
+opens: string,
+closes: string,
+}[][] | null,
+date_exceptions: {
+date: string,
+is_closed: boolean,
+periods?: {
+opens: string,
+closes: string,
+}[],
+note?: string | null,
+}[] | null,
 };
 export type OutletDetailsData = {
 name: string,

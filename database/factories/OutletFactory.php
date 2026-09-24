@@ -45,6 +45,7 @@ class OutletFactory extends Factory
             'category_id' => Category::factory(),
             'latitude' => fake()->latitude(1, 7),
             'longitude' => fake()->longitude(109, 119),
+            'regular_hours' => array_fill_keys(['1', '2', '3', '4', '5', '6', '7'], [['opens' => '09:00', 'closes' => '22:00']]),
             'is_listed' => true,
         ]);
     }

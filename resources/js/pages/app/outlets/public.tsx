@@ -50,6 +50,7 @@ const missingLabels: Record<string, string> = {
     summary: 'a summary',
     category_id: 'a category',
     coordinates: 'the map location',
+    hours: 'opening hours (on the Hours tab)',
 };
 
 export default function OutletPublicPage({

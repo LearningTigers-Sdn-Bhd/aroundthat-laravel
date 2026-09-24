@@ -26,6 +26,7 @@ class UpdateOutletPublicProfile
         'summary' => 'a summary',
         'category_id' => 'a category',
         'coordinates' => 'the map location',
+        'hours' => 'opening hours',
     ];
 
     public function __construct(

@@ -23,7 +23,9 @@ function publicProfile(array $overrides = []): OutletPublicProfileData
 
 function approvedOutlet(): Outlet
 {
-    return Outlet::factory()->for(Business::factory()->approved())->approved()->create();
+    return Outlet::factory()->for(Business::factory()->approved())->approved()->create([
+        'regular_hours' => ['1' => [['opens' => '09:00', 'closes' => '17:00']]],
+    ]);
 }
 
 test('saves the public fields and lists an outlet once they are complete', function () {
@@ -57,12 +59,14 @@ test('an unreadable Google Maps link is refused with its reason', function () {
 test('an outlet cannot be listed before its public fields are complete', function () {
     $outlet = approvedOutlet();
 
+    $outlet->forceFill(['regular_hours' => null])->save();
+
     expect(fn () => app(UpdateOutletPublicProfile::class)->handle($outlet, publicProfile([
         'summary' => null,
         'latitude' => null,
         'longitude' => null,
         'is_listed' => true,
-    ])))->toThrow(ValidationException::class, 'Add a summary and the map location before listing the outlet.');
+    ])))->toThrow(ValidationException::class, 'Add a summary, the map location and opening hours before listing the outlet.');
 
     expect($outlet->refresh()->is_listed)->toBeFalse();
 });

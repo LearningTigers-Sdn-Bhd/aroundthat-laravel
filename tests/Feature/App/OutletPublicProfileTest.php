@@ -18,7 +18,7 @@ test('the owner sees the public page with only the tags their business can pick'
         ->assertInertia(fn (Assert $page) => $page
             ->component('app/outlets/public')
             ->where('place.slug', $outlet->slug)
-            ->where('place.missing_for_listing', ['summary', 'category_id', 'coordinates'])
+            ->where('place.missing_for_listing', ['summary', 'category_id', 'coordinates', 'hours'])
             ->has('tagOptions', 2)
             ->where('tagOptions.0', ['id' => $approved->id, 'name' => 'Halal'])
             ->where('tagOptions.1', ['id' => $own->id, 'name' => 'Rooftop'])
