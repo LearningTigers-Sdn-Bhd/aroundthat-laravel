@@ -6,6 +6,7 @@ use App\Enums\InvitationStatus;
 use App\Enums\MembershipRole;
 use App\Models\Invitation;
 use App\Models\Outlet;
+use Carbon\CarbonInterface;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
@@ -25,7 +26,7 @@ class InvitationPreviewData extends Data
         public string $email,
         public MembershipRole $role,
         public InvitationStatus $status,
-        public string $expiresAt,
+        public CarbonInterface $expiresAt,
         public array $outletNames,
     ) {}
 
@@ -37,7 +38,7 @@ class InvitationPreviewData extends Data
             email: $invitation->email,
             role: $invitation->role,
             status: $invitation->status(),
-            expiresAt: $invitation->expires_at->toIso8601String(),
+            expiresAt: $invitation->expires_at,
             outletNames: $invitation->outlets()->orderBy('name')->get()->map(fn (Outlet $outlet): string => $outlet->name)->all(),
         );
     }

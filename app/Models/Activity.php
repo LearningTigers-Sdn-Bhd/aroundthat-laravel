@@ -11,6 +11,8 @@ use Spatie\Activitylog\Models\Activity as BaseActivity;
 /**
  * One entry in the change history: who changed what, from what, to what, and why.
  *
+ * @property string|null $subject_id
+ * @property string|null $causer_id
  * @property string|null $reason
  * @property string|null $ip_address
  * @property Carbon|null $reviewed_at

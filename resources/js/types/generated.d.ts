@@ -1,5 +1,20 @@
 declare namespace App {
 namespace Data {
+export type BusinessData = {
+id: string,
+name: string,
+registered_name: string | null,
+registration_number: string | null,
+contact_email: string,
+contact_phone: string | null,
+address: string | null,
+timezone: string,
+onboarding_status: App.Enums.OnboardingStatus,
+submitted_at: string | null,
+rejection_reason: string | null,
+is_suspended: boolean,
+is_writable: boolean,
+};
 export type CurrentWorkspaceData = {
 business_id: string,
 business_name: string,
@@ -7,6 +22,17 @@ onboarding_status: App.Enums.OnboardingStatus,
 is_suspended: boolean,
 role: App.Enums.MembershipRole,
 abilities: App.Enums.Ability[],
+};
+export type InvitationData = {
+id: string,
+email: string,
+role: App.Enums.MembershipRole,
+status: App.Enums.InvitationStatus,
+outlets: App.Data.OutletOptionData[],
+invited_by_name: string | null,
+sent_at: string | null,
+expires_at: string,
+created_at: string | null,
 };
 export type InvitationPreviewData = {
 business_name: string,
@@ -17,11 +43,127 @@ status: App.Enums.InvitationStatus,
 expires_at: string,
 outlet_names: string[],
 };
+export type MemberData = {
+id: string,
+user_id: string,
+name: string,
+email: string,
+role: App.Enums.MembershipRole,
+outlets: App.Data.OutletOptionData[],
+suspended_at: string | null,
+suspension_reason: string | null,
+joined_at: string | null,
+};
+export type OutletData = {
+id: string,
+name: string,
+contact_email: string | null,
+contact_phone: string | null,
+address_line_1: string,
+address_line_2: string | null,
+city: string,
+state: string,
+postcode: string,
+country_code: string,
+timezone: string,
+host_outlet: App.Data.OutletOptionData | null,
+onboarding_status: App.Enums.OnboardingStatus,
+submitted_at: string | null,
+rejection_reason: string | null,
+is_suspended: boolean,
+archived_at: string | null,
+is_operational: boolean,
+is_writable: boolean,
+};
+export type OutletOptionData = {
+id: string,
+name: string,
+};
 export type WorkspaceOptionData = {
 business_id: string,
 business_name: string,
 role: App.Enums.MembershipRole,
 };
+namespace Admin {
+export type ActivityChangeData = {
+field: string,
+old: any,
+new: any,
+};
+export type ActivityData = {
+id: number,
+event: string,
+subject_type: string | null,
+subject_id: string | null,
+causer_name: string | null,
+reason: string | null,
+ip_address: string | null,
+changes: App.Data.Admin.ActivityChangeData[],
+properties: Record<string, any>,
+reviewed_at: string | null,
+created_at: string | null,
+};
+export type BusinessData = {
+id: string,
+name: string,
+registered_name: string | null,
+registration_number: string | null,
+contact_email: string,
+contact_phone: string | null,
+address: string | null,
+timezone: string,
+onboarding_status: App.Enums.OnboardingStatus,
+submitted_at: string | null,
+approved_at: string | null,
+approved_by_name: string | null,
+rejection_reason: string | null,
+suspended_at: string | null,
+suspended_by_name: string | null,
+suspension_reason: string | null,
+created_at: string | null,
+};
+export type OutletData = {
+id: string,
+business_id: string,
+business_name: string,
+name: string,
+contact_email: string | null,
+contact_phone: string | null,
+address_line_1: string,
+address_line_2: string | null,
+city: string,
+state: string,
+postcode: string,
+country_code: string,
+timezone: string,
+host_outlet: App.Data.OutletOptionData | null,
+onboarding_status: App.Enums.OnboardingStatus,
+submitted_at: string | null,
+approved_at: string | null,
+approved_by_name: string | null,
+rejection_reason: string | null,
+suspended_at: string | null,
+suspended_by_name: string | null,
+suspension_reason: string | null,
+archived_at: string | null,
+is_operational: boolean,
+created_at: string | null,
+};
+export type UserData = {
+id: string,
+name: string,
+email: string,
+is_admin: boolean,
+is_email_verified: boolean,
+must_change_password: boolean,
+has_two_factor: boolean,
+last_login_at: string | null,
+suspended_at: string | null,
+suspended_by_name: string | null,
+suspension_reason: string | null,
+created_at: string | null,
+};
+}
 namespace Forms {
 export type BusinessDetailsData = {
 name: string,
@@ -34,6 +176,10 @@ address: string | null,
 };
 export type InviteStaffData = {
 email: string,
+role: App.Enums.MembershipRole,
+outlet_ids: string[],
+};
+export type MemberAccessData = {
 role: App.Enums.MembershipRole,
 outlet_ids: string[],
 };
@@ -60,6 +206,9 @@ timezone: string,
 address_line_2: string | null,
 contact_email: string | null,
 contact_phone: string | null,
+};
+export type ReasonData = {
+reason: string,
 };
 }
 }
