@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/card';
 import { formatDateTime } from '@/lib/format';
 import { dashboard } from '@/routes/admin';
+import { show as showOutlet } from '@/routes/admin/outlets';
 import {
     index as businessesIndex,
     show as showBusiness,
@@ -80,10 +81,13 @@ export default function AdminDashboard({
                                             key={outlet.id}
                                             className="flex items-center justify-between gap-4 py-2"
                                         >
-                                            <div>
-                                                <p className="font-medium">
+                                            <div className="flex flex-col">
+                                                <Link
+                                                    href={showOutlet(outlet.id)}
+                                                    className="font-medium hover:underline"
+                                                >
                                                     {outlet.name}
-                                                </p>
+                                                </Link>
                                                 <Link
                                                     href={showBusiness(
                                                         outlet.business_id,

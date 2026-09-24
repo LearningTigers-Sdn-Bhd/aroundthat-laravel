@@ -122,6 +122,11 @@ suspended_by_name: string | null,
 suspension_reason: string | null,
 created_at: string | null,
 };
+export type HostOutletOptionData = {
+id: string,
+name: string,
+business_name: string,
+};
 export type OutletData = {
 id: string,
 business_id: string,

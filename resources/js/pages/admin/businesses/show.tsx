@@ -1,13 +1,17 @@
-import { Deferred, Head, setLayoutProps } from '@inertiajs/react';
+import { Deferred, Head, Link, setLayoutProps } from '@inertiajs/react';
+import { Plus } from 'lucide-react';
 import type { ReactNode } from 'react';
 import ActionButton from '@/components/action-button';
-import ActivityTimeline from '@/components/activity-timeline';
+import ActivityTimeline, {
+    ActivitySkeleton,
+} from '@/components/activity-timeline';
+import Detail from '@/components/detail';
 import Heading from '@/components/heading';
+import Notice from '@/components/notice';
 import PageErrors from '@/components/page-errors';
 import ReasonDialog from '@/components/reason-dialog';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
     Table,
     TableBody,
@@ -26,7 +30,9 @@ import {
     show,
     suspend,
 } from '@/routes/admin/businesses';
+import { create as createOutlet } from '@/routes/admin/businesses/outlets';
 import { destroy, resend } from '@/routes/admin/invitations';
+import { show as showOutlet } from '@/routes/admin/outlets';
 
 type Props = {
     business: App.Data.Admin.BusinessData;
@@ -116,7 +122,17 @@ export default function ShowBusiness({
                 </section>
 
                 <section className="space-y-3">
-                    <Heading variant="small" title="Outlets" />
+                    <div className="flex items-center justify-between gap-4">
+                        <Heading variant="small" title="Outlets" />
+                        {!business.suspended_at && (
+                            <Button variant="outline" size="sm" asChild>
+                                <Link href={createOutlet(business.id)}>
+                                    <Plus />
+                                    Add outlet
+                                </Link>
+                            </Button>
+                        )}
+                    </div>
                     <OutletsTable outlets={outlets} />
                 </section>
 
@@ -211,7 +227,12 @@ function OutletsTable({ outlets }: { outlets: App.Data.Admin.OutletData[] }) {
                     {outlets.map((outlet) => (
                         <TableRow key={outlet.id}>
                             <TableCell className="font-medium">
-                                {outlet.name}
+                                <Link
+                                    href={showOutlet(outlet.id)}
+                                    className="hover:underline"
+                                >
+                                    {outlet.name}
+                                </Link>
                             </TableCell>
                             <TableCell>{outlet.city}</TableCell>
                             <TableCell>
@@ -344,37 +365,6 @@ function InvitationsTable({
     );
 }
 
-function Detail({ label, children }: { label: string; children: ReactNode }) {
-    return (
-        <div>
-            <dt className="text-muted-foreground">{label}</dt>
-            <dd className="mt-0.5 whitespace-pre-line">{children || '—'}</dd>
-        </div>
-    );
-}
-
-function Notice({ title, children }: { title: string; children: ReactNode }) {
-    return (
-        <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">
-            <p className="font-medium">{title}</p>
-            <p className="mt-1">{children}</p>
-        </div>
-    );
-}
-
 function Empty({ children }: { children: ReactNode }) {
     return <p className="text-sm text-muted-foreground">{children}</p>;
-}
-
-function ActivitySkeleton() {
-    return (
-        <div className="space-y-4">
-            {[0, 1, 2].map((row) => (
-                <div key={row} className="space-y-2">
-                    <Skeleton className="h-4 w-1/3" />
-                    <Skeleton className="h-4 w-2/3" />
-                </div>
-            ))}
-        </div>
-    );
 }

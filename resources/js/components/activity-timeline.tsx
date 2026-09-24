@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatDateTime, humanize } from '@/lib/format';
 
 const isoDateTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
@@ -110,5 +111,21 @@ export default function ActivityTimeline({
                 </li>
             ))}
         </ol>
+    );
+}
+
+/**
+ * Shown while a deferred activity prop loads.
+ */
+export function ActivitySkeleton() {
+    return (
+        <div className="space-y-4">
+            {[0, 1, 2].map((row) => (
+                <div key={row} className="space-y-2">
+                    <Skeleton className="h-4 w-1/3" />
+                    <Skeleton className="h-4 w-2/3" />
+                </div>
+            ))}
+        </div>
     );
 }

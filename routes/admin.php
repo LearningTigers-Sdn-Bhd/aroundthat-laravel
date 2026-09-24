@@ -4,6 +4,9 @@ use App\Http\Controllers\Admin\BusinessController;
 use App\Http\Controllers\Admin\BusinessStatusController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InvitationController;
+use App\Http\Controllers\Admin\OutletController;
+use App\Http\Controllers\Admin\OutletHostController;
+use App\Http\Controllers\Admin\OutletStatusController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -17,6 +20,20 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->name('adm
         Route::post('suspend', 'suspend')->name('suspend');
         Route::post('reactivate', 'reactivate')->name('reactivate');
     });
+
+    Route::resource('businesses.outlets', OutletController::class)->only(['create', 'store', 'show'])->shallow();
+
+    Route::controller(OutletStatusController::class)->prefix('outlets/{outlet}')->name('outlets.')->group(function () {
+        Route::post('approve', 'approve')->name('approve');
+        Route::post('reject', 'reject')->name('reject');
+        Route::post('suspend', 'suspend')->name('suspend');
+        Route::post('reactivate', 'reactivate')->name('reactivate');
+        Route::post('archive', 'archive')->name('archive');
+        Route::post('restore', 'restore')->name('restore');
+    });
+
+    Route::put('outlets/{outlet}/host', [OutletHostController::class, 'update'])->name('outlets.host.update');
+    Route::delete('outlets/{outlet}/host', [OutletHostController::class, 'destroy'])->name('outlets.host.destroy');
 
     Route::post('invitations/{invitation}/resend', [InvitationController::class, 'resend'])->name('invitations.resend');
     Route::delete('invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');
