@@ -1,7 +1,7 @@
 import { Form, Head, setLayoutProps } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
-import TextField from '@/components/text-field';
+import OutletFields from '@/components/outlet-fields';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -39,73 +39,10 @@ export default function CreateOutlet({
                 <Form {...store.form(business.id)} className="space-y-6">
                     {({ processing, errors }) => (
                         <>
-                            <TextField
-                                name="name"
-                                label="Name"
-                                error={errors.name}
-                                required
+                            <OutletFields
+                                errors={errors}
+                                defaultTimezone={business.timezone}
                             />
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <TextField
-                                    name="contact_email"
-                                    label="Contact email"
-                                    type="email"
-                                    error={errors.contact_email}
-                                />
-                                <TextField
-                                    name="contact_phone"
-                                    label="Contact phone"
-                                    error={errors.contact_phone}
-                                />
-                            </div>
-                            <TextField
-                                name="address_line_1"
-                                label="Address line 1"
-                                error={errors.address_line_1}
-                                required
-                            />
-                            <TextField
-                                name="address_line_2"
-                                label="Address line 2"
-                                error={errors.address_line_2}
-                            />
-                            <div className="grid gap-4 sm:grid-cols-3">
-                                <TextField
-                                    name="city"
-                                    label="City"
-                                    error={errors.city}
-                                    required
-                                />
-                                <TextField
-                                    name="state"
-                                    label="State"
-                                    error={errors.state}
-                                    required
-                                />
-                                <TextField
-                                    name="postcode"
-                                    label="Postcode"
-                                    error={errors.postcode}
-                                    required
-                                />
-                            </div>
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <TextField
-                                    name="country_code"
-                                    label="Country code"
-                                    defaultValue="MY"
-                                    maxLength={2}
-                                    error={errors.country_code}
-                                    required
-                                />
-                                <TextField
-                                    name="timezone"
-                                    label="Timezone"
-                                    defaultValue={business.timezone}
-                                    error={errors.timezone}
-                                    required
-                                />
-                            </div>
 
                             <div className="space-y-2">
                                 <div className="flex items-center gap-3">

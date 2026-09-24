@@ -1,0 +1,37 @@
+<?php
+
+use App\Http\Controllers\App\BusinessController;
+use App\Http\Controllers\App\InvitationController;
+use App\Http\Controllers\App\OutletController;
+use App\Http\Controllers\App\OutletStatusController;
+use App\Http\Controllers\App\StaffController;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(function () {
+    Route::inertia('/', 'dashboard')->name('dashboard');
+
+    Route::get('business', [BusinessController::class, 'edit'])->name('business.edit');
+    Route::put('business', [BusinessController::class, 'update'])->name('business.update');
+    Route::post('business/submit', [BusinessController::class, 'submit'])->name('business.submit');
+
+    Route::resource('outlets', OutletController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+
+    Route::controller(OutletStatusController::class)->prefix('outlets/{outlet}')->name('outlets.')->group(function () {
+        Route::post('submit', 'submit')->name('submit');
+        Route::post('archive', 'archive')->name('archive');
+        Route::post('restore', 'restore')->name('restore');
+    });
+
+    Route::prefix('staff')->name('staff.')->group(function () {
+        Route::get('/', [StaffController::class, 'index'])->name('index');
+
+        Route::post('invitations', [InvitationController::class, 'store'])->name('invitations.store');
+        Route::post('invitations/{invitation}/resend', [InvitationController::class, 'resend'])->name('invitations.resend');
+        Route::delete('invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');
+
+        Route::put('{membership}', [StaffController::class, 'update'])->name('update');
+        Route::post('{membership}/suspend', [StaffController::class, 'suspend'])->name('suspend');
+        Route::post('{membership}/reactivate', [StaffController::class, 'reactivate'])->name('reactivate');
+        Route::delete('{membership}', [StaffController::class, 'destroy'])->name('destroy');
+    });
+});

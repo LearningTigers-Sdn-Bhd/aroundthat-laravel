@@ -1,5 +1,13 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Building2, LayoutGrid, ShieldCheck, Users } from 'lucide-react';
+import {
+    Briefcase,
+    Building2,
+    LayoutGrid,
+    ShieldCheck,
+    Store,
+    UserCog,
+    Users,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { BusinessSwitcher } from '@/components/business-switcher';
 import { NavMain } from '@/components/nav-main';
@@ -15,6 +23,9 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { dashboard as adminDashboard } from '@/routes/admin';
+import { edit as businessDetails } from '@/routes/business';
+import { index as outlets } from '@/routes/outlets';
+import { index as staff } from '@/routes/staff';
 import { index as adminBusinesses } from '@/routes/admin/businesses';
 import { index as adminUsers } from '@/routes/admin/users';
 import type { NavItem } from '@/types';
@@ -22,8 +33,35 @@ import type { NavItem } from '@/types';
 export function AppSidebar() {
     const { auth, workspace } = usePage().props;
 
+    const can = (ability: App.Enums.Ability) =>
+        workspace?.abilities.includes(ability) ?? false;
+
     const mainNavItems: NavItem[] = workspace
-        ? [{ title: 'Dashboard', href: dashboard(), icon: LayoutGrid }]
+        ? [
+              { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
+              ...(can('manage_business')
+                  ? [
+                        {
+                            title: 'Business',
+                            href: businessDetails(),
+                            icon: Briefcase,
+                        },
+                    ]
+                  : []),
+              ...(can('manage_outlets')
+                  ? [
+                        {
+                            title: 'Outlets',
+                            href: outlets(),
+                            icon: Store,
+                            matchChildren: true,
+                        },
+                    ]
+                  : []),
+              ...(can('manage_staff')
+                  ? [{ title: 'Staff', href: staff(), icon: UserCog }]
+                  : []),
+          ]
         : [];
 
     const adminNavItems: NavItem[] = auth.user.is_admin
