@@ -243,7 +243,10 @@ export default function DataTable<T>({
                             {columns.map((column) => (
                                 <TableHead
                                     key={column.key}
-                                    className={column.className}
+                                    className={cn(
+                                        column.className,
+                                        'align-middle',
+                                    )}
                                     aria-sort={
                                         column.sort
                                             ? ariaSort[
