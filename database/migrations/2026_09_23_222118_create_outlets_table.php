@@ -38,6 +38,8 @@ return new class extends Migration
             $table->string('instagram', 500)->nullable();
             $table->jsonb('regular_hours')->nullable();
             $table->boolean('is_listed')->default(false);
+            $table->timestampTz('hidden_at')->nullable();
+            $table->text('hidden_reason')->nullable();
             $table->string('onboarding_status')->default('draft');
             $table->timestampTz('submitted_at')->nullable();
             $table->timestampTz('approved_at')->nullable();

@@ -290,6 +290,13 @@ export default function OutletPublicPage({
 
                             <section className="space-y-4">
                                 <Heading variant="small" title="Listing" />
+                                {place.hidden_reason && (
+                                    <Notice title="Hidden by an admin">
+                                        {place.hidden_reason} Visitors cannot
+                                        find this outlet until an admin shows it
+                                        again.
+                                    </Notice>
+                                )}
                                 {place.missing_for_listing.length > 0 && (
                                     <Notice title="Not ready to list">
                                         Add{' '}
@@ -309,6 +316,10 @@ export default function OutletPublicPage({
                                         name="is_listed"
                                         value="1"
                                         defaultChecked={place.is_listed}
+                                        disabled={
+                                            !!place.hidden_reason &&
+                                            !place.is_listed
+                                        }
                                     />
                                     <div className="grid gap-1">
                                         <Label htmlFor="is_listed">

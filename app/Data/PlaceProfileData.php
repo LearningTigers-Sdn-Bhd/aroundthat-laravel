@@ -32,6 +32,7 @@ class PlaceProfileData extends Data
         public array $tags,
         public bool $isListed,
         public bool $isPublic,
+        public ?string $hiddenReason,
         public array $missingForListing,
     ) {}
 
@@ -52,6 +53,7 @@ class PlaceProfileData extends Data
             tags: array_values($outlet->tags->map(fn ($tag) => TagOptionData::fromModel($tag))->all()),
             isListed: $outlet->is_listed,
             isPublic: $outlet->isPublic(),
+            hiddenReason: $outlet->isHidden() ? $outlet->hidden_reason : null,
             missingForListing: $outlet->missingForListing(),
         );
     }

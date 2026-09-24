@@ -50,6 +50,8 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property string|null $instagram
  * @property array<int, list<array{opens: string, closes: string}>>|null $regular_hours
  * @property bool $is_listed
+ * @property Carbon|null $hidden_at
+ * @property string|null $hidden_reason
  * @property Carbon|null $archived_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -81,6 +83,7 @@ class Outlet extends Model
     {
         return [
             'archived_at' => 'datetime',
+            'hidden_at' => 'datetime',
             'latitude' => 'decimal:6',
             'longitude' => 'decimal:6',
             'regular_hours' => 'array',
@@ -102,6 +105,8 @@ class Outlet extends Model
                 'suspended_at',
                 'suspension_reason',
                 'archived_at',
+                'hidden_at',
+                'hidden_reason',
             ])
             ->logExcept(['category_id'])
             ->logOnlyDirty()
@@ -216,11 +221,20 @@ class Outlet extends Model
     }
 
     /**
-     * Whether visitors can see the outlet: it can trade, the owner listed it, and its public fields are complete.
+     * Whether an admin took the outlet off the public listing. The owner cannot list it again until an admin unhides it.
+     */
+    public function isHidden(): bool
+    {
+        return $this->hidden_at !== null;
+    }
+
+    /**
+     * Whether visitors can see the outlet: it can trade, the owner listed it, an admin has not hidden it,
+     * and its public fields are complete.
      */
     public function isPublic(): bool
     {
-        return $this->is_listed && $this->missingForListing() === [] && $this->isOperational();
+        return $this->is_listed && ! $this->isHidden() && $this->missingForListing() === [] && $this->isOperational();
     }
 
     /**
@@ -233,6 +247,7 @@ class Outlet extends Model
     {
         $query->operational()
             ->where($this->qualifyColumn('is_listed'), true)
+            ->whereNull($this->qualifyColumn('hidden_at'))
             ->whereNotNull([
                 $this->qualifyColumn('summary'),
                 $this->qualifyColumn('category_id'),

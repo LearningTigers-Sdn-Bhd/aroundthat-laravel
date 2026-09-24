@@ -62,6 +62,12 @@ class UpdateOutletPublicProfile
                 'is_listed' => $data->isListed,
             ]);
 
+            if ($outlet->is_listed && ! $outlet->getOriginal('is_listed') && $outlet->isHidden()) {
+                throw ValidationException::withMessages([
+                    'is_listed' => __('An admin hid this outlet from the public listing. It can be listed again once an admin unhides it.'),
+                ]);
+            }
+
             if ($outlet->is_listed && ($missing = $outlet->missingForListing()) !== []) {
                 throw ValidationException::withMessages([
                     'is_listed' => __('Add :fields before listing the outlet.', [

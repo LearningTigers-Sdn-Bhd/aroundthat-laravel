@@ -28,7 +28,9 @@ export default function OutletPreview({ outlet, preview, can }: Props) {
 
                 {!preview.place.is_public && (
                     <Notice title="Visitors cannot see this yet">
-                        {preview.place.is_listed
+                        {preview.place.hidden_reason
+                            ? `An admin hid this outlet: ${preview.place.hidden_reason}`
+                            : preview.place.is_listed
                             ? 'It shows once an admin has approved the outlet and its business, and its public page is complete.'
                             : 'List the outlet on the Public page tab when it is ready.'}
                     </Notice>

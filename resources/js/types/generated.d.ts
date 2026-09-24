@@ -109,6 +109,7 @@ archived_at: string | null,
 is_operational: boolean,
 is_writable: boolean,
 is_public: boolean,
+hidden_reason: string | null,
 };
 export type OutletHoursData = {
 regular_hours: Record<string, App.Data.OpeningPeriodData[]>,
@@ -148,6 +149,7 @@ instagram: string | null,
 tags: App.Data.TagOptionData[],
 is_listed: boolean,
 is_public: boolean,
+hidden_reason: string | null,
 missing_for_listing: string[],
 };
 export type TagOptionData = {
@@ -259,6 +261,8 @@ suspended_at: string | null,
 suspended_by_name: string | null,
 suspension_reason: string | null,
 archived_at: string | null,
+hidden_at: string | null,
+hidden_reason: string | null,
 is_operational: boolean,
 created_at: string | null,
 };

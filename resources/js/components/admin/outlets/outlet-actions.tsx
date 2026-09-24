@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button';
 import {
     approve,
     archive,
+    hide,
     reactivate,
     reject,
     restore,
     suspend,
+    unhide,
 } from '@/routes/admin/outlets';
 
 type Props = {
@@ -15,7 +17,8 @@ type Props = {
 };
 
 /**
- * Approve or reject a pending outlet, suspend or reactivate it, and archive or restore it.
+ * Approve or reject a pending outlet, suspend or reactivate it, hide it from the public listing or show it again,
+ * and archive or restore it.
  */
 export default function OutletActions({ outlet }: Props) {
     return (
@@ -58,6 +61,23 @@ export default function OutletActions({ outlet }: Props) {
                             description="The outlet stops trading until it is reactivated."
                             form={suspend.form(outlet.id)}
                             submitLabel="Suspend"
+                            destructive
+                        />
+                    )}
+                    {outlet.hidden_at ? (
+                        <ActionButton
+                            form={unhide.form(outlet.id)}
+                            variant="outline"
+                        >
+                            Unhide
+                        </ActionButton>
+                    ) : (
+                        <ReasonDialog
+                            trigger={<Button variant="outline">Hide</Button>}
+                            title={`Hide ${outlet.name} from visitors?`}
+                            description="The outlet keeps trading, but visitors cannot find it and the owners cannot list it again until you unhide it. The owners get an email with your reason."
+                            form={hide.form(outlet.id)}
+                            submitLabel="Hide"
                             destructive
                         />
                     )}

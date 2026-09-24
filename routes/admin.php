@@ -36,6 +36,8 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->name('adm
         Route::post('reactivate', 'reactivate')->name('reactivate');
         Route::post('archive', 'archive')->name('archive');
         Route::post('restore', 'restore')->name('restore');
+        Route::post('hide', 'hide')->name('hide');
+        Route::post('unhide', 'unhide')->name('unhide');
     });
 
     Route::put('outlets/{outlet}/host', [OutletHostController::class, 'update'])->name('outlets.host.update');

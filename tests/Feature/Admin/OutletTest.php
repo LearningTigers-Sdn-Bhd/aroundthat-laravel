@@ -133,3 +133,21 @@ test('a host that would place an outlet inside itself is refused', function () {
         ->put(route('admin.outlets.host.update', $mall), ['host_outlet_id' => $shop->id])
         ->assertSessionHasErrors(['host_outlet_id' => 'This host would place the outlet inside itself.']);
 });
+
+test('an admin hides an outlet with a reason and unhides it', function () {
+    $outlet = Outlet::factory()->approved()->listed()->create();
+    $this->actingAs($this->admin);
+
+    $this->post(route('admin.outlets.hide', $outlet))->assertSessionHasErrors('reason');
+    $this->post(route('admin.outlets.hide', $outlet), ['reason' => 'Misleading photos.'])->assertSessionHasNoErrors();
+    expect($outlet->refresh()->hidden_reason)->toBe('Misleading photos.');
+
+    $this->post(route('admin.outlets.unhide', $outlet))->assertSessionHasNoErrors();
+    expect($outlet->refresh()->hidden_at)->toBeNull();
+});
+
+test('only admins hide outlets', function () {
+    $this->actingAs(User::factory()->create())
+        ->post(route('admin.outlets.hide', Outlet::factory()->approved()->create()), ['reason' => 'No.'])
+        ->assertForbidden();
+});

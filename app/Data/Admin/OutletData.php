@@ -43,6 +43,8 @@ class OutletData extends Data
         public ?string $suspendedByName,
         public ?string $suspensionReason,
         public ?CarbonInterface $archivedAt,
+        public ?CarbonInterface $hiddenAt,
+        public ?string $hiddenReason,
         public bool $isOperational,
         public ?CarbonInterface $createdAt,
     ) {}
@@ -73,6 +75,8 @@ class OutletData extends Data
             suspendedByName: $outlet->suspendedBy?->name,
             suspensionReason: $outlet->suspension_reason,
             archivedAt: $outlet->archived_at,
+            hiddenAt: $outlet->hidden_at,
+            hiddenReason: $outlet->hidden_reason,
             isOperational: $outlet->isOperational(),
             createdAt: $outlet->created_at,
         );

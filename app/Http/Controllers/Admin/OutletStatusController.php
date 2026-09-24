@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Outlets\ChangeOutletStatus;
+use App\Actions\Outlets\ChangeOutletVisibility;
 use App\Actions\Outlets\ReviewOutlet;
 use App\Data\Forms\ReasonData;
 use App\Http\Controllers\Controller;
@@ -13,7 +14,7 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 /**
- * An admin's review, suspension and archiving decisions on an outlet.
+ * An admin's review, suspension, archiving and hiding decisions on an outlet.
  */
 class OutletStatusController extends Controller
 {
@@ -75,6 +76,26 @@ class OutletStatusController extends Controller
         $status->restore($outlet);
 
         return $this->done(__('Outlet restored.'));
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function hide(Outlet $outlet, ReasonData $data, ChangeOutletVisibility $visibility): RedirectResponse
+    {
+        $visibility->hide($outlet, $data->reason);
+
+        return $this->done(__('Outlet hidden from the public listing.'));
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function unhide(Outlet $outlet, ChangeOutletVisibility $visibility): RedirectResponse
+    {
+        $visibility->unhide($outlet);
+
+        return $this->done(__('Outlet shown on the public listing again.'));
     }
 
     protected function done(string $message): RedirectResponse

@@ -51,6 +51,17 @@ class OutletFactory extends Factory
     }
 
     /**
+     * Indicate that an admin hid the outlet from the public listing.
+     */
+    public function hidden(string $reason = 'Photos do not match the place.'): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'hidden_at' => now(),
+            'hidden_reason' => $reason,
+        ]);
+    }
+
+    /**
      * Indicate that the outlet has been archived.
      */
     public function archived(): static

@@ -85,6 +85,12 @@ export default function ShowOutlet({
                 {outlet.onboarding_status === 'rejected' && (
                     <Notice title="Rejected">{outlet.rejection_reason}</Notice>
                 )}
+                {outlet.hidden_at && (
+                    <Notice title="Hidden from visitors">
+                        {formatDateTime(outlet.hidden_at)}:{' '}
+                        {outlet.hidden_reason}
+                    </Notice>
+                )}
 
                 <section>
                     <Heading variant="small" title="Details" />
@@ -131,7 +137,9 @@ export default function ShowOutlet({
                         description={
                             preview.place.is_public
                                 ? 'Visitors can see this now.'
-                                : preview.place.is_listed
+                                : outlet.hidden_at
+                                  ? 'Hidden by an admin, so visitors cannot see it.'
+                                  : preview.place.is_listed
                                   ? 'Listed by the owner, but not visible yet.'
                                   : 'Not listed by the owner.'
                         }

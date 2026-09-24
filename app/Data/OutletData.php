@@ -38,6 +38,7 @@ class OutletData extends Data
         public bool $isOperational,
         public bool $isWritable,
         public bool $isPublic,
+        public ?string $hiddenReason,
     ) {}
 
     public static function fromModel(Outlet $outlet): self
@@ -63,6 +64,7 @@ class OutletData extends Data
             isOperational: $outlet->isOperational(),
             isWritable: $outlet->isWritable(),
             isPublic: $outlet->isPublic(),
+            hiddenReason: $outlet->hidden_reason,
         );
     }
 }
