@@ -1,38 +1,23 @@
 import { Deferred, Head, Link, setLayoutProps } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
-import type { ReactNode } from 'react';
-import ActionButton from '@/components/action-button';
 import ActivityTimeline, {
     ActivitySkeleton,
 } from '@/components/activity-timeline';
+import BusinessActions from '@/components/admin/businesses/business-actions';
+import OutletsTable from '@/components/admin/businesses/outlets-table';
 import Detail from '@/components/detail';
 import Heading from '@/components/heading';
+import InvitationsTable from '@/components/invitations-table';
+import MembersTable from '@/components/members-table';
 import Notice from '@/components/notice';
 import PageErrors from '@/components/page-errors';
-import ReasonDialog from '@/components/reason-dialog';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
 import { formatDate, formatDateTime } from '@/lib/format';
 import { dashboard } from '@/routes/admin';
-import {
-    approve,
-    index,
-    reactivate,
-    reject,
-    show,
-    suspend,
-} from '@/routes/admin/businesses';
+import { index, show } from '@/routes/admin/businesses';
 import { create as createOutlet } from '@/routes/admin/businesses/outlets';
 import { destroy, resend } from '@/routes/admin/invitations';
-import { show as showOutlet } from '@/routes/admin/outlets';
 
 type Props = {
     business: App.Data.Admin.BusinessData;
@@ -144,7 +129,11 @@ export default function ShowBusiness({
                 {invitations.length > 0 && (
                     <section className="space-y-3">
                         <Heading variant="small" title="Open invitations" />
-                        <InvitationsTable invitations={invitations} />
+                        <InvitationsTable
+                            invitations={invitations}
+                            resend={resend}
+                            cancel={destroy}
+                        />
                     </section>
                 )}
 
@@ -161,210 +150,4 @@ export default function ShowBusiness({
             </div>
         </>
     );
-}
-
-function BusinessActions({
-    business,
-}: {
-    business: App.Data.Admin.BusinessData;
-}) {
-    return (
-        <div className="flex flex-wrap gap-2">
-            {business.onboarding_status === 'pending' && (
-                <>
-                    <ActionButton form={approve.form(business.id)}>
-                        Approve
-                    </ActionButton>
-                    <ReasonDialog
-                        trigger={<Button variant="outline">Reject</Button>}
-                        title={`Reject ${business.name}?`}
-                        description="The owner sees this reason, fixes the details and submits again."
-                        form={reject.form(business.id)}
-                        submitLabel="Reject"
-                        destructive
-                    />
-                </>
-            )}
-
-            {business.suspended_at ? (
-                <ActionButton
-                    form={reactivate.form(business.id)}
-                    variant="outline"
-                >
-                    Reactivate
-                </ActionButton>
-            ) : (
-                <ReasonDialog
-                    trigger={<Button variant="destructive">Suspend</Button>}
-                    title={`Suspend ${business.name}?`}
-                    description="Members keep their logins but cannot change the business or its outlets while it is suspended."
-                    form={suspend.form(business.id)}
-                    submitLabel="Suspend"
-                    destructive
-                />
-            )}
-        </div>
-    );
-}
-
-function OutletsTable({ outlets }: { outlets: App.Data.Admin.OutletData[] }) {
-    if (outlets.length === 0) {
-        return <Empty>No outlets yet.</Empty>;
-    }
-
-    return (
-        <div className="rounded-md border">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Outlet</TableHead>
-                        <TableHead>City</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Inside</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {outlets.map((outlet) => (
-                        <TableRow key={outlet.id}>
-                            <TableCell className="font-medium">
-                                <Link
-                                    href={showOutlet(outlet.id)}
-                                    className="hover:underline"
-                                >
-                                    {outlet.name}
-                                </Link>
-                            </TableCell>
-                            <TableCell>{outlet.city}</TableCell>
-                            <TableCell>
-                                <StatusBadge status={recordStatus(outlet)} />
-                            </TableCell>
-                            <TableCell>
-                                {outlet.host_outlet?.name ?? '—'}
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </div>
-    );
-}
-
-function MembersTable({ members }: { members: App.Data.MemberData[] }) {
-    if (members.length === 0) {
-        return <Empty>No members yet.</Empty>;
-    }
-
-    return (
-        <div className="rounded-md border">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Member</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Outlets</TableHead>
-                        <TableHead>Status</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {members.map((member) => (
-                        <TableRow key={member.id}>
-                            <TableCell>
-                                <p className="font-medium">{member.name}</p>
-                                <p className="text-muted-foreground">
-                                    {member.email}
-                                </p>
-                            </TableCell>
-                            <TableCell className="capitalize">
-                                {member.role}
-                            </TableCell>
-                            <TableCell className="whitespace-normal">
-                                {member.role === 'owner'
-                                    ? 'All outlets'
-                                    : member.outlets
-                                          .map((outlet) => outlet.name)
-                                          .join(', ')}
-                            </TableCell>
-                            <TableCell>
-                                <StatusBadge
-                                    status={
-                                        member.suspended_at
-                                            ? 'suspended'
-                                            : 'active'
-                                    }
-                                />
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </div>
-    );
-}
-
-function InvitationsTable({
-    invitations,
-}: {
-    invitations: App.Data.InvitationData[];
-}) {
-    return (
-        <div className="rounded-md border">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Sent</TableHead>
-                        <TableHead>Expires</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {invitations.map((invitation) => (
-                        <TableRow key={invitation.id}>
-                            <TableCell className="font-medium">
-                                {invitation.email}
-                            </TableCell>
-                            <TableCell className="capitalize">
-                                {invitation.role}
-                            </TableCell>
-                            <TableCell>
-                                <StatusBadge status={invitation.status} />
-                            </TableCell>
-                            <TableCell>
-                                {invitation.sent_at
-                                    ? formatDateTime(invitation.sent_at)
-                                    : 'Sending…'}
-                            </TableCell>
-                            <TableCell>
-                                {formatDate(invitation.expires_at)}
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex justify-end gap-2">
-                                    <ActionButton
-                                        form={resend.form(invitation.id)}
-                                        variant="outline"
-                                        size="sm"
-                                    >
-                                        Resend
-                                    </ActionButton>
-                                    <ActionButton
-                                        form={destroy.form(invitation.id)}
-                                        variant="ghost"
-                                        size="sm"
-                                    >
-                                        Cancel
-                                    </ActionButton>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </div>
-    );
-}
-
-function Empty({ children }: { children: ReactNode }) {
-    return <p className="text-sm text-muted-foreground">{children}</p>;
 }

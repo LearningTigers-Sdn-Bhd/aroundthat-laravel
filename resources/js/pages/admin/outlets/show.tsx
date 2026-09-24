@@ -1,40 +1,18 @@
-import { Deferred, Form, Head, Link, setLayoutProps } from '@inertiajs/react';
-import ActionButton from '@/components/action-button';
+import { Deferred, Head, Link, setLayoutProps } from '@inertiajs/react';
 import ActivityTimeline, {
     ActivitySkeleton,
 } from '@/components/activity-timeline';
+import HostOutlet from '@/components/admin/outlets/host-outlet';
+import OutletActions from '@/components/admin/outlets/outlet-actions';
 import Detail from '@/components/detail';
 import Heading from '@/components/heading';
-import InputError from '@/components/input-error';
 import Notice from '@/components/notice';
 import PageErrors from '@/components/page-errors';
-import ReasonDialog from '@/components/reason-dialog';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
-import { Button } from '@/components/ui/button';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Spinner } from '@/components/ui/spinner';
 import { formatDateTime } from '@/lib/format';
 import { dashboard } from '@/routes/admin';
 import { index, show as showBusiness } from '@/routes/admin/businesses';
-import {
-    approve,
-    archive,
-    reactivate,
-    reject,
-    restore,
-    show,
-    suspend,
-} from '@/routes/admin/outlets';
-import {
-    destroy as clearHost,
-    update as setHost,
-} from '@/routes/admin/outlets/host';
+import { show } from '@/routes/admin/outlets';
 
 type Props = {
     outlet: App.Data.Admin.OutletData;
@@ -186,144 +164,5 @@ export default function ShowOutlet({
                 </section>
             </div>
         </>
-    );
-}
-
-function OutletActions({ outlet }: { outlet: App.Data.Admin.OutletData }) {
-    return (
-        <div className="flex flex-wrap gap-2">
-            {outlet.onboarding_status === 'pending' && (
-                <>
-                    <ActionButton form={approve.form(outlet.id)}>
-                        Approve
-                    </ActionButton>
-                    <ReasonDialog
-                        trigger={<Button variant="outline">Reject</Button>}
-                        title={`Reject ${outlet.name}?`}
-                        description="The owner sees this reason, fixes the details and submits again."
-                        form={reject.form(outlet.id)}
-                        submitLabel="Reject"
-                        destructive
-                    />
-                </>
-            )}
-
-            {outlet.archived_at ? (
-                <ActionButton form={restore.form(outlet.id)} variant="outline">
-                    Restore
-                </ActionButton>
-            ) : (
-                <>
-                    {outlet.suspended_at ? (
-                        <ActionButton
-                            form={reactivate.form(outlet.id)}
-                            variant="outline"
-                        >
-                            Reactivate
-                        </ActionButton>
-                    ) : (
-                        <ReasonDialog
-                            trigger={
-                                <Button variant="destructive">Suspend</Button>
-                            }
-                            title={`Suspend ${outlet.name}?`}
-                            description="The outlet stops trading until it is reactivated."
-                            form={suspend.form(outlet.id)}
-                            submitLabel="Suspend"
-                            destructive
-                        />
-                    )}
-                    <ActionButton
-                        form={archive.form(outlet.id)}
-                        variant="ghost"
-                    >
-                        Archive
-                    </ActionButton>
-                </>
-            )}
-        </div>
-    );
-}
-
-function HostOutlet({
-    outlet,
-    candidates,
-}: {
-    outlet: App.Data.Admin.OutletData;
-    candidates: App.Data.Admin.HostOutletOptionData[];
-}) {
-    return (
-        <section className="space-y-3">
-            <Heading
-                variant="small"
-                title="Inside another outlet"
-                description="For example a restaurant inside a mall. This gives the host no access to this outlet."
-            />
-
-            {outlet.archived_at ? (
-                <p className="text-sm text-muted-foreground">
-                    {outlet.host_outlet?.name ?? 'No host.'} Archived outlets
-                    cannot change their host.
-                </p>
-            ) : (
-                <div className="flex flex-wrap items-start gap-2">
-                    <Form
-                        {...setHost.form(outlet.id)}
-                        options={{ preserveScroll: true }}
-                        className="flex flex-wrap items-start gap-2"
-                    >
-                        {({ processing, errors }) => (
-                            <>
-                                <div className="grid gap-1">
-                                    <Select
-                                        key={outlet.host_outlet?.id ?? 'none'}
-                                        name="host_outlet_id"
-                                        defaultValue={outlet.host_outlet?.id}
-                                    >
-                                        <SelectTrigger
-                                            className="w-72"
-                                            aria-label="Host outlet"
-                                        >
-                                            <SelectValue placeholder="Choose the host outlet" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {candidates.map((candidate) => (
-                                                <SelectItem
-                                                    key={candidate.id}
-                                                    value={candidate.id}
-                                                >
-                                                    {candidate.name} (
-                                                    {candidate.business_name})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <InputError
-                                        message={errors.host_outlet_id}
-                                    />
-                                </div>
-                                <Button
-                                    type="submit"
-                                    variant="outline"
-                                    disabled={processing}
-                                >
-                                    {processing && <Spinner />}
-                                    Save host
-                                </Button>
-                            </>
-                        )}
-                    </Form>
-
-                    {outlet.host_outlet && (
-                        <ActionButton
-                            form={clearHost.form(outlet.id)}
-                            variant="ghost"
-                        >
-                            Clear host
-                        </ActionButton>
-                    )}
-                </div>
-            )}
-        </section>
     );
 }

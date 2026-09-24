@@ -1,0 +1,99 @@
+import { Form } from '@inertiajs/react';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
+import InputError from '@/components/input-error';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
+import type { RouteFormDefinition } from '@/wayfinder';
+
+type Props = {
+    /** The button that opens the dialog. */
+    trigger: ReactNode;
+    title: string;
+    description?: string;
+    /** Where the form is posted, from a Wayfinder `.form()` call. */
+    form: RouteFormDefinition<'post'>;
+    submitLabel: string;
+    destructive?: boolean;
+    /** The fields, given the current errors. Leave out for a plain confirmation. */
+    children?: (errors: Record<string, string>) => ReactNode;
+};
+
+/**
+ * A dialog holding a small form, such as an invitation or a confirmation with no fields.
+ */
+export default function FormDialog({
+    trigger,
+    title,
+    description,
+    form,
+    submitLabel,
+    destructive = false,
+    children,
+}: Props) {
+    const [open, setOpen] = useState(false);
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>{trigger}</DialogTrigger>
+            <DialogContent>
+                <DialogTitle>{title}</DialogTitle>
+                {description && (
+                    <DialogDescription>{description}</DialogDescription>
+                )}
+
+                <Form
+                    {...form}
+                    options={{ preserveScroll: true }}
+                    resetOnSuccess
+                    onSuccess={() => setOpen(false)}
+                    className="space-y-6"
+                >
+                    {({ processing, errors, resetAndClearErrors }) => (
+                        <>
+                            {children?.(errors)}
+                            {!children &&
+                                Object.values(errors).map((message) => (
+                                    <InputError
+                                        key={message}
+                                        message={message}
+                                    />
+                                ))}
+
+                            <DialogFooter className="gap-2">
+                                <DialogClose asChild>
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        onClick={() => resetAndClearErrors()}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </DialogClose>
+                                <Button
+                                    type="submit"
+                                    variant={
+                                        destructive ? 'destructive' : 'default'
+                                    }
+                                    disabled={processing}
+                                >
+                                    {processing && <Spinner />}
+                                    {submitLabel}
+                                </Button>
+                            </DialogFooter>
+                        </>
+                    )}
+                </Form>
+            </DialogContent>
+        </Dialog>
+    );
+}
