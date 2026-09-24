@@ -57,6 +57,42 @@ test('an admin marks one change and then all shown changes reviewed', function (
     expect($one->refresh()->reviewed_by_id)->toBe($this->admin->id);
 });
 
+test('an admin reverts a change with a reason', function () {
+    $business = Business::factory()->approved()->create(['name' => 'Before']);
+    $change = contentChange($business, ['name' => 'After']);
+
+    $this->actingAs($this->admin)
+        ->post(route('admin.changes.revert', $change), ['reason' => 'Name is misleading.'])
+        ->assertSessionHasNoErrors();
+
+    expect($business->refresh()->name)->toBe('Before');
+    expect($change->refresh()->reverted_at)->not->toBeNull();
+});
+
+test('a revert needs a reason and is refused when the change moved on', function () {
+    $business = Business::factory()->approved()->create(['name' => 'Before']);
+    $change = contentChange($business, ['name' => 'After']);
+    contentChange($business, ['name' => 'Later']);
+    $this->actingAs($this->admin);
+
+    $this->post(route('admin.changes.revert', $change))->assertSessionHasErrors('reason');
+    $this->post(route('admin.changes.revert', $change), ['reason' => 'Too late.'])->assertSessionHasErrors('change');
+
+    expect($business->refresh()->name)->toBe('Later');
+});
+
+test('the feed says why a change cannot be reverted', function () {
+    $business = Business::factory()->approved()->create(['name' => 'Before']);
+    contentChange($business, ['name' => 'After']);
+    contentChange($business, ['name' => 'Later']);
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.changes.index', ['sort' => 'created_at']))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('changes.data.0.conflicts', ['Name was changed again.'])
+            ->where('changes.data.1.conflicts', []));
+});
+
 test('the dashboard counts changes waiting for review', function () {
     contentChange(Business::factory()->approved()->create(), ['name' => 'Second']);
 
@@ -71,4 +107,5 @@ test('only admins see and review changes', function () {
 
     $this->get(route('admin.changes.index'))->assertForbidden();
     $this->post(route('admin.changes.review', $change))->assertForbidden();
+    $this->post(route('admin.changes.revert', $change), ['reason' => 'No.'])->assertForbidden();
 });

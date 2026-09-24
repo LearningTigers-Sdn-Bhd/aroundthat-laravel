@@ -58,6 +58,7 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->name('adm
     Route::get('changes', [ChangeController::class, 'index'])->name('changes.index');
     Route::post('changes/review', [ChangeController::class, 'reviewMany'])->name('changes.review-many');
     Route::post('changes/{change}/review', [ChangeController::class, 'review'])->name('changes.review');
+    Route::post('changes/{change}/revert', [ChangeController::class, 'revert'])->name('changes.revert');
 
     Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('settings/media', [SettingsController::class, 'updateMedia'])->name('settings.media.update');

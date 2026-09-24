@@ -17,6 +17,7 @@ const fieldLabels: Record<string, string> = {
     is_listed: 'Listed publicly',
     date_exceptions: 'Special dates',
     whatsapp: 'WhatsApp',
+    reverts: 'Undid',
 };
 
 const eventLabels: Record<string, string> = {
@@ -30,6 +31,7 @@ const eventLabels: Record<string, string> = {
     image_changed: 'Photo description changed',
     image_removed: 'Photo removed',
     images_reordered: 'Photos reordered',
+    reverted: 'Reverted by an admin',
 };
 
 /**
@@ -57,6 +59,15 @@ function isWeeklyHours(
         !Array.isArray(value) &&
         Object.keys(value).every((key) => /^[1-7]$/.test(key))
     );
+}
+
+/**
+ * The change a revert undid, as a revert logs it: `{ id, event }`.
+ */
+function isRevertedChange(
+    value: unknown,
+): value is { id: number; event: string } {
+    return typeof value === 'object' && value !== null && 'event' in value;
 }
 
 function formatValue(value: unknown): string {
@@ -204,7 +215,11 @@ export function ActivityChanges({
                             <dt className="text-muted-foreground">
                                 {fieldLabel(key)}
                             </dt>
-                            <dd>{formatValue(value)}</dd>
+                            <dd>
+                                {key === 'reverts' && isRevertedChange(value)
+                                    ? eventLabel(value.event)
+                                    : formatValue(value)}
+                            </dd>
                         </div>
                     ))}
                 </dl>

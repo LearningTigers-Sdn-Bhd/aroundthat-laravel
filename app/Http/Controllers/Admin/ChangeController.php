@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Changes\RevertChange;
 use App\Actions\Changes\ReviewChange;
 use App\Data\Admin\ChangeData;
+use App\Data\Forms\ReasonData;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Business;
@@ -23,7 +25,7 @@ use Spatie\QueryBuilder\QueryBuilder;
  */
 class ChangeController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, RevertChange $revertChange): Response
     {
         $changes = QueryBuilder::for(Activity::query()->content(), $request)
             ->allowedFilters(
@@ -55,7 +57,10 @@ class ChangeController extends Controller
         $changes->getCollection()->loadMorph('subject', [Outlet::class => ['business']]);
 
         return Inertia::render('admin/changes/index', [
-            'changes' => ChangeData::collect($changes, PaginatedDataCollection::class),
+            'changes' => ChangeData::collect(
+                $changes->through(fn (Activity $change): ChangeData => ChangeData::fromModel($change, $revertChange->conflicts($change))),
+                PaginatedDataCollection::class,
+            ),
         ]);
     }
 
@@ -67,6 +72,18 @@ class ChangeController extends Controller
         $reviewChange->review($request->user(), $change);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Change marked reviewed.')]);
+
+        return back();
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function revert(Request $request, Activity $change, ReasonData $data, RevertChange $revertChange): RedirectResponse
+    {
+        $revertChange->revert($request->user(), $change, $data->reason);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Change reverted.')]);
 
         return back();
     }

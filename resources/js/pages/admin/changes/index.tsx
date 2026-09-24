@@ -88,7 +88,10 @@ export default function ChangesIndex({ changes }: Props) {
             className: 'w-0 align-top',
             cell: (change) => (
                 <div className="flex items-center justify-end gap-1">
-                    <ChangeActions activity={change.activity} />
+                    <ChangeActions
+                        activity={change.activity}
+                        conflicts={change.conflicts}
+                    />
                 </div>
             ),
         },

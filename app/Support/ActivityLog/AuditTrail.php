@@ -22,22 +22,29 @@ class AuditTrail
     protected ?string $logName = null;
 
     /**
-     * Run the callback so every change it logs is labelled with the event and reason.
+     * @var array<string, mixed>
+     */
+    protected array $properties = [];
+
+    /**
+     * Run the callback so every change it logs is labelled with the event and reason, and carries the properties.
+     * A nested call without a reason keeps the outer reason, and adds to the outer properties.
      *
      * @template TReturn
      *
      * @param  Closure(): TReturn  $callback
+     * @param  array<string, mixed>  $properties
      * @return TReturn
      */
-    public function as(string $event, ?string $reason, Closure $callback): mixed
+    public function as(string $event, ?string $reason, Closure $callback, array $properties = []): mixed
     {
-        [$previousEvent, $previousReason] = [$this->event, $this->reason];
-        [$this->event, $this->reason] = [$event, $reason];
+        [$previousEvent, $previousReason, $previousProperties] = [$this->event, $this->reason, $this->properties];
+        [$this->event, $this->reason, $this->properties] = [$event, $reason ?? $previousReason, [...$previousProperties, ...$properties]];
 
         try {
             return $callback();
         } finally {
-            [$this->event, $this->reason] = [$previousEvent, $previousReason];
+            [$this->event, $this->reason, $this->properties] = [$previousEvent, $previousReason, $previousProperties];
         }
     }
 
@@ -105,5 +112,9 @@ class AuditTrail
         $activity->event = $this->event;
         $activity->description = $this->event;
         $activity->reason = $this->reason;
+
+        if ($this->properties !== []) {
+            $activity->properties = collect($activity->properties ?? [])->merge($this->properties);
+        }
     }
 }

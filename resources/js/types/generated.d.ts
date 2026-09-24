@@ -212,6 +212,7 @@ activity: App.Data.Admin.ActivityData,
 subject: App.Data.Admin.ChangeSubjectData | null,
 reviewed_by_name: string | null,
 reverted_at: string | null,
+conflicts: string[],
 };
 export type ChangeSubjectData = {
 type: string,

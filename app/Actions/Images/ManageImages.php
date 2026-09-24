@@ -126,7 +126,7 @@ class ManageImages
      * @param  callable(): TReturn  $change
      * @return TReturn
      */
-    protected function logged(Outlet|Business $owner, string $event, callable $change): mixed
+    public function logged(Outlet|Business $owner, string $event, callable $change): mixed
     {
         return $this->audit->content(function () use ($owner, $event, $change): mixed {
             $before = $this->imageList($owner);
