@@ -1,18 +1,7 @@
 import { ArrowRight } from 'lucide-react';
-
-const dateTimeFormat = new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-});
+import { formatDateTime, humanize } from '@/lib/format';
 
 const isoDateTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
-
-/** "contact_email" → "Contact email". */
-export function humanize(value: string): string {
-    const words = value.replaceAll('_', ' ');
-
-    return words.charAt(0).toUpperCase() + words.slice(1);
-}
 
 function formatValue(value: unknown): string {
     if (value === null || value === undefined || value === '') {
@@ -28,9 +17,7 @@ function formatValue(value: unknown): string {
     }
 
     if (typeof value === 'string') {
-        return isoDateTime.test(value)
-            ? dateTimeFormat.format(new Date(value))
-            : value;
+        return isoDateTime.test(value) ? formatDateTime(value) : value;
     }
 
     if (typeof value === 'number') {
@@ -70,7 +57,7 @@ export default function ActivityTimeline({
                                 dateTime={activity.created_at}
                                 className="text-xs text-muted-foreground"
                             >
-                                {formatValue(activity.created_at)}
+                                {formatDateTime(activity.created_at)}
                             </time>
                         )}
                     </div>

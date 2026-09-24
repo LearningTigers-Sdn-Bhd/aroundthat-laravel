@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, ShieldCheck } from 'lucide-react';
+import { Building2, LayoutGrid, ShieldCheck } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { BusinessSwitcher } from '@/components/business-switcher';
 import { NavMain } from '@/components/nav-main';
@@ -15,19 +15,27 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { dashboard as adminDashboard } from '@/routes/admin';
+import { index as adminBusinesses } from '@/routes/admin/businesses';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
     const { auth, workspace } = usePage().props;
 
-    const mainNavItems: NavItem[] = [
-        ...(workspace
-            ? [{ title: 'Dashboard', href: dashboard(), icon: LayoutGrid }]
-            : []),
-        ...(auth.user.is_admin
-            ? [{ title: 'Admin', href: adminDashboard(), icon: ShieldCheck }]
-            : []),
-    ];
+    const mainNavItems: NavItem[] = workspace
+        ? [{ title: 'Dashboard', href: dashboard(), icon: LayoutGrid }]
+        : [];
+
+    const adminNavItems: NavItem[] = auth.user.is_admin
+        ? [
+              { title: 'Review', href: adminDashboard(), icon: ShieldCheck },
+              {
+                  title: 'Businesses',
+                  href: adminBusinesses(),
+                  icon: Building2,
+                  matchChildren: true,
+              },
+          ]
+        : [];
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -45,7 +53,10 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                {mainNavItems.length > 0 && <NavMain items={mainNavItems} />}
+                {adminNavItems.length > 0 && (
+                    <NavMain items={adminNavItems} label="Admin" />
+                )}
             </SidebarContent>
 
             <SidebarFooter>

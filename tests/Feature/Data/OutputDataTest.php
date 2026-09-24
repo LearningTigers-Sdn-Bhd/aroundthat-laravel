@@ -1,11 +1,13 @@
 <?php
 
+use App\Actions\Staff\UpdateMemberAccess;
 use App\Data\Admin\ActivityData;
 use App\Data\Admin\BusinessData as AdminBusinessData;
 use App\Data\BusinessData;
 use App\Data\InvitationData;
 use App\Data\MemberData;
 use App\Data\OutletData;
+use App\Enums\MembershipRole;
 use App\Models\Activity;
 use App\Models\Business;
 use App\Models\Invitation;
@@ -89,4 +91,18 @@ test('an activity lists each changed field with its old and new value, the actor
         'reason' => 'Typo in the name.',
         'changes' => [['field' => 'name', 'old' => 'Before', 'new' => 'After']],
     ]);
+});
+
+test('changed outlets are listed by name like any other change', function () {
+    $business = Business::factory()->approved()->create();
+    $gaya = Outlet::factory()->for($business)->approved()->create(['name' => 'Gaya Street']);
+    $imago = Outlet::factory()->for($business)->approved()->create(['name' => 'Imago']);
+    $cashier = Membership::factory()->cashier()->for($business)->withOutlets($gaya)->create();
+
+    app(UpdateMemberAccess::class)->handle($cashier, MembershipRole::Cashier, [$imago->id]);
+
+    $data = ActivityData::fromModel(Activity::forSubject($cashier)->where('event', 'outlets_changed')->sole())->toArray();
+
+    expect($data['changes'])->toBe([['field' => 'outlets', 'old' => ['Gaya Street'], 'new' => ['Imago']]]);
+    expect($data['properties'])->toBe([]);
 });

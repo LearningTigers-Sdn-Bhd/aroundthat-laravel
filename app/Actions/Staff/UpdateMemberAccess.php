@@ -37,21 +37,32 @@ class UpdateMemberAccess
             }
 
             $outletIds = $role->coversAllOutlets() ? [] : $this->assignableOutlets->resolve($membership->business, $outletIds);
-            $previousOutletIds = $membership->outlets()->pluck('outlets.id')->sort()->values()->all();
+            $previousOutletNames = $this->outletNames($membership);
 
-            return $this->audit->as('access_changed', null, function () use ($membership, $role, $outletIds, $previousOutletIds): Membership {
+            return $this->audit->as('access_changed', null, function () use ($membership, $role, $outletIds, $previousOutletNames): Membership {
                 $membership->update(['role' => $role]);
                 $membership->outlets()->sync($outletIds);
 
-                if ($previousOutletIds !== collect($outletIds)->sort()->values()->all()) {
+                $outletNames = $this->outletNames($membership);
+
+                if ($previousOutletNames !== $outletNames) {
                     $this->audit->record($membership, 'outlets_changed', null, [
-                        'old' => $previousOutletIds,
-                        'new' => $outletIds,
+                        'outlets' => ['old' => $previousOutletNames, 'new' => $outletNames],
                     ]);
                 }
 
                 return $membership;
             });
         });
+    }
+
+    /**
+     * The member's outlets by name, for the change log.
+     *
+     * @return array<int, string>
+     */
+    protected function outletNames(Membership $membership): array
+    {
+        return $membership->outlets()->orderBy('name')->pluck('name')->all();
     }
 }

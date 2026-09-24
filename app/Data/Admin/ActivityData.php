@@ -11,6 +11,7 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 /**
  * One entry in a change history: what happened, who did it, why, and each field's old and new value.
+ * Actions that record `['field' => ['old' => …, 'new' => …]]` properties show them as changes too.
  * Load `causer` first to avoid a query per entry.
  */
 #[MapName(SnakeCaseMapper::class)]
@@ -18,7 +19,7 @@ class ActivityData extends Data
 {
     /**
      * @param  list<ActivityChangeData>  $changes
-     * @param  array<string, mixed>  $properties  Details of actions that change no fields, such as the old and new outlets.
+     * @param  array<string, mixed>  $properties  Other details the action recorded.
      */
     public function __construct(
         public int $id,
@@ -47,7 +48,7 @@ class ActivityData extends Data
             reason: $activity->reason,
             ipAddress: $activity->ip_address,
             changes: self::changes($activity),
-            properties: $activity->properties?->all() ?? [],
+            properties: array_filter($activity->properties?->all() ?? [], fn (mixed $value): bool => ! self::isChange($value)),
             reviewedAt: $activity->reviewed_at,
             createdAt: $activity->created_at,
         );
@@ -61,9 +62,25 @@ class ActivityData extends Data
         $new = $activity->attribute_changes?->get('attributes', []) ?? [];
         $old = $activity->attribute_changes?->get('old', []) ?? [];
 
-        return array_map(
+        $fieldChanges = array_map(
             fn (string $field): ActivityChangeData => new ActivityChangeData($field, $old[$field] ?? null, $new[$field] ?? null),
             array_keys($new + $old),
         );
+
+        $recordedChanges = collect($activity->properties?->all() ?? [])
+            ->filter(fn (mixed $value): bool => self::isChange($value))
+            ->map(fn (array $change, string $field): ActivityChangeData => new ActivityChangeData($field, $change['old'], $change['new']))
+            ->values()
+            ->all();
+
+        return [...$fieldChanges, ...$recordedChanges];
+    }
+
+    /**
+     * Whether a recorded property is itself a change, such as `['outlets' => ['old' => [...], 'new' => [...]]]`.
+     */
+    protected static function isChange(mixed $value): bool
+    {
+        return is_array($value) && count($value) === 2 && array_key_exists('old', $value) && array_key_exists('new', $value);
     }
 }
