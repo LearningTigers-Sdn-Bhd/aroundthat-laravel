@@ -16,12 +16,12 @@ function outletDetails(array $overrides = []): OutletDetailsData
         'city' => 'Kota Kinabalu',
         'state' => 'Sabah',
         'postcode' => '88000',
-        'country_code' => 'my',
+        'country_code' => 'MY',
         ...$overrides,
     ]);
 }
 
-test('creates a draft outlet with an uppercase country code', function () {
+test('creates a draft outlet', function () {
     $business = Business::factory()->approved()->create();
 
     $outlet = app(CreateOutlet::class)->handle($business, outletDetails());
@@ -59,6 +59,16 @@ test('refuses to add an outlet to a suspended business', function () {
     $this->assertDatabaseCount('outlets', 0);
 });
 
-test('rejects a country code that is not two letters', function () {
-    outletDetails(['country_code' => 'MYS']);
+test('rejects a country code that is not an ISO country', function (string $countryCode) {
+    outletDetails(['country_code' => $countryCode]);
+})->with(['XX', 'MYS', 'my'])->throws(ValidationException::class);
+
+test('rejects a Malaysian outlet whose state is not a Malaysian state', function () {
+    outletDetails(['state' => 'Sabahh']);
 })->throws(ValidationException::class);
+
+test('accepts any state outside Malaysia', function () {
+    $details = outletDetails(['country_code' => 'SG', 'state' => 'Central Region']);
+
+    expect($details->state)->toBe('Central Region');
+});

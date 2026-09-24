@@ -8,6 +8,7 @@ use App\Data\Admin\BusinessData;
 use App\Data\Admin\OutletData;
 use App\Data\Forms\OnboardBusinessData;
 use App\Data\InvitationData;
+use App\Data\LocationOptionsData;
 use App\Data\MemberData;
 use App\Enums\OnboardingStatus;
 use App\Enums\OwnerMethod;
@@ -54,6 +55,7 @@ class BusinessController extends Controller
     {
         return Inertia::render('admin/businesses/create', [
             'ownerMethods' => OwnerMethod::cases(),
+            'locationOptions' => LocationOptionsData::current(),
         ]);
     }
 

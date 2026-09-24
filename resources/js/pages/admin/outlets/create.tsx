@@ -12,8 +12,10 @@ import { create, store } from '@/routes/admin/businesses/outlets';
 
 export default function CreateOutlet({
     business,
+    locationOptions,
 }: {
     business: App.Data.Admin.BusinessData;
+    locationOptions: App.Data.LocationOptionsData;
 }) {
     setLayoutProps({
         breadcrumbs: [
@@ -41,6 +43,7 @@ export default function CreateOutlet({
                         <>
                             <OutletFields
                                 errors={errors}
+                                locationOptions={locationOptions}
                                 defaultTimezone={business.timezone}
                             />
 

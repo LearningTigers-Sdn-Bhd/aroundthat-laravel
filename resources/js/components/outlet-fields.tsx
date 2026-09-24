@@ -1,4 +1,16 @@
+import { useMemo, useState } from 'react';
+import ComboboxField from '@/components/combobox-field';
+import InputError from '@/components/input-error';
 import TextField from '@/components/text-field';
+import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { countryOptions, timezoneOptions } from '@/lib/locations';
 
 type OutletValues = Pick<
     App.Data.OutletData,
@@ -34,12 +46,26 @@ export const outletFieldNames = [
 export default function OutletFields({
     errors,
     outlet,
+    locationOptions,
     defaultTimezone = 'Asia/Kuala_Lumpur',
 }: {
     errors: Record<string, string>;
     outlet?: OutletValues;
+    locationOptions: App.Data.LocationOptionsData;
     defaultTimezone?: string;
 }) {
+    const [countryCode, setCountryCode] = useState(
+        outlet?.country_code ?? 'MY',
+    );
+    const countries = useMemo(
+        () => countryOptions(locationOptions.country_codes),
+        [locationOptions.country_codes],
+    );
+    const timezones = useMemo(
+        () => timezoneOptions(locationOptions.timezones),
+        [locationOptions.timezones],
+    );
+
     return (
         <>
             <TextField
@@ -85,13 +111,41 @@ export default function OutletFields({
                     error={errors.city}
                     required
                 />
-                <TextField
-                    name="state"
-                    label="State"
-                    defaultValue={outlet?.state}
-                    error={errors.state}
-                    required
-                />
+                {countryCode === 'MY' ? (
+                    <div className="grid gap-2">
+                        <Label htmlFor="state">State</Label>
+                        <Select
+                            name="state"
+                            defaultValue={outlet?.state}
+                            required
+                        >
+                            <SelectTrigger
+                                id="state"
+                                aria-invalid={!!errors.state}
+                            >
+                                <SelectValue placeholder="Choose a state" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {locationOptions.malaysian_states.map(
+                                    (state) => (
+                                        <SelectItem key={state} value={state}>
+                                            {state}
+                                        </SelectItem>
+                                    ),
+                                )}
+                            </SelectContent>
+                        </Select>
+                        <InputError message={errors.state} />
+                    </div>
+                ) : (
+                    <TextField
+                        name="state"
+                        label="State"
+                        defaultValue={outlet?.state}
+                        error={errors.state}
+                        required
+                    />
+                )}
                 <TextField
                     name="postcode"
                     label="Postcode"
@@ -101,17 +155,19 @@ export default function OutletFields({
                 />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-                <TextField
+                <ComboboxField
                     name="country_code"
-                    label="Country code"
-                    defaultValue={outlet?.country_code ?? 'MY'}
-                    maxLength={2}
+                    label="Country"
+                    options={countries}
+                    defaultValue={countryCode}
+                    onValueChange={(value) => setCountryCode(value ?? '')}
                     error={errors.country_code}
                     required
                 />
-                <TextField
+                <ComboboxField
                     name="timezone"
                     label="Timezone"
+                    options={timezones}
                     defaultValue={outlet?.timezone ?? defaultTimezone}
                     error={errors.timezone}
                     required

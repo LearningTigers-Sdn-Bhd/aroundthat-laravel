@@ -1,5 +1,6 @@
 import { Form, Head } from '@inertiajs/react';
 import { useState } from 'react';
+import ComboboxField from '@/components/combobox-field';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import TextField from '@/components/text-field';
@@ -15,6 +16,7 @@ import {
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
+import { timezoneOptions } from '@/lib/locations';
 import { dashboard } from '@/routes/admin';
 import { create, index, store } from '@/routes/admin/businesses';
 
@@ -33,8 +35,10 @@ const ownerMethodHelp: Record<App.Enums.OwnerMethod, string> = {
 
 export default function CreateBusiness({
     ownerMethods,
+    locationOptions,
 }: {
     ownerMethods: App.Enums.OwnerMethod[];
+    locationOptions: App.Data.LocationOptionsData;
 }) {
     const [ownerMethod, setOwnerMethod] =
         useState<App.Enums.OwnerMethod>('invite');
@@ -104,9 +108,12 @@ export default function CreateBusiness({
                                         message={errors['business.address']}
                                     />
                                 </div>
-                                <TextField
+                                <ComboboxField
                                     name="business[timezone]"
                                     label="Timezone"
+                                    options={timezoneOptions(
+                                        locationOptions.timezones,
+                                    )}
                                     defaultValue="Asia/Kuala_Lumpur"
                                     error={errors['business.timezone']}
                                     required

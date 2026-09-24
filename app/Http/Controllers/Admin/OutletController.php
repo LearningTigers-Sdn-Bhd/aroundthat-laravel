@@ -8,6 +8,7 @@ use App\Data\Admin\BusinessData;
 use App\Data\Admin\HostOutletOptionData;
 use App\Data\Admin\OutletData;
 use App\Data\Forms\OutletDetailsData;
+use App\Data\LocationOptionsData;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Business;
@@ -26,6 +27,7 @@ class OutletController extends Controller
 
         return Inertia::render('admin/outlets/create', [
             'business' => BusinessData::fromModel($business),
+            'locationOptions' => LocationOptionsData::current(),
         ]);
     }
 

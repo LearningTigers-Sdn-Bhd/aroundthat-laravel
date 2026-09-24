@@ -2,20 +2,22 @@
 
 namespace App\Data\Forms;
 
-use Illuminate\Support\Str;
+use App\Support\Locations;
+use Illuminate\Validation\Rule;
 use Spatie\LaravelData\Attributes\MapName;
-use Spatie\LaravelData\Attributes\Validation\Alpha;
+use Spatie\LaravelData\Attributes\MergeValidationRules;
 use Spatie\LaravelData\Attributes\Validation\Email;
+use Spatie\LaravelData\Attributes\Validation\In;
 use Spatie\LaravelData\Attributes\Validation\Max;
-use Spatie\LaravelData\Attributes\Validation\Size;
 use Spatie\LaravelData\Attributes\Validation\Timezone;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
+use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 /**
  * The outlet details an owner or admin can edit.
  */
-#[MapName(SnakeCaseMapper::class)]
+#[MapName(SnakeCaseMapper::class), MergeValidationRules]
 class OutletDetailsData extends Data
 {
     public function __construct(
@@ -29,7 +31,7 @@ class OutletDetailsData extends Data
         public string $state,
         #[Max(20)]
         public string $postcode,
-        #[Size(2), Alpha]
+        #[In(Locations::COUNTRY_CODES)]
         public string $countryCode = 'MY',
         #[Timezone]
         public string $timezone = 'Asia/Kuala_Lumpur',
@@ -40,6 +42,22 @@ class OutletDetailsData extends Data
         #[Max(50)]
         public ?string $contactPhone = null,
     ) {}
+
+    /**
+     * A Malaysian outlet must name one of its states or federal territories.
+     *
+     * @return array<string, array<int, mixed>>
+     */
+    public static function rules(ValidationContext $context): array
+    {
+        if (($context->payload['country_code'] ?? null) !== 'MY') {
+            return [];
+        }
+
+        return [
+            'state' => [Rule::in(Locations::MALAYSIAN_STATES)],
+        ];
+    }
 
     /**
      * The values as model attributes.
@@ -55,7 +73,7 @@ class OutletDetailsData extends Data
             'city' => $this->city,
             'state' => $this->state,
             'postcode' => $this->postcode,
-            'country_code' => Str::upper($this->countryCode),
+            'country_code' => $this->countryCode,
             'timezone' => $this->timezone,
             'contact_email' => $this->contactEmail,
             'contact_phone' => $this->contactPhone,

@@ -43,6 +43,11 @@ status: App.Enums.InvitationStatus,
 expires_at: string,
 outlet_names: string[],
 };
+export type LocationOptionsData = {
+timezones: string[],
+country_codes: string[],
+malaysian_states: string[],
+};
 export type MemberData = {
 id: string,
 user_id: string,

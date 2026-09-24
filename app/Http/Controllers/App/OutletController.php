@@ -5,6 +5,7 @@ namespace App\Http\Controllers\App;
 use App\Actions\Outlets\CreateOutlet;
 use App\Actions\Outlets\UpdateOutlet;
 use App\Data\Forms\OutletDetailsData;
+use App\Data\LocationOptionsData;
 use App\Data\OutletData;
 use App\Enums\Ability;
 use App\Http\Controllers\Controller;
@@ -44,6 +45,7 @@ class OutletController extends Controller
 
         return Inertia::render('app/outlets/create', [
             'timezone' => $this->workspace->business()->timezone,
+            'locationOptions' => LocationOptionsData::current(),
         ]);
     }
 
@@ -70,6 +72,7 @@ class OutletController extends Controller
 
         return Inertia::render('app/outlets/edit', [
             'outlet' => OutletData::fromModel($outlet),
+            'locationOptions' => LocationOptionsData::current(),
             'can' => [
                 'update' => $request->user()->can('update', $outlet),
                 'submit' => $request->user()->can('submit', $outlet),

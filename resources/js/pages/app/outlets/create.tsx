@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { create, index, store } from '@/routes/outlets';
 
-export default function CreateOutlet({ timezone }: { timezone: string }) {
+export default function CreateOutlet({
+    timezone,
+    locationOptions,
+}: {
+    timezone: string;
+    locationOptions: App.Data.LocationOptionsData;
+}) {
     return (
         <>
             <Head title="New outlet" />
@@ -23,6 +29,7 @@ export default function CreateOutlet({ timezone }: { timezone: string }) {
                             <PageErrors except={outletFieldNames} />
                             <OutletFields
                                 errors={errors}
+                                locationOptions={locationOptions}
                                 defaultTimezone={timezone}
                             />
 

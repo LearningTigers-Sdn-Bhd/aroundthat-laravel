@@ -1,5 +1,6 @@
 import { Form, Head, usePage } from '@inertiajs/react';
 import ActionButton from '@/components/action-button';
+import ComboboxField from '@/components/combobox-field';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import Notice from '@/components/notice';
@@ -11,10 +12,12 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { formatDateTime } from '@/lib/format';
+import { timezoneOptions } from '@/lib/locations';
 import { edit, submit, update } from '@/routes/business';
 
 type Props = {
     business: App.Data.BusinessData;
+    locationOptions: App.Data.LocationOptionsData;
     can: { update: boolean; submit: boolean };
 };
 
@@ -28,7 +31,11 @@ const detailFields = [
     'timezone',
 ];
 
-export default function EditBusiness({ business, can }: Props) {
+export default function EditBusiness({
+    business,
+    locationOptions,
+    can,
+}: Props) {
     // Read errors from the page, not the form, so "Submit for review" can point at the fields it needs.
     const errors = usePage().props.errors as Record<string, string>;
 
@@ -113,9 +120,12 @@ export default function EditBusiness({ business, can }: Props) {
                                 />
                                 <InputError message={errors.address} />
                             </div>
-                            <TextField
+                            <ComboboxField
                                 name="timezone"
                                 label="Timezone"
+                                options={timezoneOptions(
+                                    locationOptions.timezones,
+                                )}
                                 defaultValue={business.timezone}
                                 error={errors.timezone}
                                 required

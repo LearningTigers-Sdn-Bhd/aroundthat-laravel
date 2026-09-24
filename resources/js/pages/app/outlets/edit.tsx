@@ -18,10 +18,11 @@ import {
 
 type Props = {
     outlet: App.Data.OutletData;
+    locationOptions: App.Data.LocationOptionsData;
     can: { update: boolean; submit: boolean; archive: boolean };
 };
 
-export default function EditOutlet({ outlet, can }: Props) {
+export default function EditOutlet({ outlet, locationOptions, can }: Props) {
     setLayoutProps({
         breadcrumbs: [
             { title: 'Outlets', href: index() },
@@ -76,7 +77,11 @@ export default function EditOutlet({ outlet, can }: Props) {
                             disabled={!can.update}
                             className="space-y-6 disabled:opacity-60"
                         >
-                            <OutletFields errors={errors} outlet={outlet} />
+                            <OutletFields
+                                errors={errors}
+                                outlet={outlet}
+                                locationOptions={locationOptions}
+                            />
 
                             {can.update && (
                                 <Button type="submit" disabled={processing}>
