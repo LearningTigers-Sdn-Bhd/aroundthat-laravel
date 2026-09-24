@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
+import ButtonLink from '@/components/button-link';
 import {
     Card,
     CardContent,
@@ -46,8 +46,7 @@ export default function AdminDashboard({
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Button variant="outline" asChild>
-                                <Link
+                            <ButtonLink variant="outline"
                                     href={businessesIndex({
                                         query: {
                                             filter: {
@@ -57,8 +56,7 @@ export default function AdminDashboard({
                                     })}
                                 >
                                     Review businesses
-                                </Link>
-                            </Button>
+                                </ButtonLink>
                         </CardContent>
                     </Card>
 

@@ -76,15 +76,12 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                     {/* Mobile Menu */}
                     <div className="lg:hidden">
                         <Sheet>
-                            <SheetTrigger asChild>
-                                <Button
+                            <SheetTrigger render={<Button
                                     variant="ghost"
                                     size="icon"
-                                    className="mr-2 h-[34px] w-[34px]"
-                                >
+                                    className="mr-2 h-[34px] w-[34px]" />}>
                                     <Menu className="h-5 w-5" />
-                                </Button>
-                            </SheetTrigger>
+                                </SheetTrigger>
                             <SheetContent
                                 side="left"
                                 className="flex h-full w-64 flex-col items-stretch justify-between bg-sidebar"
@@ -211,11 +208,9 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                             </div>
                         </div>
                         <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
+                            <DropdownMenuTrigger render={<Button
                                     variant="ghost"
-                                    className="size-10 rounded-full p-1"
-                                >
+                                    className="size-10 rounded-full p-1" />}>
                                     <Avatar className="size-8 overflow-hidden rounded-full">
                                         <AvatarImage
                                             src={auth.user?.avatar}
@@ -225,8 +220,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                             {getInitials(auth.user?.name ?? '')}
                                         </AvatarFallback>
                                     </Avatar>
-                                </Button>
-                            </DropdownMenuTrigger>
+                                </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56" align="end">
                                 {auth.user && (
                                     <UserMenuContent user={auth.user} />

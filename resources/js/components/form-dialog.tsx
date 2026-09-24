@@ -1,5 +1,5 @@
 import { Form } from '@inertiajs/react';
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,7 @@ import type { RouteFormDefinition } from '@/wayfinder';
 
 type Props = {
     /** The button that opens the dialog. */
-    trigger: ReactNode;
+    trigger: ReactElement;
     title: string;
     description?: string;
     /** Where the form is posted, from a Wayfinder `.form()` call. */
@@ -44,7 +44,7 @@ export default function FormDialog({
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>{trigger}</DialogTrigger>
+            <DialogTrigger render={trigger} />
             <DialogContent>
                 <DialogTitle>{title}</DialogTitle>
                 {description && (
@@ -70,15 +70,12 @@ export default function FormDialog({
                                 ))}
 
                             <DialogFooter className="gap-2">
-                                <DialogClose asChild>
-                                    <Button
+                                <DialogClose render={<Button
                                         type="button"
                                         variant="secondary"
-                                        onClick={() => resetAndClearErrors()}
-                                    >
+                                        onClick={() => resetAndClearErrors()} />}>
                                         Cancel
-                                    </Button>
-                                </DialogClose>
+                                    </DialogClose>
                                 <Button
                                     type="submit"
                                     variant={

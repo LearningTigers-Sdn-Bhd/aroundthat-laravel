@@ -1,4 +1,4 @@
-import { Deferred, Head, Link, setLayoutProps } from '@inertiajs/react';
+import { Deferred, Head, setLayoutProps } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import ActivityTimeline, {
     ActivitySkeleton,
@@ -12,7 +12,7 @@ import MembersTable from '@/components/members-table';
 import Notice from '@/components/notice';
 import PageErrors from '@/components/page-errors';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
-import { Button } from '@/components/ui/button';
+import ButtonLink from '@/components/button-link';
 import { formatDate, formatDateTime } from '@/lib/format';
 import { dashboard } from '@/routes/admin';
 import { index, show } from '@/routes/admin/businesses';
@@ -110,12 +110,10 @@ export default function ShowBusiness({
                     <div className="flex items-center justify-between gap-4">
                         <Heading variant="small" title="Outlets" />
                         {!business.suspended_at && (
-                            <Button variant="outline" size="sm" asChild>
-                                <Link href={createOutlet(business.id)}>
+                            <ButtonLink variant="outline" size="sm" href={createOutlet(business.id)}>
                                     <Plus />
                                     Add outlet
-                                </Link>
-                            </Button>
+                                </ButtonLink>
                         )}
                     </div>
                     <OutletsTable outlets={outlets} />

@@ -1,5 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
+import { Head } from '@inertiajs/react';
+import ButtonLink from '@/components/button-link';
 import { logout } from '@/routes';
 
 export default function NoWorkspace() {
@@ -13,11 +13,9 @@ export default function NoWorkspace() {
                     finishes onboarding your business, it will appear here.
                 </p>
 
-                <Button variant="outline" className="w-full" asChild>
-                    <Link href={logout()} as="button">
+                <ButtonLink variant="outline" className="w-full" href={logout()} as="button">
                         Log out
-                    </Link>
-                </Button>
+                    </ButtonLink>
             </div>
         </>
     );

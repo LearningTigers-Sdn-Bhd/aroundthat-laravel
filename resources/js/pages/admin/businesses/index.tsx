@@ -1,10 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Building2, Plus } from 'lucide-react';
 import type { DataTableColumn } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import Heading from '@/components/heading';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
-import { Button } from '@/components/ui/button';
+import ButtonLink from '@/components/button-link';
 import { formatDate, humanize } from '@/lib/format';
 import { dashboard } from '@/routes/admin';
 import { create, index, show } from '@/routes/admin/businesses';
@@ -69,12 +69,10 @@ export default function BusinessesIndex({
                         title="Businesses"
                         description="Every business on the platform."
                     />
-                    <Button asChild>
-                        <Link href={create()}>
+                    <ButtonLink href={create()}>
                             <Plus />
                             New business
-                        </Link>
-                    </Button>
+                        </ButtonLink>
                 </div>
 
                 <DataTable
@@ -100,7 +98,8 @@ export default function BusinessesIndex({
                             ],
                         },
                     ]}
-                    emptyMessage="No businesses match."
+                    emptyTitle="No businesses yet"
+                    emptyIcon={Building2}
                 />
             </div>
         </>

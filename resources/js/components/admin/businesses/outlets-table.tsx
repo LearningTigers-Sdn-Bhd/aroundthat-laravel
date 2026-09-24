@@ -1,5 +1,12 @@
 import { Link } from '@inertiajs/react';
+import { Store } from 'lucide-react';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import {
     Table,
     TableBody,
@@ -19,7 +26,16 @@ type Props = {
  */
 export default function OutletsTable({ outlets }: Props) {
     if (outlets.length === 0) {
-        return <p className="text-sm text-muted-foreground">No outlets yet.</p>;
+        return (
+            <Empty className="border p-6">
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <Store />
+                    </EmptyMedia>
+                    <EmptyTitle>No outlets yet</EmptyTitle>
+                </EmptyHeader>
+            </Empty>
+        );
     }
 
     return (

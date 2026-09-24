@@ -1,4 +1,10 @@
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, History } from 'lucide-react';
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDateTime, humanize } from '@/lib/format';
 
@@ -37,7 +43,16 @@ export default function ActivityTimeline({
     activities: App.Data.Admin.ActivityData[];
 }) {
     if (activities.length === 0) {
-        return <p className="text-sm text-muted-foreground">No changes yet.</p>;
+        return (
+            <Empty className="border p-6">
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <History />
+                    </EmptyMedia>
+                    <EmptyTitle>No changes yet</EmptyTitle>
+                </EmptyHeader>
+            </Empty>
+        );
     }
 
     return (

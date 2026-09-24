@@ -33,31 +33,25 @@ export function UserMenuContent({ user }: Props) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                    <Link
+                <DropdownMenuItem render={<Link
                         className="block w-full cursor-pointer"
                         href={edit()}
                         prefetch
-                        onClick={cleanup}
-                    >
+                        onClick={cleanup} />}>
                         <Settings className="mr-2" />
                         Settings
-                    </Link>
-                </DropdownMenuItem>
+                    </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-                <Link
+            <DropdownMenuItem nativeButton render={<Link
                     className="block w-full cursor-pointer"
                     href={logout()}
                     as="button"
                     onClick={handleLogout}
-                    data-test="logout-button"
-                >
+                    data-test="logout-button" />}>
                     <LogOut className="mr-2" />
                     Log out
-                </Link>
-            </DropdownMenuItem>
+                </DropdownMenuItem>
         </>
     );
 }

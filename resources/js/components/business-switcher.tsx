@@ -28,7 +28,7 @@ export function BusinessSwitcher() {
     const trigger = (
         <SidebarMenuButton
             size="lg"
-            className="data-[state=open]:bg-sidebar-accent"
+            className="data-popup-open:bg-sidebar-accent"
         >
             <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
                 <Building2 className="size-4" />
@@ -50,11 +50,9 @@ export function BusinessSwitcher() {
             <SidebarMenuItem>
                 {canSwitch ? (
                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            {trigger}
-                        </DropdownMenuTrigger>
+                        <DropdownMenuTrigger render={trigger} />
                         <DropdownMenuContent
-                            className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
+                            className="w-(--anchor-width) min-w-56"
                             align="start"
                             side={isMobile ? 'bottom' : 'right'}
                         >
@@ -64,7 +62,7 @@ export function BusinessSwitcher() {
                             {workspaces.map((option) => (
                                 <DropdownMenuItem
                                     key={option.business_id}
-                                    onSelect={() =>
+                                    onClick={() =>
                                         router.visit(update(), {
                                             data: {
                                                 business_id: option.business_id,

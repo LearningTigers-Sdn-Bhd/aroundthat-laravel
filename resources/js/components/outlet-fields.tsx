@@ -116,6 +116,12 @@ export default function OutletFields({
                         <Label htmlFor="state">State</Label>
                         <Select
                             name="state"
+                            items={[
+                                { value: null, label: 'Choose a state' },
+                                ...locationOptions.malaysian_states.map(
+                                    (state) => ({ value: state, label: state }),
+                                ),
+                            ]}
                             defaultValue={outlet?.state}
                             required
                         >
@@ -123,7 +129,7 @@ export default function OutletFields({
                                 id="state"
                                 aria-invalid={!!errors.state}
                             >
-                                <SelectValue placeholder="Choose a state" />
+                                <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                                 {locationOptions.malaysian_states.map(

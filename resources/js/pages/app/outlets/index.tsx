@@ -1,8 +1,16 @@
 import { Head, Link } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Plus, Store } from 'lucide-react';
 import Heading from '@/components/heading';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
-import { Button } from '@/components/ui/button';
+import ButtonLink from '@/components/button-link';
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import {
     Table,
     TableBody,
@@ -30,19 +38,34 @@ export default function OutletsIndex({ outlets, canCreate }: Props) {
                         description="The places where your business trades. An admin reviews each new outlet before it goes live."
                     />
                     {canCreate && (
-                        <Button asChild>
-                            <Link href={create()}>
+                        <ButtonLink href={create()}>
                                 <Plus />
                                 Add outlet
-                            </Link>
-                        </Button>
+                            </ButtonLink>
                     )}
                 </div>
 
                 {outlets.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                        No outlets yet.
-                    </p>
+                    <Empty className="border">
+                        <EmptyHeader>
+                            <EmptyMedia variant="icon">
+                                <Store />
+                            </EmptyMedia>
+                            <EmptyTitle>No outlets yet</EmptyTitle>
+                            <EmptyDescription>
+                                Add the places where your business trades. An
+                                admin reviews each one before it goes live.
+                            </EmptyDescription>
+                        </EmptyHeader>
+                        {canCreate && (
+                            <EmptyContent>
+                                <ButtonLink href={create()}>
+                                        <Plus />
+                                        Add outlet
+                                    </ButtonLink>
+                            </EmptyContent>
+                        )}
+                    </Empty>
                 ) : (
                     <div className="rounded-md border">
                         <Table>

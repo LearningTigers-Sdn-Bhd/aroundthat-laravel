@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { Users } from 'lucide-react';
 import type { DataTableColumn } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import Heading from '@/components/heading';
@@ -90,7 +91,8 @@ export default function UsersIndex({
                             ],
                         },
                     ]}
-                    emptyMessage="No users match."
+                    emptyTitle="No users yet"
+                    emptyIcon={Users}
                 />
             </div>
         </>

@@ -1,8 +1,25 @@
-import { Link, router, usePage } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, ChevronsUpDown, Search } from 'lucide-react';
+import { router, usePage } from '@inertiajs/react';
+import {
+    ArrowDown,
+    ArrowUp,
+    ChevronsUpDown,
+    Inbox,
+    Search,
+    SearchX,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import ButtonLink from '@/components/button-link';
 import { Button } from '@/components/ui/button';
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -47,7 +64,9 @@ type Props<T> = {
     /** Adds a search box, sent as `filter[search]`. */
     searchPlaceholder?: string;
     filters?: DataTableFilter[];
-    emptyMessage?: string;
+    /** Shown when there are no rows at all, before any search or filter. */
+    emptyTitle?: string;
+    emptyIcon?: LucideIcon;
 };
 
 type Query = {
@@ -90,7 +109,8 @@ export default function DataTable<T>({
     rowKey,
     searchPlaceholder,
     filters = [],
-    emptyMessage = 'Nothing found.',
+    emptyTitle = 'Nothing here yet',
+    emptyIcon: EmptyIcon = Inbox,
 }: Props<T>) {
     const page = usePage();
     const query = readQuery(page.url);
@@ -133,6 +153,14 @@ export default function DataTable<T>({
     const directionOf = (sort: string): SortDirection =>
         query.sort === sort ? 'asc' : query.sort === `-${sort}` ? 'desc' : null;
 
+    const isFiltered = Object.keys(query.filter).length > 0;
+
+    const clearFilters = () => {
+        lastSearch.current = '';
+        setSearch('');
+        visit({ filter: {}, sort: query.sort });
+    };
+
     const toggleSort = (sort: string) => {
         const next =
             query.sort === sort
@@ -164,35 +192,43 @@ export default function DataTable<T>({
                         </div>
                     )}
 
-                    {filters.map((filter) => (
-                        <Select
-                            key={filter.name}
-                            value={query.filter[filter.name] ?? ALL}
-                            onValueChange={(value) =>
-                                setFilter(filter.name, value)
-                            }
-                        >
-                            <SelectTrigger
-                                className="w-full sm:w-44"
-                                aria-label={filter.label}
+                    {filters.map((filter) => {
+                        const items = [
+                            {
+                                value: ALL,
+                                label: `All ${filter.label.toLowerCase()}`,
+                            },
+                            ...filter.options,
+                        ];
+
+                        return (
+                            <Select
+                                key={filter.name}
+                                items={items}
+                                value={query.filter[filter.name] || ALL}
+                                onValueChange={(value) =>
+                                    setFilter(filter.name, value ?? ALL)
+                                }
                             >
-                                <SelectValue placeholder={filter.label} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={ALL}>
-                                    All {filter.label.toLowerCase()}
-                                </SelectItem>
-                                {filter.options.map((option) => (
-                                    <SelectItem
-                                        key={option.value}
-                                        value={option.value}
-                                    >
-                                        {option.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    ))}
+                                <SelectTrigger
+                                    className="w-full sm:w-44"
+                                    aria-label={filter.label}
+                                >
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {items.map((item) => (
+                                        <SelectItem
+                                            key={item.value}
+                                            value={item.value}
+                                        >
+                                            {item.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        );
+                    })}
                 </div>
             )}
 
@@ -233,9 +269,44 @@ export default function DataTable<T>({
                             <TableRow>
                                 <TableCell
                                     colSpan={columns.length}
-                                    className="h-24 text-center text-muted-foreground"
+                                    className="whitespace-normal"
                                 >
-                                    {emptyMessage}
+                                    {isFiltered ? (
+                                        <Empty className="p-8">
+                                            <EmptyHeader>
+                                                <EmptyMedia variant="icon">
+                                                    <SearchX />
+                                                </EmptyMedia>
+                                                <EmptyTitle>
+                                                    No matches
+                                                </EmptyTitle>
+                                                <EmptyDescription>
+                                                    Try a different search or
+                                                    clear the filters.
+                                                </EmptyDescription>
+                                            </EmptyHeader>
+                                            <EmptyContent>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={clearFilters}
+                                                >
+                                                    Clear filters
+                                                </Button>
+                                            </EmptyContent>
+                                        </Empty>
+                                    ) : (
+                                        <Empty className="p-8">
+                                            <EmptyHeader>
+                                                <EmptyMedia variant="icon">
+                                                    <EmptyIcon />
+                                                </EmptyMedia>
+                                                <EmptyTitle>
+                                                    {emptyTitle}
+                                                </EmptyTitle>
+                                            </EmptyHeader>
+                                        </Empty>
+                                    )}
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -332,10 +403,8 @@ function PageLink({ url, label }: { url: string | null; label: string }) {
     }
 
     return (
-        <Button variant="outline" size="sm" asChild>
-            <Link href={url} preserveScroll preserveState>
+        <ButtonLink variant="outline" size="sm" href={url} preserveScroll preserveState>
                 {label}
-            </Link>
-        </Button>
+            </ButtonLink>
     );
 }

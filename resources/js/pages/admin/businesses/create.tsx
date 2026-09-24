@@ -129,12 +129,13 @@ export default function CreateBusiness({
                                     </Label>
                                     <Select
                                         name="owner_method"
+                                        items={ownerMethodLabels}
                                         value={ownerMethod}
-                                        onValueChange={(value) =>
-                                            setOwnerMethod(
-                                                value as App.Enums.OwnerMethod,
-                                            )
-                                        }
+                                        onValueChange={(value) => {
+                                            if (value) {
+                                                setOwnerMethod(value);
+                                            }
+                                        }}
                                     >
                                         <SelectTrigger id="owner_method">
                                             <SelectValue />

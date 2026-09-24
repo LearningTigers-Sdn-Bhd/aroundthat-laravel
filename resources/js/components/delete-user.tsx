@@ -35,14 +35,11 @@ export default function DeleteUser() {
                 </div>
 
                 <Dialog>
-                    <DialogTrigger asChild>
-                        <Button
+                    <DialogTrigger render={<Button
                             variant="destructive"
-                            data-test="delete-user-button"
-                        >
+                            data-test="delete-user-button" />}>
                             Delete account
-                        </Button>
-                    </DialogTrigger>
+                        </DialogTrigger>
                     <DialogContent>
                         <DialogTitle>
                             Are you sure you want to delete your account?
@@ -88,29 +85,21 @@ export default function DeleteUser() {
                                     </div>
 
                                     <DialogFooter className="gap-2">
-                                        <DialogClose asChild>
-                                            <Button
+                                        <DialogClose render={<Button
                                                 variant="secondary"
                                                 onClick={() =>
                                                     resetAndClearErrors()
-                                                }
-                                            >
+                                                } />}>
                                                 Cancel
-                                            </Button>
-                                        </DialogClose>
+                                            </DialogClose>
 
                                         <Button
                                             variant="destructive"
                                             disabled={processing}
-                                            asChild
-                                        >
-                                            <button
-                                                type="submit"
-                                                data-test="confirm-delete-user-button"
-                                            >
+ type="submit"
+ data-test="confirm-delete-user-button">
                                                 Delete account
-                                            </button>
-                                        </Button>
+                                            </Button>
                                     </DialogFooter>
                                 </>
                             )}

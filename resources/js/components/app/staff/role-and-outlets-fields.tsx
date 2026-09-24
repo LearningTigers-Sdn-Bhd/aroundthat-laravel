@@ -42,10 +42,16 @@ export default function RoleAndOutletsFields({
                 <Label htmlFor="role">Role</Label>
                 <Select
                     name="role"
+                    items={roles.map((option) => ({
+                        value: option,
+                        label: option,
+                    }))}
                     value={role}
-                    onValueChange={(value) =>
-                        setRole(value as App.Enums.MembershipRole)
-                    }
+                    onValueChange={(value) => {
+                        if (value) {
+                            setRole(value);
+                        }
+                    }}
                 >
                     <SelectTrigger id="role" className="capitalize">
                         <SelectValue />

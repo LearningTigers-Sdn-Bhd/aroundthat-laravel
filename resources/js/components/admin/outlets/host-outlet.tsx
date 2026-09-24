@@ -51,13 +51,23 @@ export default function HostOutlet({ outlet, candidates }: Props) {
                                     <Select
                                         key={outlet.host_outlet?.id ?? 'none'}
                                         name="host_outlet_id"
+                                        items={[
+                                            {
+                                                value: null,
+                                                label: 'Choose the host outlet',
+                                            },
+                                            ...candidates.map((candidate) => ({
+                                                value: candidate.id,
+                                                label: `${candidate.name} (${candidate.business_name})`,
+                                            })),
+                                        ]}
                                         defaultValue={outlet.host_outlet?.id}
                                     >
                                         <SelectTrigger
                                             className="w-72"
                                             aria-label="Host outlet"
                                         >
-                                            <SelectValue placeholder="Choose the host outlet" />
+                                            <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {candidates.map((candidate) => (
