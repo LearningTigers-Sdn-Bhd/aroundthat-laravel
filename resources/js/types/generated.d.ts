@@ -119,6 +119,20 @@ export type OutletOptionData = {
 id: string,
 name: string,
 };
+export type PlacePreviewData = {
+name: string,
+address: string,
+contact_phone: string | null,
+contact_email: string | null,
+place: App.Data.PlaceProfileData,
+hours: App.Data.OutletHoursData,
+images: App.Data.ImageData[],
+business_name: string,
+business: App.Data.BusinessPlaceData,
+is_open_now: boolean,
+closes_at: string | null,
+next_opens_at: string | null,
+};
 export type PlaceProfileData = {
 slug: string,
 summary: string | null,

@@ -9,6 +9,7 @@ use App\Data\Admin\HostOutletOptionData;
 use App\Data\Admin\OutletData;
 use App\Data\Forms\OutletDetailsData;
 use App\Data\LocationOptionsData;
+use App\Data\PlacePreviewData;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Business;
@@ -53,6 +54,7 @@ class OutletController extends Controller
 
         return Inertia::render('admin/outlets/show', [
             'outlet' => OutletData::fromModel($outlet),
+            'preview' => PlacePreviewData::fromModel($outlet, now()),
             'hostCandidates' => HostOutletOptionData::collect(
                 Outlet::approved()
                     ->whereNull('archived_at')

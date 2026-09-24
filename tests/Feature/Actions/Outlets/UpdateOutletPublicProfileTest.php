@@ -125,3 +125,16 @@ test('saving logs the old and new public fields', function () {
     expect($activity->attribute_changes['old']['summary'])->toBe('Old summary.');
     expect($activity->attribute_changes['attributes']['summary'])->toBe('New summary.');
 });
+
+test('a category change is logged by name', function () {
+    $outlet = approvedOutlet();
+    $cafe = Category::factory()->create(['name' => 'Café']);
+    $outlet->forceFill(['category_id' => $cafe->id])->saveQuietly();
+
+    app(UpdateOutletPublicProfile::class)->handle($outlet, publicProfile(['category_id' => Category::factory()->create(['name' => 'Bakery'])->id]));
+
+    expect(Activity::forSubject($outlet)->where('event', 'category_changed')->sole()->properties->get('category'))
+        ->toEqual(['old' => 'Café', 'new' => 'Bakery']);
+    expect(Activity::forSubject($outlet)->get()->pluck('attribute_changes')->filter()->flatMap(fn ($changes) => array_keys($changes['attributes'] ?? []))->all())
+        ->not->toContain('category_id');
+});

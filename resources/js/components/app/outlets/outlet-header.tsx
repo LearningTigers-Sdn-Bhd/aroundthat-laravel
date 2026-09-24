@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { formatDateTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { archive, edit, restore, submit } from '@/routes/outlets';
+import { archive, edit, preview, restore, submit } from '@/routes/outlets';
 import { edit as editHours } from '@/routes/outlets/hours';
 import { index as photos } from '@/routes/outlets/photos';
 import { edit as editPublic } from '@/routes/outlets/public';
@@ -36,6 +36,7 @@ export default function OutletHeader({ outlet, can }: Props) {
                   { title: 'Public page', href: editPublic(outlet.id) },
                   { title: 'Hours', href: editHours(outlet.id) },
                   { title: 'Photos', href: photos(outlet.id) },
+                  { title: 'Preview', href: preview(outlet.id) },
               ]
             : []),
     ];

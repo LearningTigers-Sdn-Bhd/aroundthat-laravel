@@ -89,7 +89,7 @@ class Outlet extends Model
     }
 
     /**
-     * Log every owner- or admin-visible field, old and new.
+     * Log every owner- or admin-visible field, old and new. The category is logged by name by UpdateOutletPublicProfile.
      */
     public function getActivitylogOptions(): LogOptions
     {
@@ -103,6 +103,7 @@ class Outlet extends Model
                 'suspension_reason',
                 'archived_at',
             ])
+            ->logExcept(['category_id'])
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
     }

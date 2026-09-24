@@ -6,6 +6,7 @@ import HostOutlet from '@/components/admin/outlets/host-outlet';
 import OutletActions from '@/components/admin/outlets/outlet-actions';
 import Detail from '@/components/detail';
 import Heading from '@/components/heading';
+import PlacePreview from '@/components/place-preview';
 import Notice from '@/components/notice';
 import PageErrors from '@/components/page-errors';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
@@ -18,6 +19,7 @@ type Props = {
     outlet: App.Data.Admin.OutletData;
     hostCandidates: App.Data.Admin.HostOutletOptionData[];
     hostedOutlets: App.Data.Admin.OutletData[];
+    preview: App.Data.PlacePreviewData;
     activities?: App.Data.Admin.ActivityData[];
 };
 
@@ -25,6 +27,7 @@ export default function ShowOutlet({
     outlet,
     hostCandidates,
     hostedOutlets,
+    preview,
     activities,
 }: Props) {
     setLayoutProps({
@@ -119,6 +122,21 @@ export default function ShowOutlet({
                 </section>
 
                 <HostOutlet outlet={outlet} candidates={hostCandidates} />
+
+                <section className="max-w-3xl space-y-3">
+                    <Heading
+                        variant="small"
+                        title="Public page"
+                        description={
+                            preview.place.is_public
+                                ? 'Visitors can see this now.'
+                                : preview.place.is_listed
+                                  ? 'Listed by the owner, but not visible yet.'
+                                  : 'Not listed by the owner.'
+                        }
+                    />
+                    <PlacePreview preview={preview} />
+                </section>
 
                 {hostedOutlets.length > 0 && (
                     <section className="space-y-3">

@@ -10,9 +10,50 @@ import { formatDateTime, humanize } from '@/lib/format';
 
 const isoDateTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 
+const fieldLabels: Record<string, string> = {
+    google_maps_url: 'Google Maps link',
+    regular_hours: 'Weekly hours',
+    is_listed: 'Listed publicly',
+    date_exceptions: 'Special dates',
+    whatsapp: 'WhatsApp',
+};
+
+const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+function fieldLabel(field: string): string {
+    return fieldLabels[field] ?? humanize(field);
+}
+
+/**
+ * Weekly hours as logged: `{ "1": [{ opens, closes }], … }`, keyed by ISO weekday.
+ */
+function isWeeklyHours(
+    value: unknown,
+): value is Record<string, { opens: string; closes: string }[]> {
+    return (
+        typeof value === 'object' &&
+        value !== null &&
+        !Array.isArray(value) &&
+        Object.keys(value).every((key) => /^[1-7]$/.test(key))
+    );
+}
+
 function formatValue(value: unknown): string {
     if (value === null || value === undefined || value === '') {
         return '—';
+    }
+
+    if (isWeeklyHours(value)) {
+        const days = Object.entries(value)
+            .filter(([, periods]) => periods.length > 0)
+            .map(
+                ([day, periods]) =>
+                    `${weekdays[Number(day) - 1]} ${periods
+                        .map((period) => `${period.opens}–${period.closes}`)
+                        .join(', ')}`,
+            );
+
+        return days.length > 0 ? days.join('; ') : 'Closed every day';
     }
 
     if (typeof value === 'boolean') {
@@ -95,7 +136,7 @@ export default function ActivityTimeline({
                                     className="flex flex-wrap items-center gap-x-2"
                                 >
                                     <dt className="text-muted-foreground">
-                                        {humanize(change.field)}
+                                        {fieldLabel(change.field)}
                                     </dt>
                                     <dd className="flex flex-wrap items-center gap-x-2">
                                         <span className="text-muted-foreground line-through">
@@ -115,7 +156,7 @@ export default function ActivityTimeline({
                                 ([key, value]) => (
                                     <div key={key} className="flex gap-x-2">
                                         <dt className="text-muted-foreground">
-                                            {humanize(key)}
+                                            {fieldLabel(key)}
                                         </dt>
                                         <dd>{formatValue(value)}</dd>
                                     </div>

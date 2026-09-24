@@ -9,6 +9,7 @@ use App\Enums\TagStatus;
 use App\Models\Category;
 use App\Models\Outlet;
 use App\Models\Tag;
+use App\Support\ActivityLog\AuditTrail;
 use App\Support\GoogleMapsLink;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -30,6 +31,7 @@ class UpdateOutletPublicProfile
     ];
 
     public function __construct(
+        protected AuditTrail $audit,
         protected FindOrCreateTag $findOrCreateTag,
         protected SyncOutletTags $syncOutletTags,
     ) {}
@@ -69,8 +71,19 @@ class UpdateOutletPublicProfile
             }
 
             $tagIds = $this->tagIds($outlet, $data->tags ?? []);
+            $previousCategoryId = $outlet->getOriginal('category_id');
 
             $outlet->save();
+
+            if ($previousCategoryId !== $outlet->category_id) {
+                $this->audit->record($outlet, 'category_changed', null, [
+                    'category' => [
+                        'old' => $previousCategoryId ? Category::query()->whereKey($previousCategoryId)->value('name') : null,
+                        'new' => $outlet->category()->value('name'),
+                    ],
+                ]);
+            }
+
             $this->syncOutletTags->handle($outlet, $tagIds);
 
             return $outlet;
