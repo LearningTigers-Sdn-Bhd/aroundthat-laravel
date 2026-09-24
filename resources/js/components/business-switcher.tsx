@@ -3,6 +3,7 @@ import { Building2, Check, ChevronsUpDown } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuTrigger,
@@ -56,29 +57,32 @@ export function BusinessSwitcher() {
                             align="start"
                             side={isMobile ? 'bottom' : 'right'}
                         >
-                            <DropdownMenuLabel className="text-xs text-muted-foreground">
-                                Businesses
-                            </DropdownMenuLabel>
-                            {workspaces.map((option) => (
-                                <DropdownMenuItem
-                                    key={option.business_id}
-                                    onClick={() =>
-                                        router.visit(update(), {
-                                            data: {
-                                                business_id: option.business_id,
-                                            },
-                                        })
-                                    }
-                                >
-                                    <span className="flex-1 truncate">
-                                        {option.business_name}
-                                    </span>
-                                    {option.business_id ===
-                                        workspace.business_id && (
-                                        <Check className="size-4" />
-                                    )}
-                                </DropdownMenuItem>
-                            ))}
+                            <DropdownMenuGroup>
+                                <DropdownMenuLabel className="text-xs text-muted-foreground">
+                                    Businesses
+                                </DropdownMenuLabel>
+                                {workspaces.map((option) => (
+                                    <DropdownMenuItem
+                                        key={option.business_id}
+                                        onClick={() =>
+                                            router.visit(update(), {
+                                                data: {
+                                                    business_id:
+                                                        option.business_id,
+                                                },
+                                            })
+                                        }
+                                    >
+                                        <span className="flex-1 truncate">
+                                            {option.business_name}
+                                        </span>
+                                        {option.business_id ===
+                                            workspace.business_id && (
+                                            <Check className="size-4" />
+                                        )}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuGroup>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 ) : (
