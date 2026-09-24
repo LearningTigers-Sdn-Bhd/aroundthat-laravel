@@ -37,6 +37,7 @@ class OutletData extends Data
         public ?CarbonInterface $archivedAt,
         public bool $isOperational,
         public bool $isWritable,
+        public bool $isPublic,
     ) {}
 
     public static function fromModel(Outlet $outlet): self
@@ -61,6 +62,7 @@ class OutletData extends Data
             archivedAt: $outlet->archived_at,
             isOperational: $outlet->isOperational(),
             isWritable: $outlet->isWritable(),
+            isPublic: $outlet->isPublic(),
         );
     }
 }

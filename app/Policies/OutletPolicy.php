@@ -36,6 +36,15 @@ class OutletPolicy
     }
 
     /**
+     * Change what visitors see about the outlet, under the same conditions as its details.
+     */
+    public function updatePublicProfile(User $user, Outlet $outlet): bool
+    {
+        return $outlet->isWritable()
+            && $this->memberCan($user, $outlet->business_id, Ability::ManagePublicContent);
+    }
+
+    /**
      * Send a draft or rejected outlet to admin review, once its business is approved.
      */
     public function submit(User $user, Outlet $outlet): bool

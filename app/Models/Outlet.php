@@ -38,15 +38,37 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property string $timezone
  * @property string|null $host_outlet_id
  * @property string|null $category_id
+ * @property string|null $summary
+ * @property string|null $description
+ * @property string|null $latitude
+ * @property string|null $longitude
+ * @property string|null $google_maps_url
+ * @property string|null $website
+ * @property string|null $whatsapp
+ * @property string|null $facebook
+ * @property string|null $instagram
+ * @property bool $is_listed
  * @property Carbon|null $archived_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'contact_email', 'contact_phone', 'address_line_1', 'address_line_2', 'city', 'state', 'postcode', 'country_code', 'timezone'])]
+#[Fillable([
+    'name', 'contact_email', 'contact_phone', 'address_line_1', 'address_line_2', 'city', 'state', 'postcode', 'country_code', 'timezone',
+    'summary', 'description', 'category_id', 'latitude', 'longitude', 'google_maps_url', 'website', 'whatsapp', 'facebook', 'instagram', 'is_listed',
+])]
 class Outlet extends Model
 {
     /** @use HasFactory<OutletFactory> */
     use HasFactory, HasOnboarding, HasSlug, HasUuids, LocksForUpdate, LogsActivity;
+
+    /**
+     * Column defaults, so a new outlet reads the same before and after it is saved.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'is_listed' => false,
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -57,6 +79,9 @@ class Outlet extends Model
     {
         return [
             'archived_at' => 'datetime',
+            'latitude' => 'decimal:6',
+            'longitude' => 'decimal:6',
+            'is_listed' => 'boolean',
         ];
     }
 
@@ -149,6 +174,47 @@ class Outlet extends Model
             && ! $this->isArchived()
             && $this->business->isApproved()
             && ! $this->business->isSuspended();
+    }
+
+    /**
+     * The public fields still empty before the owner can list the outlet, as field names.
+     *
+     * @return list<string>
+     */
+    public function missingForListing(): array
+    {
+        return array_values(array_filter([
+            blank($this->summary) ? 'summary' : null,
+            blank($this->category_id) ? 'category_id' : null,
+            $this->latitude === null || $this->longitude === null ? 'coordinates' : null,
+        ]));
+    }
+
+    /**
+     * Whether visitors can see the outlet: it can trade, the owner listed it, and its public fields are complete.
+     */
+    public function isPublic(): bool
+    {
+        return $this->is_listed && $this->missingForListing() === [] && $this->isOperational();
+    }
+
+    /**
+     * Only outlets visitors can see (see isPublic()).
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function public(Builder $query): void
+    {
+        $query->operational()
+            ->where($this->qualifyColumn('is_listed'), true)
+            ->whereNotNull([
+                $this->qualifyColumn('summary'),
+                $this->qualifyColumn('category_id'),
+                $this->qualifyColumn('latitude'),
+                $this->qualifyColumn('longitude'),
+            ])
+            ->where($this->qualifyColumn('summary'), '<>', '');
     }
 
     /**

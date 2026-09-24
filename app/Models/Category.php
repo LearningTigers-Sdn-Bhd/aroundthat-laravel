@@ -33,6 +33,16 @@ class Category extends Model
     use HasFactory, HasSlug, HasUuids, LogsActivity;
 
     /**
+     * Column defaults, so a new category reads the same before and after it is saved.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'position' => 0,
+        'is_active' => true,
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

@@ -45,6 +45,7 @@ class FindOrCreateTag
                 $tag->forceFill([
                     'slug' => $slug,
                     'status' => TagStatus::Pending,
+                    'is_active' => true,
                     'created_by_business_id' => $business->getKey(),
                 ])->save();
 

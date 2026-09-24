@@ -40,7 +40,7 @@ test('members see their outlets without the admin-only approval and suspension d
     expect(array_keys($data))->toBe([
         'id', 'name', 'contact_email', 'contact_phone', 'address_line_1', 'address_line_2', 'city', 'state',
         'postcode', 'country_code', 'timezone', 'host_outlet', 'onboarding_status', 'submitted_at',
-        'rejection_reason', 'is_suspended', 'archived_at', 'is_operational', 'is_writable',
+        'rejection_reason', 'is_suspended', 'archived_at', 'is_operational', 'is_writable', 'is_public',
     ]);
     expect($data['host_outlet'])->toBe(['id' => $host->id, 'name' => 'Food Court']);
     expect($data['is_operational'])->toBeFalse();

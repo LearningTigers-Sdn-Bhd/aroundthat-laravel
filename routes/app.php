@@ -3,6 +3,7 @@
 use App\Http\Controllers\App\BusinessController;
 use App\Http\Controllers\App\InvitationController;
 use App\Http\Controllers\App\OutletController;
+use App\Http\Controllers\App\OutletPublicProfileController;
 use App\Http\Controllers\App\OutletStatusController;
 use App\Http\Controllers\App\StaffController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,11 @@ Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(functi
         Route::post('submit', 'submit')->name('submit');
         Route::post('archive', 'archive')->name('archive');
         Route::post('restore', 'restore')->name('restore');
+    });
+
+    Route::controller(OutletPublicProfileController::class)->prefix('outlets/{outlet}/public')->name('outlets.public.')->group(function () {
+        Route::get('/', 'edit')->name('edit');
+        Route::put('/', 'update')->name('update');
     });
 
     Route::prefix('staff')->name('staff.')->group(function () {

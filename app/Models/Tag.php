@@ -41,6 +41,16 @@ class Tag extends Model
     public const int MAX_PER_OUTLET = 10;
 
     /**
+     * Column defaults, so a new tag reads the same before and after it is saved.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'status' => 'approved',
+        'is_active' => true,
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

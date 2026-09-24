@@ -27,6 +27,16 @@ return new class extends Migration
             $table->char('country_code', 2)->default('MY');
             $table->string('timezone')->default('Asia/Kuala_Lumpur');
             $table->uuid('host_outlet_id')->nullable()->index();
+            $table->string('summary', 280)->nullable();
+            $table->text('description')->nullable();
+            $table->decimal('latitude', 9, 6)->nullable();
+            $table->decimal('longitude', 9, 6)->nullable();
+            $table->text('google_maps_url')->nullable();
+            $table->string('website', 500)->nullable();
+            $table->string('whatsapp', 30)->nullable();
+            $table->string('facebook', 500)->nullable();
+            $table->string('instagram', 500)->nullable();
+            $table->boolean('is_listed')->default(false);
             $table->string('onboarding_status')->default('draft');
             $table->timestampTz('submitted_at')->nullable();
             $table->timestampTz('approved_at')->nullable();
@@ -49,6 +59,7 @@ return new class extends Migration
         DB::statement("alter table outlets add constraint outlets_onboarding_status_check check (onboarding_status in ('draft', 'pending', 'approved', 'rejected'))");
         DB::statement('alter table outlets add constraint outlets_host_not_self_check check (host_outlet_id is null or host_outlet_id <> id)');
         DB::statement("alter table outlets add constraint outlets_country_code_check check (country_code ~ '^[A-Z]{2}$')");
+        DB::statement('alter table outlets add constraint outlets_coordinates_paired_check check ((latitude is null) = (longitude is null))');
     }
 
     /**

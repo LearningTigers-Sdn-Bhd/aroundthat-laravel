@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Business;
+use App\Models\Category;
 use App\Models\Outlet;
 use Database\Factories\Concerns\HasOnboardingStates;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -32,6 +33,20 @@ class OutletFactory extends Factory
             'country_code' => 'MY',
             'timezone' => 'Asia/Kuala_Lumpur',
         ];
+    }
+
+    /**
+     * Indicate that the owner completed the public fields and listed the outlet.
+     */
+    public function listed(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'summary' => fake()->sentence(),
+            'category_id' => Category::factory(),
+            'latitude' => fake()->latitude(1, 7),
+            'longitude' => fake()->longitude(109, 119),
+            'is_listed' => true,
+        ]);
     }
 
     /**

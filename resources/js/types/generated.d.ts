@@ -15,6 +15,10 @@ rejection_reason: string | null,
 is_suspended: boolean,
 is_writable: boolean,
 };
+export type CategoryOptionData = {
+id: string,
+name: string,
+};
 export type CurrentWorkspaceData = {
 business_id: string,
 business_name: string,
@@ -79,8 +83,30 @@ is_suspended: boolean,
 archived_at: string | null,
 is_operational: boolean,
 is_writable: boolean,
+is_public: boolean,
 };
 export type OutletOptionData = {
+id: string,
+name: string,
+};
+export type PlaceProfileData = {
+slug: string,
+summary: string | null,
+description: string | null,
+category: App.Data.CategoryOptionData | null,
+latitude: number | null,
+longitude: number | null,
+google_maps_url: string | null,
+website: string | null,
+whatsapp: string | null,
+facebook: string | null,
+instagram: string | null,
+tags: App.Data.TagOptionData[],
+is_listed: boolean,
+is_public: boolean,
+missing_for_listing: string[],
+};
+export type TagOptionData = {
 id: string,
 name: string,
 };
@@ -253,6 +279,20 @@ timezone: string,
 address_line_2: string | null,
 contact_email: string | null,
 contact_phone: string | null,
+};
+export type OutletPublicProfileData = {
+summary: string | null,
+description: string | null,
+category_id: string | null,
+google_maps_url: string | null,
+latitude: number | null,
+longitude: number | null,
+website: string | null,
+whatsapp: string | null,
+facebook: string | null,
+instagram: string | null,
+tags: string[] | null,
+is_listed: boolean,
 };
 export type ReasonData = {
 reason: string,
