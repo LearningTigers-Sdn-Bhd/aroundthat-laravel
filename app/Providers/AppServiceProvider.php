@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Image;
 use App\Models\Invitation;
 use App\Models\Membership;
 use App\Models\Outlet;
@@ -64,6 +65,7 @@ class AppServiceProvider extends ServiceProvider
             'category' => Category::class,
             'tag' => Tag::class,
             'setting' => Setting::class,
+            'image' => Image::class,
         ]);
 
         DB::prohibitDestructiveCommands(

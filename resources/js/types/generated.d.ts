@@ -33,6 +33,15 @@ is_closed: boolean,
 periods: App.Data.OpeningPeriodData[],
 note: string | null,
 };
+export type ImageData = {
+id: string,
+kind: App.Enums.ImageKind,
+url: string,
+alt_text: string,
+width: number,
+height: number,
+position: number,
+};
 export type InvitationData = {
 id: string,
 email: string,
@@ -259,6 +268,11 @@ export type CategoryData = {
 name: string,
 is_active: boolean,
 };
+export type ImageUploadData = {
+file: undefined,
+kind: App.Enums.ImageKind,
+alt_text: string,
+};
 export type InviteStaffData = {
 email: string,
 role: App.Enums.MembershipRole,
@@ -335,6 +349,7 @@ is_active: boolean,
 }
 namespace Enums {
 export type Ability = 'scan' | 'view_today_activity' | 'view_reports' | 'view_statements' | 'manage_offers' | 'void_vouchers' | 'manage_business' | 'manage_outlets' | 'manage_staff' | 'manage_public_content';
+export type ImageKind = 'cover' | 'gallery' | 'logo';
 export type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'cancelled' | 'expired';
 export type MediaDisk = 'local' | 'r2';
 export type MembershipRole = 'owner' | 'manager' | 'cashier';
