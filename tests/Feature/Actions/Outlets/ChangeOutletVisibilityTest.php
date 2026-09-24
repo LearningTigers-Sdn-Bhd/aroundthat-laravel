@@ -3,9 +3,11 @@
 use App\Actions\Outlets\ChangeOutletVisibility;
 use App\Actions\Outlets\UpdateOutletPublicProfile;
 use App\Data\Forms\OutletPublicProfileData;
+use App\Jobs\NotifyPlaceModeration;
 use App\Models\Activity;
 use App\Models\Business;
 use App\Models\Outlet;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Validation\ValidationException;
 
 beforeEach(function () {
@@ -13,6 +15,8 @@ beforeEach(function () {
 });
 
 test('a hidden outlet keeps trading but visitors cannot see it', function () {
+    Queue::fake([NotifyPlaceModeration::class]);
+
     app(ChangeOutletVisibility::class)->hide($this->outlet, 'Photos do not match the place.');
 
     $this->outlet->refresh();
@@ -21,9 +25,13 @@ test('a hidden outlet keeps trading but visitors cannot see it', function () {
     expect(Outlet::public()->exists())->toBeFalse();
     $activity = Activity::forSubject($this->outlet)->where('event', 'hidden')->sole();
     expect($activity->reason)->toBe('Photos do not match the place.');
+    Queue::assertPushed(NotifyPlaceModeration::class, fn (NotifyPlaceModeration $job) => $job->place->is($this->outlet)
+        && $job->action === 'hidden'
+        && $job->reason === 'Photos do not match the place.');
 });
 
 test('unhiding shows the outlet to visitors again', function () {
+    Queue::fake([NotifyPlaceModeration::class]);
     $outlet = Outlet::factory()->for(Business::factory()->approved())->approved()->listed()->hidden()->create();
 
     app(ChangeOutletVisibility::class)->unhide($outlet);
@@ -31,6 +39,7 @@ test('unhiding shows the outlet to visitors again', function () {
     expect($outlet->refresh()->isPublic())->toBeTrue();
     expect($outlet->hidden_reason)->toBeNull();
     expect(Activity::forSubject($outlet)->where('event', 'unhidden')->exists())->toBeTrue();
+    Queue::assertPushed(NotifyPlaceModeration::class, fn (NotifyPlaceModeration $job) => $job->action === 'unhidden');
 });
 
 test('hiding a hidden outlet or unhiding a shown one is refused', function () {

@@ -152,6 +152,11 @@ is_public: boolean,
 hidden_reason: string | null,
 missing_for_listing: string[],
 };
+export type RevertNoticeData = {
+event: string,
+reason: string | null,
+reverted_at: string | null,
+};
 export type TagOptionData = {
 id: string,
 name: string,

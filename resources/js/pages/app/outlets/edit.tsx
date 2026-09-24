@@ -8,11 +8,12 @@ import { edit, index, update } from '@/routes/outlets';
 
 type Props = {
     outlet: App.Data.OutletData;
+    recentReverts: App.Data.RevertNoticeData[];
     locationOptions: App.Data.LocationOptionsData;
     can: { update: boolean; submit: boolean; archive: boolean };
 };
 
-export default function EditOutlet({ outlet, locationOptions, can }: Props) {
+export default function EditOutlet({ outlet, recentReverts, locationOptions, can }: Props) {
     setLayoutProps({
         breadcrumbs: [
             { title: 'Outlets', href: index() },
@@ -25,7 +26,7 @@ export default function EditOutlet({ outlet, locationOptions, can }: Props) {
             <Head title={outlet.name} />
 
             <div className="flex max-w-2xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader outlet={outlet} can={can} />
+                <OutletHeader outlet={outlet} can={can} recentReverts={recentReverts} />
 
                 <PageErrors except={outletFieldNames} />
 

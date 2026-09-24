@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Changes\RevertChange;
 use App\Models\Business;
 use App\Models\Image;
 use App\Models\Membership;
@@ -46,4 +47,20 @@ test('admins see the public page on the outlet page', function () {
             ->component('admin/outlets/show')
             ->where('preview.place.summary', $outlet->summary)
             ->where('preview.place.is_listed', true));
+});
+
+test('the owner sees a hidden outlet and the changes an admin reverted', function () {
+    $owner = Membership::factory()->owner()->for(Business::factory()->approved())->create();
+    $outlet = Outlet::factory()->for($owner->business)->approved()->listed()->hidden('Misleading photos.')->create();
+    $change = contentChange($outlet, ['summary' => 'Best in town!'], 'public_profile_changed');
+    app(RevertChange::class)->revert(User::factory()->admin()->create(), $change, 'Unproven claim.');
+
+    $this->actingAs($owner->user)
+        ->get(route('outlets.preview', $outlet))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('outlet.hidden_reason', 'Misleading photos.')
+            ->where('preview.place.hidden_reason', 'Misleading photos.')
+            ->has('recentReverts', 1)
+            ->where('recentReverts.0.event', 'public_profile_changed')
+            ->where('recentReverts.0.reason', 'Unproven claim.'));
 });

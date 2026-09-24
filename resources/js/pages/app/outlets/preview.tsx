@@ -6,11 +6,12 @@ import { edit, index, preview as previewRoute } from '@/routes/outlets';
 
 type Props = {
     outlet: App.Data.OutletData;
+    recentReverts: App.Data.RevertNoticeData[];
     preview: App.Data.PlacePreviewData;
     can: { submit: boolean; archive: boolean };
 };
 
-export default function OutletPreview({ outlet, preview, can }: Props) {
+export default function OutletPreview({ outlet, recentReverts, preview, can }: Props) {
     setLayoutProps({
         breadcrumbs: [
             { title: 'Outlets', href: index() },
@@ -24,7 +25,7 @@ export default function OutletPreview({ outlet, preview, can }: Props) {
             <Head title={`${outlet.name} · Preview`} />
 
             <div className="flex max-w-3xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader outlet={outlet} can={can} />
+                <OutletHeader outlet={outlet} can={can} recentReverts={recentReverts} />
 
                 {!preview.place.is_public && (
                     <Notice title="Visitors cannot see this yet">

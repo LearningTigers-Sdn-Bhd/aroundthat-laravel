@@ -1,5 +1,6 @@
 import { Form, Head, usePage } from '@inertiajs/react';
 import ActionButton from '@/components/action-button';
+import RevertNotices from '@/components/app/revert-notices';
 import ComboboxField from '@/components/combobox-field';
 import ConfirmDialog from '@/components/confirm-dialog';
 import FormDialog from '@/components/form-dialog';
@@ -25,6 +26,7 @@ import { update as updatePublic } from '@/routes/business/public';
 
 type Props = {
     business: App.Data.BusinessData;
+    recentReverts: App.Data.RevertNoticeData[];
     place: App.Data.BusinessPlaceData;
     locationOptions: App.Data.LocationOptionsData;
     can: { update: boolean; submit: boolean; updatePublicProfile: boolean };
@@ -42,6 +44,7 @@ const detailFields = [
 
 export default function EditBusiness({
     business,
+    recentReverts,
     place,
     locationOptions,
     can,
@@ -66,6 +69,7 @@ export default function EditBusiness({
                 </div>
 
                 <ReviewBanner business={business} canSubmit={can.submit} />
+                <RevertNotices reverts={recentReverts} />
 
                 <PageErrors except={detailFields} />
 

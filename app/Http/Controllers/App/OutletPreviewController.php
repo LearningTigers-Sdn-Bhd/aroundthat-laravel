@@ -4,6 +4,7 @@ namespace App\Http\Controllers\App;
 
 use App\Data\OutletData;
 use App\Data\PlacePreviewData;
+use App\Data\RevertNoticeData;
 use App\Enums\Ability;
 use App\Http\Controllers\Controller;
 use App\Models\Outlet;
@@ -28,6 +29,7 @@ class OutletPreviewController extends Controller
 
         return Inertia::render('app/outlets/preview', [
             'outlet' => OutletData::fromModel($outlet),
+            'recentReverts' => RevertNoticeData::recentFor($outlet),
             'preview' => PlacePreviewData::fromModel($outlet, now()),
             'can' => [
                 'archive' => $request->user()->can('archive', $outlet),

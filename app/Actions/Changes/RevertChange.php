@@ -5,6 +5,7 @@ namespace App\Actions\Changes;
 use App\Actions\Images\ManageImages;
 use App\Actions\Tags\SyncOutletTags;
 use App\Enums\ImageKind;
+use App\Jobs\NotifyPlaceModeration;
 use App\Models\Activity;
 use App\Models\Business;
 use App\Models\Category;
@@ -21,7 +22,7 @@ use Illuminate\Validation\ValidationException;
 /**
  * Undo an owner's edit to public content: put back every old value the change log kept for it.
  * A change can only be undone while its new values are still in place; a later edit to the same things
- * has to be reverted first. The revert is logged as its own change, with the admin's reason.
+ * has to be reverted first. The revert is logged as its own change, with the admin's reason, and owners are emailed.
  */
 class RevertChange
 {
@@ -101,6 +102,8 @@ class RevertChange
                 'reviewed_at' => $change->reviewed_at ?? now(),
                 'reviewed_by_id' => $change->reviewed_by_id ?? $admin->id,
             ])->save();
+
+            NotifyPlaceModeration::dispatch($subject, 'reverted', $reason, $change->event)->afterCommit();
 
             return $change;
         });

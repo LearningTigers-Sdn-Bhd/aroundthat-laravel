@@ -7,6 +7,7 @@ use App\Data\CategoryOptionData;
 use App\Data\Forms\OutletPublicProfileData;
 use App\Data\OutletData;
 use App\Data\PlaceProfileData;
+use App\Data\RevertNoticeData;
 use App\Data\TagOptionData;
 use App\Enums\Ability;
 use App\Http\Controllers\Controller;
@@ -38,6 +39,7 @@ class OutletPublicProfileController extends Controller
 
         return Inertia::render('app/outlets/public', [
             'outlet' => OutletData::fromModel($outlet),
+            'recentReverts' => RevertNoticeData::recentFor($outlet),
             'place' => PlaceProfileData::fromModel($outlet),
             'categories' => CategoryOptionData::collect(
                 Category::query()

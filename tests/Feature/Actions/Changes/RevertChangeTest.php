@@ -9,6 +9,7 @@ use App\Data\Forms\OpeningHoursData;
 use App\Data\Forms\OutletDetailsData;
 use App\Data\Forms\OutletPublicProfileData;
 use App\Enums\ImageKind;
+use App\Jobs\NotifyPlaceModeration;
 use App\Models\Activity;
 use App\Models\Business;
 use App\Models\Category;
@@ -17,6 +18,7 @@ use App\Models\Outlet;
 use App\Models\User;
 use App\Support\ActivityLog\AuditTrail;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -58,6 +60,7 @@ function lastChange(Outlet $outlet, string $event): Activity
 }
 
 test('reverting a field change restores the old values and logs the reason', function () {
+    Queue::fake([NotifyPlaceModeration::class]);
     savePublicPage($this->outlet, ['summary' => 'New summary.']);
     $change = lastChange($this->outlet, 'public_profile_changed');
 
@@ -72,6 +75,10 @@ test('reverting a field change restores the old values and logs the reason', fun
     expect($change->reverted_by_activity_id)->toBe($revert->id);
     expect($change->reverted_at)->not->toBeNull();
     expect($change->reviewed_by_id)->toBe($this->admin->id);
+    Queue::assertPushed(NotifyPlaceModeration::class, fn (NotifyPlaceModeration $job) => $job->place->is($this->outlet)
+        && $job->action === 'reverted'
+        && $job->reason === 'Summary breaks the house rules.'
+        && $job->changeEvent === 'public_profile_changed');
 });
 
 test('reverting outlet details puts the old name back', function () {
@@ -87,6 +94,7 @@ test('reverting outlet details puts the old name back', function () {
 });
 
 test('a later edit to the same field blocks the revert and changes nothing', function () {
+    Queue::fake([NotifyPlaceModeration::class]);
     savePublicPage($this->outlet, ['summary' => 'Second.']);
     $change = lastChange($this->outlet, 'public_profile_changed');
     savePublicPage($this->outlet, ['summary' => 'Third.']);
@@ -96,6 +104,7 @@ test('a later edit to the same field blocks the revert and changes nothing', fun
         ->toThrow(ValidationException::class, 'Summary was changed again.');
     expect($this->outlet->refresh()->summary)->toBe('Third.');
     expect($change->refresh()->reverted_at)->toBeNull();
+    Queue::assertNotPushed(NotifyPlaceModeration::class);
 });
 
 test('a change cannot be reverted twice', function () {

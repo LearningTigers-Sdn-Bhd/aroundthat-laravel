@@ -2,6 +2,7 @@
 
 namespace App\Actions\Outlets;
 
+use App\Jobs\NotifyPlaceModeration;
 use App\Models\Outlet;
 use App\Support\ActivityLog\AuditTrail;
 use Illuminate\Support\Facades\DB;
@@ -9,7 +10,7 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Hide an outlet from the public listing without suspending it, or show it again (admin).
- * A hidden outlet still trades; visitors just cannot find it, and its owner cannot list it again.
+ * A hidden outlet still trades; visitors just cannot find it, and its owner cannot list it again. Owners are emailed.
  */
 class ChangeOutletVisibility
 {
@@ -27,11 +28,11 @@ class ChangeOutletVisibility
                 throw ValidationException::withMessages(['outlet' => __('This outlet is already hidden.')]);
             }
 
-            return $this->audit->as('hidden', $reason, function () use ($outlet, $reason): Outlet {
-                $outlet->forceFill(['hidden_at' => now(), 'hidden_reason' => $reason])->save();
+            $this->audit->as('hidden', $reason, fn (): bool => $outlet->forceFill(['hidden_at' => now(), 'hidden_reason' => $reason])->save());
 
-                return $outlet;
-            });
+            NotifyPlaceModeration::dispatch($outlet, 'hidden', $reason)->afterCommit();
+
+            return $outlet;
         });
     }
 
@@ -47,11 +48,11 @@ class ChangeOutletVisibility
                 throw ValidationException::withMessages(['outlet' => __('This outlet is not hidden.')]);
             }
 
-            return $this->audit->as('unhidden', null, function () use ($outlet): Outlet {
-                $outlet->forceFill(['hidden_at' => null, 'hidden_reason' => null])->save();
+            $this->audit->as('unhidden', null, fn (): bool => $outlet->forceFill(['hidden_at' => null, 'hidden_reason' => null])->save());
 
-                return $outlet;
-            });
+            NotifyPlaceModeration::dispatch($outlet, 'unhidden')->afterCommit();
+
+            return $outlet;
         });
     }
 }

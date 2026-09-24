@@ -7,6 +7,7 @@ use App\Actions\Outlets\UpdateOutlet;
 use App\Data\Forms\OutletDetailsData;
 use App\Data\LocationOptionsData;
 use App\Data\OutletData;
+use App\Data\RevertNoticeData;
 use App\Enums\Ability;
 use App\Http\Controllers\Controller;
 use App\Models\Outlet;
@@ -73,6 +74,7 @@ class OutletController extends Controller
 
         return Inertia::render('app/outlets/edit', [
             'outlet' => OutletData::fromModel($outlet),
+            'recentReverts' => RevertNoticeData::recentFor($outlet),
             'locationOptions' => LocationOptionsData::current(),
             'can' => [
                 'update' => $request->user()->can('update', $outlet),

@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import ActionButton from '@/components/action-button';
+import RevertNotices from '@/components/app/revert-notices';
 import ButtonLink from '@/components/button-link';
 import Notice from '@/components/notice';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
@@ -16,13 +17,14 @@ import type { NavItem } from '@/types';
 type Props = {
     outlet: App.Data.OutletData;
     can: { archive: boolean; submit: boolean };
+    recentReverts: App.Data.RevertNoticeData[];
 };
 
 /**
  * The top of every outlet tab: its name and state, archive and review actions, and the tabs. Each tab saves one form,
  * so no field is edited in two places.
  */
-export default function OutletHeader({ outlet, can }: Props) {
+export default function OutletHeader({ outlet, can, recentReverts }: Props) {
     const { workspace } = usePage().props;
     const { isCurrentUrl } = useCurrentUrl();
 
@@ -76,6 +78,15 @@ export default function OutletHeader({ outlet, can }: Props) {
             </div>
 
             <ReviewBanner outlet={outlet} canSubmit={can.submit} />
+
+            {outlet.hidden_reason && (
+                <Notice title="Hidden by an admin">
+                    {outlet.hidden_reason} The outlet keeps trading, but
+                    visitors cannot find it until an admin shows it again.
+                </Notice>
+            )}
+
+            <RevertNotices reverts={recentReverts} />
 
             {tabs.length > 1 && (
                 <nav

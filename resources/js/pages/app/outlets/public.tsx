@@ -23,6 +23,7 @@ import { edit as editPublic, update } from '@/routes/outlets/public';
 
 type Props = {
     outlet: App.Data.OutletData;
+    recentReverts: App.Data.RevertNoticeData[];
     place: App.Data.PlaceProfileData;
     categories: App.Data.CategoryOptionData[];
     tagOptions: App.Data.TagOptionData[];
@@ -55,6 +56,7 @@ const missingLabels: Record<string, string> = {
 
 export default function OutletPublicPage({
     outlet,
+    recentReverts,
     place,
     categories,
     tagOptions,
@@ -73,7 +75,7 @@ export default function OutletPublicPage({
             <Head title={`${outlet.name} · Public page`} />
 
             <div className="flex max-w-2xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader outlet={outlet} can={can} />
+                <OutletHeader outlet={outlet} can={can} recentReverts={recentReverts} />
 
                 <PageErrors except={fieldNames} />
 

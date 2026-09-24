@@ -8,6 +8,7 @@ use App\Data\BusinessData;
 use App\Data\BusinessPlaceData;
 use App\Data\Forms\BusinessDetailsData;
 use App\Data\LocationOptionsData;
+use App\Data\RevertNoticeData;
 use App\Enums\Ability;
 use App\Http\Controllers\Controller;
 use App\Support\Workspace;
@@ -34,6 +35,7 @@ class BusinessController extends Controller
         return Inertia::render('app/business/edit', [
             'business' => BusinessData::fromModel($business),
             'place' => BusinessPlaceData::fromModel($business),
+            'recentReverts' => RevertNoticeData::recentFor($business),
             'locationOptions' => LocationOptionsData::current(),
             'can' => [
                 'update' => $request->user()->can('update', $business),

@@ -6,6 +6,7 @@ use App\Actions\Images\ManageImages;
 use App\Data\Forms\ImageUploadData;
 use App\Data\ImageData;
 use App\Data\OutletData;
+use App\Data\RevertNoticeData;
 use App\Enums\Ability;
 use App\Enums\ImageKind;
 use App\Http\Controllers\Controller;
@@ -35,6 +36,7 @@ class OutletPhotoController extends Controller
 
         return Inertia::render('app/outlets/photos', [
             'outlet' => OutletData::fromModel($outlet),
+            'recentReverts' => RevertNoticeData::recentFor($outlet),
             'images' => ImageData::collect($outlet->images()->active()->orderBy('position')->get()),
             'galleryLimit' => ImageKind::Gallery->limit(),
             'can' => [

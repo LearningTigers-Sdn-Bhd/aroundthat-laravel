@@ -21,6 +21,7 @@ import {
 
 type Props = {
     outlet: App.Data.OutletData;
+    recentReverts: App.Data.RevertNoticeData[];
     images: App.Data.ImageData[];
     galleryLimit: number;
     can: { update: boolean; submit: boolean; archive: boolean };
@@ -28,6 +29,7 @@ type Props = {
 
 export default function OutletPhotos({
     outlet,
+    recentReverts,
     images,
     galleryLimit,
     can,
@@ -55,7 +57,7 @@ export default function OutletPhotos({
             <Head title={`${outlet.name} · Photos`} />
 
             <div className="flex max-w-3xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader outlet={outlet} can={can} />
+                <OutletHeader outlet={outlet} can={can} recentReverts={recentReverts} />
 
                 <PageErrors except={['file', 'alt_text', 'kind']} />
 

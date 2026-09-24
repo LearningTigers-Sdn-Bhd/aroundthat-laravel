@@ -6,6 +6,7 @@ use App\Actions\Outlets\UpdateOpeningHours;
 use App\Data\Forms\OpeningHoursData;
 use App\Data\OutletData;
 use App\Data\OutletHoursData;
+use App\Data\RevertNoticeData;
 use App\Enums\Ability;
 use App\Http\Controllers\Controller;
 use App\Models\Outlet;
@@ -35,6 +36,7 @@ class OutletHoursController extends Controller
 
         return Inertia::render('app/outlets/hours', [
             'outlet' => OutletData::fromModel($outlet),
+            'recentReverts' => RevertNoticeData::recentFor($outlet),
             'hours' => OutletHoursData::fromModel($outlet, $today),
             'today' => $today,
             'can' => [
