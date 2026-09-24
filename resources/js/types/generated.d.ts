@@ -127,6 +127,16 @@ id: string,
 name: string,
 business_name: string,
 };
+export type MembershipData = {
+id: string,
+business_id: string,
+business_name: string,
+role: App.Enums.MembershipRole,
+outlets: App.Data.OutletOptionData[],
+suspended_at: string | null,
+suspension_reason: string | null,
+joined_at: string | null,
+};
 export type OutletData = {
 id: string,
 business_id: string,

@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Building2, LayoutGrid, ShieldCheck } from 'lucide-react';
+import { Building2, LayoutGrid, ShieldCheck, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { BusinessSwitcher } from '@/components/business-switcher';
 import { NavMain } from '@/components/nav-main';
@@ -16,6 +16,7 @@ import {
 import { dashboard } from '@/routes';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import { index as adminBusinesses } from '@/routes/admin/businesses';
+import { index as adminUsers } from '@/routes/admin/users';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
@@ -32,6 +33,12 @@ export function AppSidebar() {
                   title: 'Businesses',
                   href: adminBusinesses(),
                   icon: Building2,
+                  matchChildren: true,
+              },
+              {
+                  title: 'Users',
+                  href: adminUsers(),
+                  icon: Users,
                   matchChildren: true,
               },
           ]
