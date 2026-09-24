@@ -9,4 +9,5 @@ enum OwnerMethod: string
 {
     case Existing = 'existing';
     case TemporaryPassword = 'temporary_password';
+    case Invite = 'invite';
 }

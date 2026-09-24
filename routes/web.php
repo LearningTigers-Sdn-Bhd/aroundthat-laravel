@@ -1,9 +1,18 @@
 <?php
 
+use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+
+Route::controller(InvitationController::class)->prefix('invitations/{token}')->name('invitations.')->group(function () {
+    Route::get('/', 'show')->name('show');
+    Route::middleware('throttle:10,1')->group(function () {
+        Route::post('accept', 'accept')->name('accept');
+        Route::post('decline', 'decline')->name('decline');
+    });
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('workspace', [WorkspaceController::class, 'choose'])->name('workspace.choose');

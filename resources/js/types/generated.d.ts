@@ -8,6 +8,15 @@ is_suspended: boolean,
 role: App.Enums.MembershipRole,
 abilities: App.Enums.Ability[],
 };
+export type InvitationPreviewData = {
+business_name: string,
+inviter_name: string | null,
+email: string,
+role: App.Enums.MembershipRole,
+status: App.Enums.InvitationStatus,
+expires_at: string,
+outlet_names: string[],
+};
 export type WorkspaceOptionData = {
 business_id: string,
 business_name: string,
@@ -22,6 +31,15 @@ registered_name: string | null,
 registration_number: string | null,
 contact_phone: string | null,
 address: string | null,
+};
+export type InviteStaffData = {
+email: string,
+role: App.Enums.MembershipRole,
+outlet_ids: string[],
+};
+export type NewAccountData = {
+name: string,
+password: string,
 };
 export type OnboardBusinessData = {
 business: App.Data.Forms.BusinessDetailsData,
@@ -47,9 +65,10 @@ contact_phone: string | null,
 }
 namespace Enums {
 export type Ability = 'scan' | 'view_today_activity' | 'view_reports' | 'view_statements' | 'manage_offers' | 'void_vouchers' | 'manage_business' | 'manage_outlets' | 'manage_staff' | 'manage_public_content';
+export type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'cancelled' | 'expired';
 export type MembershipRole = 'owner' | 'manager' | 'cashier';
 export type OnboardingStatus = 'draft' | 'pending' | 'approved' | 'rejected';
-export type OwnerMethod = 'existing' | 'temporary_password';
+export type OwnerMethod = 'existing' | 'temporary_password' | 'invite';
 }
 }
 declare namespace Illuminate {

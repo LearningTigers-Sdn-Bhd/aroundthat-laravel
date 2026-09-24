@@ -4,9 +4,11 @@ use App\Actions\Businesses\OnboardBusiness;
 use App\Data\Forms\OnboardBusinessData;
 use App\Enums\MembershipRole;
 use App\Enums\OnboardingStatus;
+use App\Jobs\SendStaffInvitation;
 use App\Models\Activity;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Validation\ValidationException;
 
 function onboardingInput(array $overrides = []): array
@@ -90,3 +92,22 @@ test('refuses a temporary password owner whose email already has a login', funct
 test('requires a name and password for a temporary password owner', function () {
     OnboardBusinessData::validateAndCreate(onboardingInput(['owner_name' => null, 'owner_password' => null]));
 })->throws(ValidationException::class);
+
+test('invites the owner by email and leaves the business without members until they accept', function () {
+    Queue::fake([SendStaffInvitation::class]);
+    $admin = User::factory()->admin()->create();
+
+    $business = app(OnboardBusiness::class)->handle($admin, OnboardBusinessData::validateAndCreate(onboardingInput([
+        'owner_method' => 'invite',
+        'owner_name' => null,
+        'owner_password' => null,
+    ])));
+
+    expect($business->memberships()->count())->toBe(0);
+    $invitation = $business->invitations()->sole();
+    expect($invitation->email)->toBe('owner@borneo.test');
+    expect($invitation->role)->toBe(MembershipRole::Owner);
+    expect($invitation->invited_by_id)->toBe($admin->id);
+    expect(User::where('email', 'owner@borneo.test')->exists())->toBeFalse();
+    Queue::assertPushed(SendStaffInvitation::class);
+});

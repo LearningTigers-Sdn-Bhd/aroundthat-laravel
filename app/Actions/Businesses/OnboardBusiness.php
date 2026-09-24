@@ -2,6 +2,8 @@
 
 namespace App\Actions\Businesses;
 
+use App\Actions\Staff\InviteStaff;
+use App\Data\Forms\InviteStaffData;
 use App\Data\Forms\OnboardBusinessData;
 use App\Enums\MembershipRole;
 use App\Enums\OnboardingStatus;
@@ -15,10 +17,15 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * An admin creates a business and its first owner, and either approves it now or leaves it for the owner to complete.
+ *
+ * An invited owner joins when they accept the emailed invitation, so until then the business has no members.
  */
 class OnboardBusiness
 {
-    public function __construct(protected AuditTrail $audit) {}
+    public function __construct(
+        protected AuditTrail $audit,
+        protected InviteStaff $inviteStaff,
+    ) {}
 
     /**
      * @throws ValidationException
@@ -42,7 +49,12 @@ class OnboardBusiness
                 }
 
                 $business->save();
-                $business->memberships()->create(['user_id' => $owner->getKey(), 'role' => MembershipRole::Owner]);
+
+                if ($owner === null) {
+                    $this->inviteStaff->handle($admin, $business, new InviteStaffData($data->ownerEmail, MembershipRole::Owner));
+                } else {
+                    $business->memberships()->create(['user_id' => $owner->getKey(), 'role' => MembershipRole::Owner]);
+                }
 
                 return $business;
             },
@@ -50,15 +62,18 @@ class OnboardBusiness
     }
 
     /**
+     * The user who becomes the owner now, or null when the owner is invited and joins later.
+     *
      * @throws ValidationException
      */
-    protected function resolveOwner(OnboardBusinessData $data): User
+    protected function resolveOwner(OnboardBusinessData $data): ?User
     {
         $email = Str::lower($data->ownerEmail);
 
         return match ($data->ownerMethod) {
             OwnerMethod::Existing => $this->existingOwner($email),
             OwnerMethod::TemporaryPassword => $this->temporaryPasswordOwner($email, $data),
+            OwnerMethod::Invite => null,
         };
     }
 

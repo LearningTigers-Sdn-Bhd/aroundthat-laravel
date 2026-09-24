@@ -21,6 +21,9 @@ class EnsurePasswordIsChanged
         'password.confirm.store',
         'password.confirmation',
         'logout',
+        'invitations.show',
+        'invitations.accept',
+        'invitations.decline',
     ];
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Business;
+use App\Models\Invitation;
 use App\Models\Membership;
 use App\Models\Outlet;
 use App\Models\User;
@@ -56,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
             'business' => Business::class,
             'outlet' => Outlet::class,
             'membership' => Membership::class,
+            'invitation' => Invitation::class,
         ]);
 
         DB::prohibitDestructiveCommands(

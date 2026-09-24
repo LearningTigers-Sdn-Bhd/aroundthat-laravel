@@ -69,6 +69,14 @@ class Business extends Model
     }
 
     /**
+     * @return HasMany<Invitation, $this>
+     */
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(Invitation::class);
+    }
+
+    /**
      * @return HasMany<Outlet, $this>
      */
     public function outlets(): HasMany
