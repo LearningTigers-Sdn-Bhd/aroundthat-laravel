@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 export type Status =
     | App.Enums.OnboardingStatus
     | App.Enums.InvitationStatus
+    | App.Enums.TagStatus
     | 'active'
     | 'suspended'
     | 'archived';
@@ -32,7 +33,7 @@ const statuses: Record<Status, { label: string; tone: keyof typeof tones }> = {
 };
 
 /**
- * One label for an onboarding, invitation, membership or suspension state.
+ * One label for an onboarding, invitation, tag review, membership or suspension state.
  */
 export default function StatusBadge({
     status,

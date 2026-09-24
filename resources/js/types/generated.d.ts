@@ -127,6 +127,14 @@ suspended_by_name: string | null,
 suspension_reason: string | null,
 created_at: string | null,
 };
+export type CategoryData = {
+id: string,
+slug: string,
+name: string,
+position: number,
+is_active: boolean,
+outlets_count: number,
+};
 export type HostOutletOptionData = {
 id: string,
 name: string,
@@ -169,6 +177,18 @@ archived_at: string | null,
 is_operational: boolean,
 created_at: string | null,
 };
+export type TagData = {
+id: string,
+slug: string,
+name: string,
+status: App.Enums.TagStatus,
+is_active: boolean,
+created_by_business_id: string | null,
+created_by_business_name: string | null,
+merged_into_name: string | null,
+outlets_count: number,
+created_at: string | null,
+};
 export type UserData = {
 id: string,
 name: string,
@@ -193,6 +213,10 @@ registered_name: string | null,
 registration_number: string | null,
 contact_phone: string | null,
 address: string | null,
+};
+export type CategoryData = {
+name: string,
+is_active: boolean,
 };
 export type InviteStaffData = {
 email: string,
@@ -233,6 +257,10 @@ contact_phone: string | null,
 export type ReasonData = {
 reason: string,
 };
+export type TagData = {
+name: string,
+is_active: boolean,
+};
 }
 }
 namespace Enums {
@@ -242,6 +270,7 @@ export type MediaDisk = 'local' | 'r2';
 export type MembershipRole = 'owner' | 'manager' | 'cashier';
 export type OnboardingStatus = 'draft' | 'pending' | 'approved' | 'rejected';
 export type OwnerMethod = 'existing' | 'temporary_password' | 'invite';
+export type TagStatus = 'pending' | 'approved' | 'rejected';
 }
 }
 declare namespace Illuminate {

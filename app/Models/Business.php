@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\OnboardingStatus;
 use App\Models\Concerns\HasOnboarding;
+use App\Models\Concerns\HasSlug;
 use App\Models\Concerns\LocksForUpdate;
 use Database\Factories\BusinessFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -20,6 +21,7 @@ use Spatie\Activitylog\Support\LogOptions;
  *
  * @property string $id
  * @property string $name
+ * @property string $slug
  * @property string|null $registered_name
  * @property string|null $registration_number
  * @property string $contact_email
@@ -33,7 +35,7 @@ use Spatie\Activitylog\Support\LogOptions;
 class Business extends Model
 {
     /** @use HasFactory<BusinessFactory> */
-    use HasFactory, HasOnboarding, HasUuids, LocksForUpdate, LogsActivity;
+    use HasFactory, HasOnboarding, HasSlug, HasUuids, LocksForUpdate, LogsActivity;
 
     /**
      * Log every owner- or admin-visible field, old and new.

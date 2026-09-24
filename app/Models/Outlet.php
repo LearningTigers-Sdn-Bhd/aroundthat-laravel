@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\OnboardingStatus;
 use App\Models\Concerns\HasOnboarding;
+use App\Models\Concerns\HasSlug;
 use App\Models\Concerns\LocksForUpdate;
 use Database\Factories\OutletFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
@@ -24,6 +26,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property string $id
  * @property string $business_id
  * @property string $name
+ * @property string $slug
  * @property string|null $contact_email
  * @property string|null $contact_phone
  * @property string $address_line_1
@@ -34,6 +37,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property string $country_code
  * @property string $timezone
  * @property string|null $host_outlet_id
+ * @property string|null $category_id
  * @property Carbon|null $archived_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -42,7 +46,7 @@ use Spatie\Activitylog\Support\LogOptions;
 class Outlet extends Model
 {
     /** @use HasFactory<OutletFactory> */
-    use HasFactory, HasOnboarding, HasUuids, LocksForUpdate, LogsActivity;
+    use HasFactory, HasOnboarding, HasSlug, HasUuids, LocksForUpdate, LogsActivity;
 
     /**
      * Get the attributes that should be cast.
@@ -81,6 +85,22 @@ class Outlet extends Model
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
+    }
+
+    /**
+     * @return BelongsTo<Category, $this>
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * @return BelongsToMany<Tag, $this>
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class)->orderBy('name');
     }
 
     /**

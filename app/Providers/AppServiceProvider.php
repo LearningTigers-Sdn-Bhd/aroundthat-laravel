@@ -3,9 +3,12 @@
 namespace App\Providers;
 
 use App\Models\Business;
+use App\Models\Category;
 use App\Models\Invitation;
 use App\Models\Membership;
 use App\Models\Outlet;
+use App\Models\Setting;
+use App\Models\Tag;
 use App\Models\User;
 use App\Support\ActivityLog\AuditTrail;
 use App\Support\Workspace;
@@ -58,6 +61,9 @@ class AppServiceProvider extends ServiceProvider
             'outlet' => Outlet::class,
             'membership' => Membership::class,
             'invitation' => Invitation::class,
+            'category' => Category::class,
+            'tag' => Tag::class,
+            'setting' => Setting::class,
         ]);
 
         DB::prohibitDestructiveCommands(

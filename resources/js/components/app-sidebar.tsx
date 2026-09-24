@@ -4,8 +4,10 @@ import {
     Building2,
     LayoutGrid,
     Settings,
+    Shapes,
     ShieldCheck,
     Store,
+    Tags,
     UserCog,
     Users,
 } from 'lucide-react';
@@ -28,7 +30,9 @@ import { edit as businessDetails } from '@/routes/business';
 import { index as outlets } from '@/routes/outlets';
 import { index as staff } from '@/routes/staff';
 import { index as adminBusinesses } from '@/routes/admin/businesses';
+import { index as adminCategories } from '@/routes/admin/categories';
 import { edit as adminSettings } from '@/routes/admin/settings';
+import { index as adminTags } from '@/routes/admin/tags';
 import { index as adminUsers } from '@/routes/admin/users';
 import type { NavItem } from '@/types';
 
@@ -81,6 +85,12 @@ export function AppSidebar() {
                   icon: Users,
                   matchChildren: true,
               },
+              {
+                  title: 'Categories',
+                  href: adminCategories(),
+                  icon: Shapes,
+              },
+              { title: 'Tags', href: adminTags(), icon: Tags },
               { title: 'Settings', href: adminSettings(), icon: Settings },
           ]
         : [];

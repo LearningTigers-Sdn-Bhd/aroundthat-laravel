@@ -15,14 +15,17 @@ import {
     index as businessesIndex,
     show as showBusiness,
 } from '@/routes/admin/businesses';
+import { index as tagsIndex } from '@/routes/admin/tags';
 
 type Props = {
     pendingBusinessCount: number;
+    pendingTagCount: number;
     pendingOutlets: App.Data.Admin.OutletData[];
 };
 
 export default function AdminDashboard({
     pendingBusinessCount,
+    pendingTagCount,
     pendingOutlets,
 }: Props) {
     return (
@@ -32,7 +35,7 @@ export default function AdminDashboard({
             <div className="flex flex-1 flex-col gap-6 p-4">
                 <Heading
                     title="Waiting for review"
-                    description="Businesses and outlets their owners have submitted."
+                    description="Businesses, outlets and tags their owners have submitted."
                 />
 
                 <div className="grid gap-4 md:grid-cols-2">
@@ -57,6 +60,27 @@ export default function AdminDashboard({
                                 })}
                             >
                                 Review businesses
+                            </ButtonLink>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Tags</CardTitle>
+                            <CardDescription>
+                                {pendingTagCount === 1
+                                    ? '1 tag owners created is waiting for review.'
+                                    : `${pendingTagCount} tags owners created are waiting for review.`}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ButtonLink
+                                variant="outline"
+                                href={tagsIndex({
+                                    query: { filter: { status: 'pending' } },
+                                })}
+                            >
+                                Review tags
                             </ButtonLink>
                         </CardContent>
                     </Card>

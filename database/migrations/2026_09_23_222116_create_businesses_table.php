@@ -15,6 +15,7 @@ return new class extends Migration
         Schema::create('businesses', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
+            $table->string('slug')->unique();
             $table->string('registered_name')->nullable();
             $table->string('registration_number')->nullable();
             $table->string('contact_email');
