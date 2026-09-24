@@ -1,5 +1,6 @@
 import ActionButton from '@/components/action-button';
 import RoleAndOutletsFields from '@/components/app/staff/role-and-outlets-fields';
+import ConfirmDialog from '@/components/confirm-dialog';
 import FormDialog from '@/components/form-dialog';
 import ReasonDialog from '@/components/reason-dialog';
 import { Button } from '@/components/ui/button';
@@ -63,7 +64,7 @@ export default function MemberActions({ member, roles, outletOptions }: Props) {
                 />
             )}
 
-            <FormDialog
+            <ConfirmDialog
                 trigger={
                     <Button variant="ghost" size="sm">
                         Remove
@@ -72,7 +73,7 @@ export default function MemberActions({ member, roles, outletOptions }: Props) {
                 title={`Remove ${member.name}?`}
                 description="They lose access to this business. Invite them again to bring them back."
                 form={destroy.form(member.id)}
-                submitLabel="Remove"
+                confirmLabel="Remove"
                 destructive
             />
         </div>

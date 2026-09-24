@@ -18,17 +18,18 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use InertiaUI\Modal\Modal;
 
 class OutletController extends Controller
 {
-    public function create(Business $business): Response
+    public function create(Business $business): Modal
     {
         $business->load(['approvedBy', 'suspendedBy']);
 
-        return Inertia::render('admin/outlets/create', [
+        return Inertia::modal('admin/outlets/create', [
             'business' => BusinessData::fromModel($business),
             'locationOptions' => LocationOptionsData::current(),
-        ]);
+        ])->baseRoute('admin.businesses.show', $business);
     }
 
     /**

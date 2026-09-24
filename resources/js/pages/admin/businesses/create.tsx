@@ -2,6 +2,7 @@ import { Form, Head } from '@inertiajs/react';
 import { useState } from 'react';
 import ComboboxField from '@/components/combobox-field';
 import Heading from '@/components/heading';
+import InertiaSheet from '@/components/inertia-sheet';
 import InputError from '@/components/input-error';
 import TextField from '@/components/text-field';
 import { Button } from '@/components/ui/button';
@@ -14,11 +15,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { SheetClose, SheetFooter } from '@/components/ui/sheet';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { timezoneOptions } from '@/lib/locations';
-import { dashboard } from '@/routes/admin';
-import { create, index, store } from '@/routes/admin/businesses';
+import { store } from '@/routes/admin/businesses';
 
 const ownerMethodLabels: Record<App.Enums.OwnerMethod, string> = {
     existing: 'An existing login',
@@ -44,18 +45,17 @@ export default function CreateBusiness({
         useState<App.Enums.OwnerMethod>('invite');
 
     return (
-        <>
+        <InertiaSheet
+            title="New business"
+            description="Create the business and give it its first owner."
+            className="data-[side=right]:sm:max-w-2xl"
+        >
             <Head title="New business" />
 
-            <div className="flex max-w-2xl flex-1 flex-col gap-6 p-4">
-                <Heading
-                    title="New business"
-                    description="Create the business and give it its first owner."
-                />
-
-                <Form {...store.form()} className="space-y-10">
-                    {({ processing, errors }) => (
-                        <>
+            <Form {...store.form()} className="flex min-h-0 flex-1 flex-col">
+                {({ processing, errors }) => (
+                    <>
+                        <div className="flex-1 space-y-10 overflow-y-auto px-4">
                             <section className="space-y-4">
                                 <Heading variant="small" title="Business" />
 
@@ -202,23 +202,24 @@ export default function CreateBusiness({
                                 </p>
                                 <InputError message={errors.business} />
                             </section>
+                        </div>
 
+                        <SheetFooter className="flex-row justify-end border-t">
+                            <SheetClose
+                                render={
+                                    <Button type="button" variant="outline" />
+                                }
+                            >
+                                Cancel
+                            </SheetClose>
                             <Button type="submit" disabled={processing}>
                                 {processing && <Spinner />}
                                 Create business
                             </Button>
-                        </>
-                    )}
-                </Form>
-            </div>
-        </>
+                        </SheetFooter>
+                    </>
+                )}
+            </Form>
+        </InertiaSheet>
     );
 }
-
-CreateBusiness.layout = {
-    breadcrumbs: [
-        { title: 'Admin', href: dashboard() },
-        { title: 'Businesses', href: index() },
-        { title: 'New business', href: create() },
-    ],
-};

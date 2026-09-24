@@ -1,14 +1,13 @@
-import { Form, Head, setLayoutProps } from '@inertiajs/react';
-import Heading from '@/components/heading';
+import { Form, Head } from '@inertiajs/react';
+import InertiaSheet from '@/components/inertia-sheet';
 import InputError from '@/components/input-error';
 import OutletFields from '@/components/outlet-fields';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { SheetClose, SheetFooter } from '@/components/ui/sheet';
 import { Spinner } from '@/components/ui/spinner';
-import { dashboard } from '@/routes/admin';
-import { index, show } from '@/routes/admin/businesses';
-import { create, store } from '@/routes/admin/businesses/outlets';
+import { store } from '@/routes/admin/businesses/outlets';
 
 export default function CreateOutlet({
     business,
@@ -17,30 +16,23 @@ export default function CreateOutlet({
     business: App.Data.Admin.BusinessData;
     locationOptions: App.Data.LocationOptionsData;
 }) {
-    setLayoutProps({
-        breadcrumbs: [
-            { title: 'Admin', href: dashboard() },
-            { title: 'Businesses', href: index() },
-            { title: business.name, href: show(business.id) },
-            { title: 'New outlet', href: create(business.id) },
-        ],
-    });
-
     const canApprove = business.onboarding_status === 'approved';
 
     return (
-        <>
+        <InertiaSheet
+            title="New outlet"
+            description={`A place where ${business.name} trades.`}
+            className="data-[side=right]:sm:max-w-2xl"
+        >
             <Head title={`New outlet for ${business.name}`} />
 
-            <div className="flex max-w-2xl flex-1 flex-col gap-6 p-4">
-                <Heading
-                    title="New outlet"
-                    description={`A place where ${business.name} trades.`}
-                />
-
-                <Form {...store.form(business.id)} className="space-y-6">
-                    {({ processing, errors }) => (
-                        <>
+            <Form
+                {...store.form(business.id)}
+                className="flex min-h-0 flex-1 flex-col"
+            >
+                {({ processing, errors }) => (
+                    <>
+                        <div className="flex-1 space-y-6 overflow-y-auto px-4">
                             <OutletFields
                                 errors={errors}
                                 locationOptions={locationOptions}
@@ -71,15 +63,24 @@ export default function CreateOutlet({
                                     }
                                 />
                             </div>
+                        </div>
 
+                        <SheetFooter className="flex-row justify-end border-t">
+                            <SheetClose
+                                render={
+                                    <Button type="button" variant="outline" />
+                                }
+                            >
+                                Cancel
+                            </SheetClose>
                             <Button type="submit" disabled={processing}>
                                 {processing && <Spinner />}
                                 Create outlet
                             </Button>
-                        </>
-                    )}
-                </Form>
-            </div>
-        </>
+                        </SheetFooter>
+                    </>
+                )}
+            </Form>
+        </InertiaSheet>
     );
 }

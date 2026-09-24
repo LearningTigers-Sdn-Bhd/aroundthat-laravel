@@ -1,10 +1,11 @@
 import { Form, Head } from '@inertiajs/react';
-import Heading from '@/components/heading';
+import InertiaSheet from '@/components/inertia-sheet';
 import OutletFields, { outletFieldNames } from '@/components/outlet-fields';
 import PageErrors from '@/components/page-errors';
 import { Button } from '@/components/ui/button';
+import { SheetClose, SheetFooter } from '@/components/ui/sheet';
 import { Spinner } from '@/components/ui/spinner';
-import { create, index, store } from '@/routes/outlets';
+import { store } from '@/routes/outlets';
 
 export default function CreateOutlet({
     timezone,
@@ -14,40 +15,41 @@ export default function CreateOutlet({
     locationOptions: App.Data.LocationOptionsData;
 }) {
     return (
-        <>
+        <InertiaSheet
+            title="New outlet"
+            description="It is saved as a draft. Submit it for review when the details are complete."
+            className="data-[side=right]:sm:max-w-2xl"
+        >
             <Head title="New outlet" />
 
-            <div className="flex max-w-2xl flex-1 flex-col gap-6 p-4">
-                <Heading
-                    title="New outlet"
-                    description="It is saved as a draft. Submit it for review when the details are complete."
-                />
-
-                <Form {...store.form()} className="space-y-6">
-                    {({ processing, errors }) => (
-                        <>
+            <Form {...store.form()} className="flex min-h-0 flex-1 flex-col">
+                {({ processing, errors }) => (
+                    <>
+                        <div className="flex-1 space-y-6 overflow-y-auto px-4">
                             <PageErrors except={outletFieldNames} />
                             <OutletFields
                                 errors={errors}
                                 locationOptions={locationOptions}
                                 defaultTimezone={timezone}
                             />
+                        </div>
 
+                        <SheetFooter className="flex-row justify-end border-t">
+                            <SheetClose
+                                render={
+                                    <Button type="button" variant="outline" />
+                                }
+                            >
+                                Cancel
+                            </SheetClose>
                             <Button type="submit" disabled={processing}>
                                 {processing && <Spinner />}
                                 Create outlet
                             </Button>
-                        </>
-                    )}
-                </Form>
-            </div>
-        </>
+                        </SheetFooter>
+                    </>
+                )}
+            </Form>
+        </InertiaSheet>
     );
 }
-
-CreateOutlet.layout = {
-    breadcrumbs: [
-        { title: 'Outlets', href: index() },
-        { title: 'New outlet', href: create() },
-    ],
-};

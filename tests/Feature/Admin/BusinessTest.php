@@ -50,6 +50,15 @@ test('businesses can be sorted by name', function () {
             ->where('businesses.data.1.name', 'Alpha'));
 });
 
+test('the new business form opens as a modal over the business list', function () {
+    $this->actingAs($this->admin)
+        ->get(route('admin.businesses.create'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/businesses/index')
+            ->where('_inertiaui_modal.component', 'admin/businesses/create')
+            ->has('_inertiaui_modal.props.ownerMethods'));
+});
+
 test('an admin onboards a business by inviting its owner', function () {
     Queue::fake([SendStaffInvitation::class]);
 

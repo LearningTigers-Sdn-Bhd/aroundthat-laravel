@@ -12,7 +12,7 @@ import MembersTable from '@/components/members-table';
 import Notice from '@/components/notice';
 import PageErrors from '@/components/page-errors';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
-import ButtonLink from '@/components/button-link';
+import ModalButtonLink from '@/components/modal-button-link';
 import { formatDate, formatDateTime } from '@/lib/format';
 import { dashboard } from '@/routes/admin';
 import { index, show } from '@/routes/admin/businesses';
@@ -110,10 +110,14 @@ export default function ShowBusiness({
                     <div className="flex items-center justify-between gap-4">
                         <Heading variant="small" title="Outlets" />
                         {!business.suspended_at && (
-                            <ButtonLink variant="outline" size="sm" href={createOutlet(business.id)}>
-                                    <Plus />
-                                    Add outlet
-                                </ButtonLink>
+                            <ModalButtonLink
+                                variant="outline"
+                                size="sm"
+                                href={createOutlet(business.id).url}
+                            >
+                                <Plus />
+                                Add outlet
+                            </ModalButtonLink>
                         )}
                     </div>
                     <OutletsTable outlets={outlets} />

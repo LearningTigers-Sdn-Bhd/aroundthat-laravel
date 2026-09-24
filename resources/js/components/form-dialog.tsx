@@ -1,7 +1,6 @@
 import { Form } from '@inertiajs/react';
 import type { ReactElement, ReactNode } from 'react';
 import { useState } from 'react';
-import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -24,12 +23,12 @@ type Props = {
     form: RouteFormDefinition<'post'>;
     submitLabel: string;
     destructive?: boolean;
-    /** The fields, given the current errors. Leave out for a plain confirmation. */
-    children?: (errors: Record<string, string>) => ReactNode;
+    /** The fields, given the current errors. */
+    children: (errors: Record<string, string>) => ReactNode;
 };
 
 /**
- * A dialog holding a small form, such as an invitation or a confirmation with no fields.
+ * A dialog holding a small form, such as an invitation. See {@link ConfirmDialog} for a confirmation with no fields.
  */
 export default function FormDialog({
     trigger,
@@ -60,22 +59,22 @@ export default function FormDialog({
                 >
                     {({ processing, errors, resetAndClearErrors }) => (
                         <>
-                            {children?.(errors)}
-                            {!children &&
-                                Object.values(errors).map((message) => (
-                                    <InputError
-                                        key={message}
-                                        message={message}
-                                    />
-                                ))}
+                            {children(errors)}
 
                             <DialogFooter className="gap-2">
-                                <DialogClose render={<Button
-                                        type="button"
-                                        variant="secondary"
-                                        onClick={() => resetAndClearErrors()} />}>
-                                        Cancel
-                                    </DialogClose>
+                                <DialogClose
+                                    render={
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            onClick={() =>
+                                                resetAndClearErrors()
+                                            }
+                                        />
+                                    }
+                                >
+                                    Cancel
+                                </DialogClose>
                                 <Button
                                     type="submit"
                                     variant={

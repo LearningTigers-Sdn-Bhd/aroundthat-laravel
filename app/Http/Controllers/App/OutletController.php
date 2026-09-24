@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use InertiaUI\Modal\Modal;
 
 /**
  * The owner's outlets: list, add and edit them. New outlets start as drafts until an admin approves them.
@@ -39,14 +40,14 @@ class OutletController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(): Modal
     {
         Gate::authorize('create', [Outlet::class, $this->workspace->business()]);
 
-        return Inertia::render('app/outlets/create', [
+        return Inertia::modal('app/outlets/create', [
             'timezone' => $this->workspace->business()->timezone,
             'locationOptions' => LocationOptionsData::current(),
-        ]);
+        ])->baseRoute('outlets.index');
     }
 
     /**

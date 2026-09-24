@@ -23,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use InertiaUI\Modal\Modal;
 use Spatie\LaravelData\PaginatedDataCollection;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -51,12 +52,12 @@ class BusinessController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(): Modal
     {
-        return Inertia::render('admin/businesses/create', [
+        return Inertia::modal('admin/businesses/create', [
             'ownerMethods' => OwnerMethod::cases(),
             'locationOptions' => LocationOptionsData::current(),
-        ]);
+        ])->baseRoute('admin.businesses.index');
     }
 
     /**

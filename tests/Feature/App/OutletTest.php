@@ -40,6 +40,17 @@ test('staff without the manage outlets ability cannot open outlets', function ()
     $this->post(route('outlets.store'), ownerOutletInput())->assertForbidden();
 });
 
+test('the new outlet form opens as a modal over the outlet list', function () {
+    $owner = Membership::factory()->owner()->create();
+
+    $this->actingAs($owner->user)
+        ->get(route('outlets.create'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('app/outlets/index')
+            ->where('_inertiaui_modal.component', 'app/outlets/create')
+            ->where('_inertiaui_modal.props.timezone', $owner->business->timezone));
+});
+
 test('an owner adds a draft outlet', function () {
     $owner = Membership::factory()->owner()->for(Business::factory()->approved())->create();
 

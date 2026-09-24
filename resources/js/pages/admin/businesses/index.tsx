@@ -4,7 +4,7 @@ import type { DataTableColumn } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import Heading from '@/components/heading';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
-import ButtonLink from '@/components/button-link';
+import ModalButtonLink from '@/components/modal-button-link';
 import { formatDate, humanize } from '@/lib/format';
 import { dashboard } from '@/routes/admin';
 import { create, index, show } from '@/routes/admin/businesses';
@@ -69,10 +69,10 @@ export default function BusinessesIndex({
                         title="Businesses"
                         description="Every business on the platform."
                     />
-                    <ButtonLink href={create()}>
-                            <Plus />
-                            New business
-                        </ButtonLink>
+                    <ModalButtonLink href={create().url}>
+                        <Plus />
+                        New business
+                    </ModalButtonLink>
                 </div>
 
                 <DataTable

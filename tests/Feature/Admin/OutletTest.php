@@ -22,6 +22,18 @@ function outletInput(array $overrides = []): array
     ];
 }
 
+test('the new outlet form opens as a modal over its business', function () {
+    $business = Business::factory()->create();
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.businesses.outlets.create', $business))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/businesses/show')
+            ->where('business.id', $business->id)
+            ->where('_inertiaui_modal.component', 'admin/outlets/create')
+            ->where('_inertiaui_modal.props.business.id', $business->id));
+});
+
 test('an admin adds a draft outlet to a business', function () {
     $business = Business::factory()->create();
 

@@ -2,7 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { Plus, Store } from 'lucide-react';
 import Heading from '@/components/heading';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
-import ButtonLink from '@/components/button-link';
+import ModalButtonLink from '@/components/modal-button-link';
 import {
     Empty,
     EmptyContent,
@@ -38,10 +38,10 @@ export default function OutletsIndex({ outlets, canCreate }: Props) {
                         description="The places where your business trades. An admin reviews each new outlet before it goes live."
                     />
                     {canCreate && (
-                        <ButtonLink href={create()}>
-                                <Plus />
-                                Add outlet
-                            </ButtonLink>
+                        <ModalButtonLink href={create().url}>
+                            <Plus />
+                            Add outlet
+                        </ModalButtonLink>
                     )}
                 </div>
 
@@ -59,10 +59,10 @@ export default function OutletsIndex({ outlets, canCreate }: Props) {
                         </EmptyHeader>
                         {canCreate && (
                             <EmptyContent>
-                                <ButtonLink href={create()}>
-                                        <Plus />
-                                        Add outlet
-                                    </ButtonLink>
+                                <ModalButtonLink href={create().url}>
+                                    <Plus />
+                                    Add outlet
+                                </ModalButtonLink>
                             </EmptyContent>
                         )}
                     </Empty>

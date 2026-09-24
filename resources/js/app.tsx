@@ -1,9 +1,11 @@
 import { createInertiaApp } from '@inertiajs/react';
+import { ModalStackProvider } from '@inertiaui/modal-react';
 import { Toaster } from '@/components/ui/toast';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
+import ModalLayout from '@/layouts/modal-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { configureEcho } from '@laravel/echo-react';
 
@@ -18,24 +20,26 @@ void createInertiaApp({
     layout: (name) => {
         switch (true) {
             case name === 'welcome':
-                return null;
+                return ModalLayout;
             case name.startsWith('auth/'):
             case name.startsWith('workspace/'):
             case name.startsWith('invitations/'):
-                return AuthLayout;
+                return [ModalLayout, AuthLayout];
             case name.startsWith('settings/'):
-                return [AppLayout, SettingsLayout];
+                return [ModalLayout, AppLayout, SettingsLayout];
             default:
-                return AppLayout;
+                return [ModalLayout, AppLayout];
         }
     },
     strictMode: true,
     withApp(app) {
         return (
-            <TooltipProvider>
-                {app}
-                <Toaster />
-            </TooltipProvider>
+            <ModalStackProvider>
+                <TooltipProvider>
+                    {app}
+                    <Toaster />
+                </TooltipProvider>
+            </ModalStackProvider>
         );
     },
     progress: {
