@@ -24,6 +24,7 @@ class ActivityData extends Data
      */
     public function __construct(
         public int $id,
+        public ?string $logName,
         public string $event,
         public ?string $subjectType,
         public ?string $subjectId,
@@ -33,6 +34,7 @@ class ActivityData extends Data
         public array $changes,
         public array $properties,
         public ?CarbonInterface $reviewedAt,
+        public ?CarbonInterface $revertedAt,
         public ?CarbonInterface $createdAt,
     ) {}
 
@@ -42,6 +44,7 @@ class ActivityData extends Data
 
         return new self(
             id: $activity->id,
+            logName: $activity->log_name,
             event: $activity->event ?? $activity->description,
             subjectType: $activity->subject_type,
             subjectId: $activity->subject_id,
@@ -51,6 +54,7 @@ class ActivityData extends Data
             changes: self::changes($activity),
             properties: array_filter(self::shownProperties($activity), fn (mixed $value): bool => ! self::isChange($value)),
             reviewedAt: $activity->reviewed_at,
+            revertedAt: $activity->reverted_at,
             createdAt: $activity->created_at,
         );
     }

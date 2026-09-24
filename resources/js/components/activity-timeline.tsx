@@ -1,4 +1,5 @@
 import { ArrowRight, History } from 'lucide-react';
+import type { ReactNode } from 'react';
 import {
     Empty,
     EmptyHeader,
@@ -17,6 +18,26 @@ const fieldLabels: Record<string, string> = {
     date_exceptions: 'Special dates',
     whatsapp: 'WhatsApp',
 };
+
+const eventLabels: Record<string, string> = {
+    details_changed: 'Details changed',
+    public_profile_changed: 'Public page changed',
+    hours_changed: 'Hours changed',
+    date_exceptions_changed: 'Special dates changed',
+    category_changed: 'Category changed',
+    tags_changed: 'Tags changed',
+    image_added: 'Photo added',
+    image_changed: 'Photo description changed',
+    image_removed: 'Photo removed',
+    images_reordered: 'Photos reordered',
+};
+
+/**
+ * How an activity's event reads, such as "Public page changed".
+ */
+export function eventLabel(event: string): string {
+    return eventLabels[event] ?? humanize(event);
+}
 
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -80,8 +101,11 @@ function formatValue(value: unknown): string {
  */
 export default function ActivityTimeline({
     activities,
+    actions,
 }: {
     activities: App.Data.Admin.ActivityData[];
+    /** Buttons shown under an entry, such as "Mark reviewed". */
+    actions?: (activity: App.Data.Admin.ActivityData) => ReactNode;
 }) {
     if (activities.length === 0) {
         return (
@@ -104,7 +128,7 @@ export default function ActivityTimeline({
 
                     <div className="flex flex-wrap items-baseline gap-x-2 text-sm">
                         <span className="font-medium">
-                            {humanize(activity.event)}
+                            {eventLabel(activity.event)}
                         </span>
                         <span className="text-muted-foreground">
                             by {activity.causer_name ?? 'System'}
@@ -128,45 +152,64 @@ export default function ActivityTimeline({
                         </p>
                     )}
 
-                    {activity.changes.length > 0 && (
-                        <dl className="mt-2 grid gap-1 text-sm">
-                            {activity.changes.map((change) => (
-                                <div
-                                    key={change.field}
-                                    className="flex flex-wrap items-center gap-x-2"
-                                >
-                                    <dt className="text-muted-foreground">
-                                        {fieldLabel(change.field)}
-                                    </dt>
-                                    <dd className="flex flex-wrap items-center gap-x-2">
-                                        <span className="text-muted-foreground line-through">
-                                            {formatValue(change.old)}
-                                        </span>
-                                        <ArrowRight className="size-3 text-muted-foreground" />
-                                        <span>{formatValue(change.new)}</span>
-                                    </dd>
-                                </div>
-                            ))}
-                        </dl>
-                    )}
+                    <ActivityChanges activity={activity} />
 
-                    {Object.keys(activity.properties).length > 0 && (
-                        <dl className="mt-2 grid gap-1 text-sm">
-                            {Object.entries(activity.properties).map(
-                                ([key, value]) => (
-                                    <div key={key} className="flex gap-x-2">
-                                        <dt className="text-muted-foreground">
-                                            {fieldLabel(key)}
-                                        </dt>
-                                        <dd>{formatValue(value)}</dd>
-                                    </div>
-                                ),
-                            )}
-                        </dl>
+                    {actions && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                            {actions(activity)}
+                        </div>
                     )}
                 </li>
             ))}
         </ol>
+    );
+}
+
+/**
+ * Each field an activity changed, old → new, and any other details it recorded.
+ */
+export function ActivityChanges({
+    activity,
+}: {
+    activity: App.Data.Admin.ActivityData;
+}) {
+    return (
+        <>
+            {activity.changes.length > 0 && (
+                <dl className="mt-2 grid gap-1 text-sm">
+                    {activity.changes.map((change) => (
+                        <div
+                            key={change.field}
+                            className="flex flex-wrap items-center gap-x-2"
+                        >
+                            <dt className="text-muted-foreground">
+                                {fieldLabel(change.field)}
+                            </dt>
+                            <dd className="flex flex-wrap items-center gap-x-2">
+                                <span className="text-muted-foreground line-through">
+                                    {formatValue(change.old)}
+                                </span>
+                                <ArrowRight className="size-3 text-muted-foreground" />
+                                <span>{formatValue(change.new)}</span>
+                            </dd>
+                        </div>
+                    ))}
+                </dl>
+            )}
+
+            {Object.keys(activity.properties).length > 0 && (
+                <dl className="mt-2 grid gap-1 text-sm">
+                    {Object.entries(activity.properties).map(([key, value]) => (
+                        <div key={key} className="flex gap-x-2">
+                            <dt className="text-muted-foreground">
+                                {fieldLabel(key)}
+                            </dt>
+                            <dd>{formatValue(value)}</dd>
+                        </div>
+                    ))}
+                </dl>
+            )}
+        </>
     );
 }
 

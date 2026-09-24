@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Activity;
+use App\Support\ActivityLog\AuditTrail;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -44,7 +47,14 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Make an owner-style edit to public content and return its change log entry, waiting for review.
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function contentChange(Model $subject, array $attributes, string $event = 'details_changed'): Activity
 {
-    // ..
+    app(AuditTrail::class)->contentChange($event, fn () => $subject->update($attributes));
+
+    return Activity::forSubject($subject)->where('event', $event)->latest('id')->firstOrFail();
 }

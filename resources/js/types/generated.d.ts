@@ -167,6 +167,7 @@ new: any,
 };
 export type ActivityData = {
 id: number,
+log_name: string | null,
 event: string,
 subject_type: string | null,
 subject_id: string | null,
@@ -176,6 +177,7 @@ ip_address: string | null,
 changes: App.Data.Admin.ActivityChangeData[],
 properties: Record<string, any>,
 reviewed_at: string | null,
+reverted_at: string | null,
 created_at: string | null,
 };
 export type BusinessData = {
@@ -204,6 +206,18 @@ name: string,
 position: number,
 is_active: boolean,
 outlets_count: number,
+};
+export type ChangeData = {
+activity: App.Data.Admin.ActivityData,
+subject: App.Data.Admin.ChangeSubjectData | null,
+reviewed_by_name: string | null,
+reverted_at: string | null,
+};
+export type ChangeSubjectData = {
+type: string,
+id: string,
+name: string,
+business_name: string | null,
 };
 export type HostOutletOptionData = {
 id: string,

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BusinessController;
 use App\Http\Controllers\Admin\BusinessStatusController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ChangeController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InvitationController;
 use App\Http\Controllers\Admin\OutletController;
@@ -53,6 +54,10 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->name('adm
         Route::post('reject', 'reject')->name('reject');
         Route::post('merge', 'merge')->name('merge');
     });
+
+    Route::get('changes', [ChangeController::class, 'index'])->name('changes.index');
+    Route::post('changes/review', [ChangeController::class, 'reviewMany'])->name('changes.review-many');
+    Route::post('changes/{change}/review', [ChangeController::class, 'review'])->name('changes.review');
 
     Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('settings/media', [SettingsController::class, 'updateMedia'])->name('settings.media.update');

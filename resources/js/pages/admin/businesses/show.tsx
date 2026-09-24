@@ -1,5 +1,6 @@
 import { Deferred, Head, setLayoutProps } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
+import ChangeActions from '@/components/admin/change-actions';
 import ActivityTimeline, {
     ActivitySkeleton,
 } from '@/components/activity-timeline';
@@ -146,7 +147,12 @@ export default function ShowBusiness({
                         description="The latest 100 changes to the business, its outlets, members and invitations."
                     />
                     <Deferred data="activities" fallback={<ActivitySkeleton />}>
-                        <ActivityTimeline activities={activities ?? []} />
+                        <ActivityTimeline
+                            activities={activities ?? []}
+                            actions={(activity) => (
+                                <ChangeActions activity={activity} />
+                            )}
+                        />
                     </Deferred>
                 </section>
             </div>

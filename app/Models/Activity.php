@@ -17,6 +17,8 @@ use Spatie\Activitylog\Models\Activity as BaseActivity;
  * @property string|null $ip_address
  * @property CarbonImmutable|null $reviewed_at
  * @property string|null $reviewed_by_id
+ * @property CarbonImmutable|null $reverted_at
+ * @property int|null $reverted_by_activity_id
  */
 class Activity extends BaseActivity
 {
@@ -30,6 +32,7 @@ class Activity extends BaseActivity
         return [
             ...parent::casts(),
             'reviewed_at' => 'datetime',
+            'reverted_at' => 'datetime',
         ];
     }
 
@@ -41,6 +44,37 @@ class Activity extends BaseActivity
     public function reviewedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by_id');
+    }
+
+    /**
+     * The entry that undid this change, when an admin reverted it.
+     *
+     * @return BelongsTo<Activity, $this>
+     */
+    public function revertedBy(): BelongsTo
+    {
+        return $this->belongsTo(Activity::class, 'reverted_by_activity_id');
+    }
+
+    public function isContent(): bool
+    {
+        return $this->log_name === self::CONTENT_LOG;
+    }
+
+    public function isReverted(): bool
+    {
+        return $this->reverted_at !== null;
+    }
+
+    /**
+     * Only owners' edits to what visitors see, which admins review.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function content(Builder $query): void
+    {
+        $query->where('log_name', self::CONTENT_LOG);
     }
 
     /**

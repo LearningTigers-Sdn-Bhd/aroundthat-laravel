@@ -1,4 +1,5 @@
 import { Deferred, Head, Link, setLayoutProps } from '@inertiajs/react';
+import ChangeActions from '@/components/admin/change-actions';
 import ActivityTimeline, {
     ActivitySkeleton,
 } from '@/components/activity-timeline';
@@ -177,7 +178,12 @@ export default function ShowOutlet({
                         description="The latest 100 changes to this outlet."
                     />
                     <Deferred data="activities" fallback={<ActivitySkeleton />}>
-                        <ActivityTimeline activities={activities ?? []} />
+                        <ActivityTimeline
+                            activities={activities ?? []}
+                            actions={(activity) => (
+                                <ChangeActions activity={activity} />
+                            )}
+                        />
                     </Deferred>
                 </section>
             </div>

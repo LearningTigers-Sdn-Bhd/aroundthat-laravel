@@ -7,7 +7,10 @@ export type Status =
     | App.Enums.TagStatus
     | 'active'
     | 'suspended'
-    | 'archived';
+    | 'archived'
+    | 'unreviewed'
+    | 'reviewed'
+    | 'reverted';
 
 const tones = {
     neutral: 'border-transparent bg-secondary text-secondary-foreground',
@@ -30,10 +33,13 @@ const statuses: Record<Status, { label: string; tone: keyof typeof tones }> = {
     active: { label: 'Active', tone: 'good' },
     suspended: { label: 'Suspended', tone: 'bad' },
     archived: { label: 'Archived', tone: 'closed' },
+    unreviewed: { label: 'To review', tone: 'waiting' },
+    reviewed: { label: 'Reviewed', tone: 'good' },
+    reverted: { label: 'Reverted', tone: 'bad' },
 };
 
 /**
- * One label for an onboarding, invitation, tag review, membership or suspension state.
+ * One label for an onboarding, invitation, tag review, change review, membership or suspension state.
  */
 export default function StatusBadge({
     status,

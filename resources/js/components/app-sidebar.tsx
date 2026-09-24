@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     Briefcase,
     Building2,
+    History,
     LayoutGrid,
     Settings,
     Shapes,
@@ -31,6 +32,7 @@ import { index as outlets } from '@/routes/outlets';
 import { index as staff } from '@/routes/staff';
 import { index as adminBusinesses } from '@/routes/admin/businesses';
 import { index as adminCategories } from '@/routes/admin/categories';
+import { index as adminChanges } from '@/routes/admin/changes';
 import { edit as adminSettings } from '@/routes/admin/settings';
 import { index as adminTags } from '@/routes/admin/tags';
 import { index as adminUsers } from '@/routes/admin/users';
@@ -73,6 +75,7 @@ export function AppSidebar() {
     const adminNavItems: NavItem[] = auth.user.is_admin
         ? [
               { title: 'Review', href: adminDashboard(), icon: ShieldCheck },
+              { title: 'Changes', href: adminChanges(), icon: History },
               {
                   title: 'Businesses',
                   href: adminBusinesses(),

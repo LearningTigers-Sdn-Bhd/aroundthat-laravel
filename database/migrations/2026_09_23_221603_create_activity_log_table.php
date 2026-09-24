@@ -21,9 +21,12 @@ return new class extends Migration
             $table->ipAddress('ip_address')->nullable();
             $table->timestampTz('reviewed_at')->nullable();
             $table->uuid('reviewed_by_id')->nullable()->index();
+            $table->timestampTz('reverted_at')->nullable();
+            $table->foreignId('reverted_by_activity_id')->nullable()->constrained('activity_log')->nullOnDelete();
             $table->timestampsTz();
 
             $table->index('created_at');
+            $table->index(['log_name', 'reviewed_at']);
         });
     }
 };

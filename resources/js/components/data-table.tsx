@@ -52,6 +52,8 @@ export type DataTableFilter = {
     name: string;
     label: string;
     options: { value: string; label: string }[];
+    /** What the list shows when no option is chosen. Defaults to "All {label}". */
+    defaultLabel?: string;
 };
 
 type Props<T> = {
@@ -196,7 +198,9 @@ export default function DataTable<T>({
                         const items = [
                             {
                                 value: ALL,
-                                label: `All ${filter.label.toLowerCase()}`,
+                                label:
+                                    filter.defaultLabel ??
+                                    `All ${filter.label.toLowerCase()}`,
                             },
                             ...filter.options,
                         ];

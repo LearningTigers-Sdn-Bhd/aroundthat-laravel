@@ -15,17 +15,20 @@ import {
     index as businessesIndex,
     show as showBusiness,
 } from '@/routes/admin/businesses';
+import { index as changesIndex } from '@/routes/admin/changes';
 import { index as tagsIndex } from '@/routes/admin/tags';
 
 type Props = {
     pendingBusinessCount: number;
     pendingTagCount: number;
+    unreviewedChangeCount: number;
     pendingOutlets: App.Data.Admin.OutletData[];
 };
 
 export default function AdminDashboard({
     pendingBusinessCount,
     pendingTagCount,
+    unreviewedChangeCount,
     pendingOutlets,
 }: Props) {
     return (
@@ -35,7 +38,7 @@ export default function AdminDashboard({
             <div className="flex flex-1 flex-col gap-6 p-4">
                 <Heading
                     title="Waiting for review"
-                    description="Businesses, outlets and tags their owners have submitted."
+                    description="Businesses, outlets and tags their owners have submitted, and what owners changed on their public pages."
                 />
 
                 <div className="grid gap-4 md:grid-cols-2">
@@ -81,6 +84,22 @@ export default function AdminDashboard({
                                 })}
                             >
                                 Review tags
+                            </ButtonLink>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Changes</CardTitle>
+                            <CardDescription>
+                                {unreviewedChangeCount === 1
+                                    ? '1 change owners made is waiting for review.'
+                                    : `${unreviewedChangeCount} changes owners made are waiting for review.`}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ButtonLink variant="outline" href={changesIndex()}>
+                                Review changes
                             </ButtonLink>
                         </CardContent>
                     </Card>
