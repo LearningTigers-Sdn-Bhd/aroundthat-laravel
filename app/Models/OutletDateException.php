@@ -49,6 +49,21 @@ class OutletDateException extends Model
     }
 
     /**
+     * The row as the change log keeps it, so a reverted change can recreate it.
+     *
+     * @return array{date: string, is_closed: bool, periods: list<array{opens: string, closes: string}>|null, note: string|null}
+     */
+    public function toSnapshot(): array
+    {
+        return [
+            'date' => $this->date->toDateString(),
+            'is_closed' => $this->is_closed,
+            'periods' => $this->periods,
+            'note' => $this->note,
+        ];
+    }
+
+    /**
      * How the change log names this date, such as "2026-12-25: closed (Christmas)".
      */
     public function describe(): string

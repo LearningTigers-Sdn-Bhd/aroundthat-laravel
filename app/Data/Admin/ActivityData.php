@@ -12,6 +12,7 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 /**
  * One entry in a change history: what happened, who did it, why, and each field's old and new value.
  * Actions that record `['field' => ['old' => …, 'new' => …]]` properties show them as changes too.
+ * The `restore` property holds ids for reverting a change and is not shown.
  * Load `causer` first to avoid a query per entry.
  */
 #[MapName(SnakeCaseMapper::class)]
@@ -48,7 +49,7 @@ class ActivityData extends Data
             reason: $activity->reason,
             ipAddress: $activity->ip_address,
             changes: self::changes($activity),
-            properties: array_filter($activity->properties?->all() ?? [], fn (mixed $value): bool => ! self::isChange($value)),
+            properties: array_filter(self::shownProperties($activity), fn (mixed $value): bool => ! self::isChange($value)),
             reviewedAt: $activity->reviewed_at,
             createdAt: $activity->created_at,
         );
@@ -67,13 +68,23 @@ class ActivityData extends Data
             array_keys($new + $old),
         );
 
-        $recordedChanges = collect($activity->properties?->all() ?? [])
+        $recordedChanges = collect(self::shownProperties($activity))
             ->filter(fn (mixed $value): bool => self::isChange($value))
             ->map(fn (array $change, string $field): ActivityChangeData => new ActivityChangeData($field, $change['old'], $change['new']))
             ->values()
             ->all();
 
         return [...$fieldChanges, ...$recordedChanges];
+    }
+
+    /**
+     * The recorded properties, without the ids kept for reverting.
+     *
+     * @return array<string, mixed>
+     */
+    protected static function shownProperties(Activity $activity): array
+    {
+        return collect($activity->properties?->all() ?? [])->except('restore')->all();
     }
 
     /**

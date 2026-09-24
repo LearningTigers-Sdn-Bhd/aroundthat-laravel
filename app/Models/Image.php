@@ -65,6 +65,20 @@ class Image extends Model
         return $this->morphTo();
     }
 
+    /**
+     * What the change log keeps about the image, so a reverted change can put it back.
+     *
+     * @return array{alt_text: string, position: int, removed: bool}
+     */
+    public function toSnapshot(): array
+    {
+        return [
+            'alt_text' => $this->alt_text,
+            'position' => $this->position,
+            'removed' => $this->removed_at !== null,
+        ];
+    }
+
     public function url(): string
     {
         return Storage::disk($this->disk)->url($this->path);

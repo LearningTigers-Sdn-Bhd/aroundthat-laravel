@@ -61,3 +61,28 @@ test('a failed action leaves no change and no log entry behind', function () {
     expect($business->refresh()->name)->toBe('Before');
     expect(Activity::forSubject($business)->where('event', 'renamed')->exists())->toBeFalse();
 });
+
+test('an owner content change goes to the content log waiting for review', function () {
+    $business = Business::factory()->create(['name' => 'Before']);
+    $this->actingAs(User::factory()->create());
+
+    app(AuditTrail::class)->contentChange('details_changed', fn () => $business->update(['name' => 'After']));
+    $business->update(['name' => 'Later']);
+
+    $activity = Activity::forSubject($business)->where('event', 'details_changed')->sole();
+    expect($activity->log_name)->toBe(Activity::CONTENT_LOG);
+    expect($activity->reviewed_at)->toBeNull();
+    expect(Activity::forSubject($business)->where('event', 'updated')->latest('id')->first()->log_name)->toBe('default');
+});
+
+test('an admin content change is marked reviewed by that admin', function () {
+    $admin = User::factory()->admin()->create();
+    $business = Business::factory()->create();
+    $this->actingAs($admin);
+
+    app(AuditTrail::class)->contentChange('details_changed', fn () => $business->update(['name' => 'After']));
+
+    $activity = Activity::forSubject($business)->where('event', 'details_changed')->sole();
+    expect($activity->reviewed_at)->not->toBeNull();
+    expect($activity->reviewed_by_id)->toBe($admin->id);
+});

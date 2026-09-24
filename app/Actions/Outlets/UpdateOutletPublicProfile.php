@@ -73,20 +73,23 @@ class UpdateOutletPublicProfile
             $tagIds = $this->tagIds($outlet, $data->tags ?? []);
             $previousCategoryId = $outlet->getOriginal('category_id');
 
-            $outlet->save();
+            return $this->audit->contentChange('public_profile_changed', function () use ($outlet, $tagIds, $previousCategoryId): Outlet {
+                $outlet->save();
 
-            if ($previousCategoryId !== $outlet->category_id) {
-                $this->audit->record($outlet, 'category_changed', null, [
-                    'category' => [
-                        'old' => $previousCategoryId ? Category::query()->whereKey($previousCategoryId)->value('name') : null,
-                        'new' => $outlet->category()->value('name'),
-                    ],
-                ]);
-            }
+                if ($previousCategoryId !== $outlet->category_id) {
+                    $this->audit->record($outlet, 'category_changed', null, [
+                        'category' => [
+                            'old' => $previousCategoryId ? Category::query()->whereKey($previousCategoryId)->value('name') : null,
+                            'new' => $outlet->category()->value('name'),
+                        ],
+                        'restore' => ['category_id' => ['old' => $previousCategoryId, 'new' => $outlet->category_id]],
+                    ]);
+                }
 
-            $this->syncOutletTags->handle($outlet, $tagIds);
+                $this->syncOutletTags->handle($outlet, $tagIds);
 
-            return $outlet;
+                return $outlet;
+            });
         });
     }
 

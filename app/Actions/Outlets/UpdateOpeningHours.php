@@ -7,6 +7,7 @@ use App\Models\Outlet;
 use App\Models\OutletDateException;
 use App\Support\ActivityLog\AuditTrail;
 use App\Support\OpeningHours;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -43,19 +44,24 @@ class UpdateOpeningHours
             $today = Carbon::now($outlet->timezone)->toDateString();
             $exceptions = $this->exceptions($data->dateExceptions ?? [], $today);
 
-            return $this->audit->as('hours_changed', null, function () use ($outlet, $regularHours, $exceptions, $today): Outlet {
+            return $this->audit->contentChange('hours_changed', function () use ($outlet, $regularHours, $exceptions, $today): Outlet {
                 $outlet->update(['regular_hours' => $regularHours]);
 
-                $previous = $this->describeUpcoming($outlet, $today);
+                $previous = $this->upcoming($outlet, $today);
 
                 $outlet->dateExceptions()->where('date', '>=', $today)->delete();
                 $outlet->dateExceptions()->createMany($exceptions);
 
-                $current = $this->describeUpcoming($outlet, $today);
+                $current = $this->upcoming($outlet, $today);
 
-                if ($previous !== $current) {
+                if ($previous->map->describe()->all() !== $current->map->describe()->all()) {
                     $this->audit->record($outlet, 'date_exceptions_changed', null, [
-                        'date_exceptions' => ['old' => $previous, 'new' => $current],
+                        'date_exceptions' => ['old' => $previous->map->describe()->values()->all(), 'new' => $current->map->describe()->values()->all()],
+                        'restore' => ['date_exceptions' => [
+                            'from' => $today,
+                            'old' => $previous->map->toSnapshot()->values()->all(),
+                            'new' => $current->map->toSnapshot()->values()->all(),
+                        ]],
                     ]);
                 }
 
@@ -100,12 +106,10 @@ class UpdateOpeningHours
     }
 
     /**
-     * @return list<string>
+     * @return Collection<int, OutletDateException>
      */
-    protected function describeUpcoming(Outlet $outlet, string $today): array
+    protected function upcoming(Outlet $outlet, string $today): Collection
     {
-        return array_values($outlet->dateExceptions()->where('date', '>=', $today)->get()
-            ->map(fn (OutletDateException $exception): string => $exception->describe())
-            ->all());
+        return $outlet->dateExceptions()->where('date', '>=', $today)->orderBy('date')->get();
     }
 }

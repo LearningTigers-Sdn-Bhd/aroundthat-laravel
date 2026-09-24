@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 use Spatie\Activitylog\Models\Activity as BaseActivity;
 
 /**
@@ -15,11 +15,16 @@ use Spatie\Activitylog\Models\Activity as BaseActivity;
  * @property string|null $causer_id
  * @property string|null $reason
  * @property string|null $ip_address
- * @property Carbon|null $reviewed_at
+ * @property CarbonImmutable|null $reviewed_at
  * @property string|null $reviewed_by_id
  */
 class Activity extends BaseActivity
 {
+    /**
+     * The log of owners' edits to what visitors see. Admins review these changes and can revert them.
+     */
+    public const string CONTENT_LOG = 'content';
+
     protected function casts(): array
     {
         return [

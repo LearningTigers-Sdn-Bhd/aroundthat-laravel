@@ -15,8 +15,9 @@ test('saves business details at once and logs the old values', function () {
     ]));
 
     expect($business->refresh()->name)->toBe('New Name');
-    expect(Activity::forSubject($business)->forEvent('updated')->sole()->attribute_changes->get('old'))
-        ->toMatchArray(['name' => 'Old Name']);
+    $activity = Activity::forSubject($business)->forEvent('details_changed')->sole();
+    expect($activity->log_name)->toBe(Activity::CONTENT_LOG);
+    expect($activity->attribute_changes->get('old'))->toMatchArray(['name' => 'Old Name']);
 });
 
 test('refuses changes while the business is suspended or waiting for review', function (string $state) {

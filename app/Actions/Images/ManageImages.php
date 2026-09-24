@@ -119,6 +119,7 @@ class ManageImages
 
     /**
      * Run a change and log the owner's images before and after it, as "Kind: alt text" lines.
+     * The state of each image it touched is kept under `restore`, so an admin can revert the change.
      *
      * @template TReturn
      *
@@ -127,15 +128,54 @@ class ManageImages
      */
     protected function logged(Outlet|Business $owner, string $event, callable $change): mixed
     {
-        $before = $this->imageList($owner);
-        $result = $change();
-        $after = $this->imageList($owner);
+        return $this->audit->content(function () use ($owner, $event, $change): mixed {
+            $before = $this->imageList($owner);
+            $statesBefore = $this->imageStates($owner);
+            $result = $change();
+            $after = $this->imageList($owner);
 
-        if ($before !== $after) {
-            $this->audit->record($owner, $event, null, ['images' => ['old' => $before, 'new' => $after]]);
+            if ($before !== $after) {
+                $this->audit->record($owner, $event, null, [
+                    'images' => ['old' => $before, 'new' => $after],
+                    'restore' => ['images' => $this->changedStates($statesBefore, $this->imageStates($owner))],
+                ]);
+            }
+
+            return $result;
+        });
+    }
+
+    /**
+     * Every image the owner still has a file for, removed or not, keyed by id.
+     *
+     * @return array<string, array{alt_text: string, position: int, removed: bool}>
+     */
+    protected function imageStates(Outlet|Business $owner): array
+    {
+        return $owner->images()->get()
+            ->mapWithKeys(fn (Image $image): array => [$image->id => $image->toSnapshot()])
+            ->all();
+    }
+
+    /**
+     * The images whose state differs, before and after. A new image has no state before.
+     *
+     * @param  array<string, array{alt_text: string, position: int, removed: bool}>  $before
+     * @param  array<string, array{alt_text: string, position: int, removed: bool}>  $after
+     * @return array{old: array<string, array{alt_text: string, position: int, removed: bool}|null>, new: array<string, array{alt_text: string, position: int, removed: bool}|null>}
+     */
+    protected function changedStates(array $before, array $after): array
+    {
+        $changed = ['old' => [], 'new' => []];
+
+        foreach (array_keys($before + $after) as $id) {
+            if (($before[$id] ?? null) !== ($after[$id] ?? null)) {
+                $changed['old'][$id] = $before[$id] ?? null;
+                $changed['new'][$id] = $after[$id] ?? null;
+            }
         }
 
-        return $result;
+        return $changed;
     }
 
     /**

@@ -121,7 +121,8 @@ test('saving logs the old and new public fields', function () {
 
     app(UpdateOutletPublicProfile::class)->handle($outlet, publicProfile(['summary' => 'New summary.']));
 
-    $activity = Activity::forSubject($outlet)->where('event', 'updated')->latest('id')->first();
+    $activity = Activity::forSubject($outlet)->where('event', 'public_profile_changed')->sole();
+    expect($activity->log_name)->toBe(Activity::CONTENT_LOG);
     expect($activity->attribute_changes['old']['summary'])->toBe('Old summary.');
     expect($activity->attribute_changes['attributes']['summary'])->toBe('New summary.');
 });

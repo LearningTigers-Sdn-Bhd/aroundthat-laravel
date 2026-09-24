@@ -4,6 +4,7 @@ namespace App\Actions\Businesses;
 
 use App\Data\Forms\BusinessDetailsData;
 use App\Models\Business;
+use App\Support\ActivityLog\AuditTrail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -12,6 +13,8 @@ use Illuminate\Validation\ValidationException;
  */
 class UpdateBusiness
 {
+    public function __construct(protected AuditTrail $audit) {}
+
     /**
      * @throws ValidationException
      */
@@ -26,7 +29,7 @@ class UpdateBusiness
                 ]);
             }
 
-            $business->update($data->toModelAttributes());
+            $this->audit->contentChange('details_changed', fn (): bool => $business->update($data->toModelAttributes()));
 
             return $business;
         });

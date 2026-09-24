@@ -4,6 +4,7 @@ namespace App\Actions\Businesses;
 
 use App\Data\Forms\BusinessPublicProfileData;
 use App\Models\Business;
+use App\Support\ActivityLog\AuditTrail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -12,6 +13,8 @@ use Illuminate\Validation\ValidationException;
  */
 class UpdateBusinessPublicProfile
 {
+    public function __construct(protected AuditTrail $audit) {}
+
     /**
      * @throws ValidationException
      */
@@ -26,10 +29,10 @@ class UpdateBusinessPublicProfile
                 ]);
             }
 
-            $business->update([
+            $this->audit->contentChange('public_profile_changed', fn (): bool => $business->update([
                 'summary' => $data->summary,
                 'description' => $data->description,
-            ]);
+            ]));
 
             return $business;
         });

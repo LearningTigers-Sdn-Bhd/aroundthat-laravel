@@ -4,6 +4,7 @@ namespace App\Actions\Outlets;
 
 use App\Data\Forms\OutletDetailsData;
 use App\Models\Outlet;
+use App\Support\ActivityLog\AuditTrail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -12,6 +13,8 @@ use Illuminate\Validation\ValidationException;
  */
 class UpdateOutlet
 {
+    public function __construct(protected AuditTrail $audit) {}
+
     /**
      * @throws ValidationException
      */
@@ -26,7 +29,7 @@ class UpdateOutlet
                 ]);
             }
 
-            $outlet->update($data->toModelAttributes());
+            $this->audit->contentChange('details_changed', fn (): bool => $outlet->update($data->toModelAttributes()));
 
             return $outlet;
         });
