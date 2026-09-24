@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 /**
  * Bridges an InertiaUI modal (`HeadlessModal`) onto a Base UI overlay
@@ -52,6 +52,17 @@ export function useInertiaModal({
     isOpen,
     onTopOfStack,
 }: InertiaModalRenderProps) {
+    // InertiaUI mounts the panel already open, and Base UI skips the enter
+    // transition of a dialog that mounts open. Holding it closed for the first
+    // frame turns the mount into an ordinary open, which does animate.
+    const [hasMounted, setHasMounted] = useState(false);
+
+    useEffect(() => {
+        const frame = requestAnimationFrame(() => setHasMounted(true));
+
+        return () => cancelAnimationFrame(frame);
+    }, []);
+
     const onOpenChange = useCallback(
         (open: boolean, details: ChangeEventDetails) => {
             // Stacked Inertia modals are siblings in the React tree, never nested, so
@@ -89,7 +100,11 @@ export function useInertiaModal({
 
     return {
         /** Accepted by Dialog, Sheet and AlertDialog roots alike. */
-        rootProps: { open: isOpen, onOpenChange, onOpenChangeComplete },
+        rootProps: {
+            open: isOpen && hasMounted,
+            onOpenChange,
+            onOpenChangeComplete,
+        },
         /** Dialog and Sheet only — AlertDialog omits both by design. */
         dismissProps: {
             // Base UI 1.8 has no `dismissible` prop.
