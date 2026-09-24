@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\InvitationController;
 use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Admin\OutletHostController;
 use App\Http\Controllers\Admin\OutletStatusController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserStatusController;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,9 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->name('adm
     Route::resource('users', UserController::class)->only(['index', 'show']);
     Route::post('users/{user}/suspend', [UserStatusController::class, 'suspend'])->name('users.suspend');
     Route::post('users/{user}/reactivate', [UserStatusController::class, 'reactivate'])->name('users.reactivate');
+
+    Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
+    Route::put('settings/media', [SettingsController::class, 'updateMedia'])->name('settings.media.update');
 
     Route::post('invitations/{invitation}/resend', [InvitationController::class, 'resend'])->name('invitations.resend');
     Route::delete('invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');

@@ -3,6 +3,7 @@ import {
     Briefcase,
     Building2,
     LayoutGrid,
+    Settings,
     ShieldCheck,
     Store,
     UserCog,
@@ -27,6 +28,7 @@ import { edit as businessDetails } from '@/routes/business';
 import { index as outlets } from '@/routes/outlets';
 import { index as staff } from '@/routes/staff';
 import { index as adminBusinesses } from '@/routes/admin/businesses';
+import { edit as adminSettings } from '@/routes/admin/settings';
 import { index as adminUsers } from '@/routes/admin/users';
 import type { NavItem } from '@/types';
 
@@ -79,6 +81,7 @@ export function AppSidebar() {
                   icon: Users,
                   matchChildren: true,
               },
+              { title: 'Settings', href: adminSettings(), icon: Settings },
           ]
         : [];
 

@@ -199,6 +199,9 @@ email: string,
 role: App.Enums.MembershipRole,
 outlet_ids: string[],
 };
+export type MediaSettingsData = {
+media_disk: App.Enums.MediaDisk,
+};
 export type MemberAccessData = {
 role: App.Enums.MembershipRole,
 outlet_ids: string[],
@@ -235,6 +238,7 @@ reason: string,
 namespace Enums {
 export type Ability = 'scan' | 'view_today_activity' | 'view_reports' | 'view_statements' | 'manage_offers' | 'void_vouchers' | 'manage_business' | 'manage_outlets' | 'manage_staff' | 'manage_public_content';
 export type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'cancelled' | 'expired';
+export type MediaDisk = 'local' | 'r2';
 export type MembershipRole = 'owner' | 'manager' | 'cashier';
 export type OnboardingStatus = 'draft' | 'pending' | 'approved' | 'rejected';
 export type OwnerMethod = 'existing' | 'temporary_password' | 'invite';
