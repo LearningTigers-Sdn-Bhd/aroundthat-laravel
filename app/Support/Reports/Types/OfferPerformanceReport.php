@@ -30,7 +30,7 @@ final class OfferPerformanceReport implements Report
 
     public function title(): string
     {
-        return __('Offers');
+        return __('Offer results');
     }
 
     public function question(): string

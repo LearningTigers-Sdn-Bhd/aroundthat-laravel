@@ -12,7 +12,7 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
-import { index, show } from '@/routes/reports';
+import { show } from '@/routes/reports';
 
 type Props = {
     report: App.Data.Reports.ReportPageData;
@@ -20,10 +20,7 @@ type Props = {
 
 export default function ReportShow({ report }: Props) {
     setLayoutProps({
-        breadcrumbs: [
-            { title: 'Reports', href: index() },
-            { title: report.title, href: show(report.key) },
-        ],
+        breadcrumbs: [{ title: report.title, href: show(report.key) }],
     });
 
     return (

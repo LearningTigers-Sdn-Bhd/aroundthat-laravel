@@ -17,15 +17,6 @@ beforeEach(function () {
     $this->owner = Membership::factory()->owner()->for($this->business)->create();
 });
 
-test('the reports list shows each report with its question', function () {
-    $this->actingAs($this->owner->user)
-        ->get(route('reports.index'))
-        ->assertInertia(fn (Assert $page) => $page
-            ->component('app/reports/index')
-            ->where('reports.0.key', 'redemptions')
-            ->where('reports.0.question', 'How many vouchers were used, and how much discount did you give?'));
-});
-
 test('a report opens on this month by day', function () {
     $offer = VoucherOffer::factory()->for($this->business)->create();
     Redemption::factory()->for(Voucher::factory()->for($offer, 'offer'))->for($this->outlet)->create(['redeemed_at' => now()]);
@@ -47,7 +38,6 @@ test('cashiers cannot open reports', function (string $route, array $parameters)
 
     $this->actingAs($cashier->user)->get(route($route, $parameters))->assertForbidden();
 })->with([
-    'the list' => ['reports.index', []],
     'a report' => ['reports.show', ['report' => 'redemptions']],
     'a download' => ['reports.export', ['report' => 'redemptions']],
 ]);

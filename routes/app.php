@@ -99,7 +99,6 @@ Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(functi
     });
 
     Route::controller(ReportController::class)->prefix('reports')->name('reports.')->group(function () {
-        Route::get('/', 'index')->name('index');
         Route::get('{report}', 'show')->name('show');
         Route::get('{report}/export', 'export')->middleware('throttle:30,1')->name('export');
     });

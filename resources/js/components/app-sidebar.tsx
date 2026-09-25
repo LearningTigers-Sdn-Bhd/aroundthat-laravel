@@ -5,6 +5,7 @@ import {
     ChartNoAxesColumn,
     History,
     LayoutGrid,
+    MapPinned,
     Plug,
     ScanLine,
     Settings,
@@ -13,6 +14,7 @@ import {
     ShieldCheck,
     Store,
     Tags,
+    TicketCheck,
     UserCog,
     Users,
 } from 'lucide-react';
@@ -35,7 +37,7 @@ import { dashboard as adminDashboard } from '@/routes/admin';
 import { edit as businessDetails } from '@/routes/business';
 import { index as offers } from '@/routes/offers';
 import { index as outlets } from '@/routes/outlets';
-import { index as reports } from '@/routes/reports';
+import { show as report } from '@/routes/reports';
 import { index as staff } from '@/routes/staff';
 import { index as adminBusinesses } from '@/routes/admin/businesses';
 import { index as adminCategories } from '@/routes/admin/categories';
@@ -88,19 +90,29 @@ export function AppSidebar() {
                         },
                     ]
                   : []),
-              ...(can('view_reports')
-                  ? [
-                        {
-                            title: 'Reports',
-                            href: reports(),
-                            icon: ChartNoAxesColumn,
-                            matchChildren: true,
-                        },
-                    ]
-                  : []),
               ...(can('manage_staff')
                   ? [{ title: 'Staff', href: staff(), icon: UserCog }]
                   : []),
+          ]
+        : [];
+
+    const reportNavItems: NavItem[] = can('view_reports')
+        ? [
+              {
+                  title: 'Vouchers used',
+                  href: report('redemptions'),
+                  icon: TicketCheck,
+              },
+              {
+                  title: 'Offer results',
+                  href: report('offers'),
+                  icon: ChartNoAxesColumn,
+              },
+              {
+                  title: 'Place visits',
+                  href: report('place-visits'),
+                  icon: MapPinned,
+              },
           ]
         : [];
 
@@ -159,6 +171,9 @@ export function AppSidebar() {
 
             <SidebarContent>
                 {mainNavItems.length > 0 && <NavMain items={mainNavItems} />}
+                {reportNavItems.length > 0 && (
+                    <NavMain items={reportNavItems} label="Reports" />
+                )}
                 {adminNavItems.length > 0 && (
                     <NavMain items={adminNavItems} label="Admin" />
                 )}

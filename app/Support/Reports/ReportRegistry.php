@@ -12,7 +12,7 @@ use App\Support\Reports\Types\RedemptionsReport;
 final class ReportRegistry
 {
     /**
-     * In the order the reports list shows them.
+     * In the order the sidebar lists them.
      *
      * @var list<class-string<Report>>
      */
@@ -28,14 +28,6 @@ final class ReportRegistry
     public function all(): array
     {
         return array_map(fn (string $report): Report => app($report), self::REPORTS);
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function keys(): array
-    {
-        return array_map(fn (Report $report): string => $report->key(), $this->all());
     }
 
     /**

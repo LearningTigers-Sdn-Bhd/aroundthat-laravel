@@ -566,11 +566,6 @@ columns: App.Support.Reports.ReportColumn[],
 chart_series: string[],
 rows: Record<string, any>[],
 };
-export type ReportSummaryData = {
-key: string,
-title: string,
-question: string,
-};
 }
 }
 namespace Enums {
@@ -604,7 +599,7 @@ format: App.Enums.ReportValueFormat,
 };
 export type ReportTile = {
 label: string,
-value: number | string | null,
+value: string | number | null,
 format: App.Enums.ReportValueFormat,
 hint: string | null,
 };

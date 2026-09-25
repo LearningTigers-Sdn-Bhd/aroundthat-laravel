@@ -4,7 +4,6 @@ namespace App\Http\Controllers\App;
 
 use App\Data\Forms\ReportFiltersData;
 use App\Data\Reports\ReportPageData;
-use App\Data\Reports\ReportSummaryData;
 use App\Enums\Ability;
 use App\Http\Controllers\Controller;
 use App\Support\Reports\Report;
@@ -20,20 +19,11 @@ use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * The business's reports: the list, one report on the shared page, and its CSV. Owners and managers only.
+ * One report on the shared report page, and its CSV. The sidebar lists the reports. Owners and managers only.
  */
 class ReportController extends Controller
 {
     public function __construct(protected Workspace $workspace, protected ReportRegistry $reports) {}
-
-    public function index(): Response
-    {
-        $this->workspace->authorize(Ability::ViewReports);
-
-        return Inertia::render('app/reports/index', [
-            'reports' => array_map(ReportSummaryData::fromReport(...), $this->reports->all()),
-        ]);
-    }
 
     /**
      * @throws ValidationException
