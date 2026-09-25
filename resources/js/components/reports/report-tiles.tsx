@@ -1,15 +1,32 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatReportValue } from '@/lib/reports';
+import { cn } from '@/lib/utils';
 
 type Props = {
     tiles: App.Support.Reports.ReportTile[];
     currency: string;
 };
 
-/** The headline numbers above a report table. */
+/** Wide screens get one column per tile, so three tiles fill the row as well as four. */
+const wideColumns: Record<number, string> = {
+    1: 'lg:grid-cols-1',
+    2: 'lg:grid-cols-2',
+    3: 'lg:grid-cols-3',
+    4: 'lg:grid-cols-4',
+};
+
+/**
+ * The headline numbers above a report table. On phones they sit two to a row, and an odd last tile takes the
+ * whole row.
+ */
 export default function ReportTiles({ tiles, currency }: Props) {
     return (
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div
+            className={cn(
+                'grid grid-cols-2 gap-3 [&>*:last-child:nth-child(odd)]:col-span-2 lg:[&>*:last-child:nth-child(odd)]:col-span-1',
+                wideColumns[tiles.length] ?? 'lg:grid-cols-4',
+            )}
+        >
             {tiles.map((tile) => (
                 <Card key={tile.label} size="sm">
                     <CardHeader>
