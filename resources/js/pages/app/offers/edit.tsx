@@ -11,11 +11,13 @@ import Heading from '@/components/heading';
 import Notice from '@/components/notice';
 import PageErrors from '@/components/page-errors';
 import StatusBadge from '@/components/status-badge';
+import ButtonLink from '@/components/button-link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { discountSummary } from '@/lib/offers';
 import { activate, edit, index, pause, update } from '@/routes/offers';
+import { index as vouchersIndex } from '@/routes/offers/vouchers';
 import { update as updateOutlets } from '@/routes/offers/outlets';
 
 type Props = {
@@ -66,19 +68,27 @@ export default function EditOffer({
                             </span>
                         </div>
                     </div>
-                    {can.update &&
-                        (offer.status === 'active' ? (
-                            <ActionButton
-                                form={pause.form(offer.id)}
-                                variant="outline"
-                            >
-                                Pause
-                            </ActionButton>
-                        ) : (
-                            <ActionButton form={activate.form(offer.id)}>
-                                Activate
-                            </ActionButton>
-                        ))}
+                    <div className="flex gap-2">
+                        <ButtonLink
+                            href={vouchersIndex(offer.id)}
+                            variant="outline"
+                        >
+                            Vouchers
+                        </ButtonLink>
+                        {can.update &&
+                            (offer.status === 'active' ? (
+                                <ActionButton
+                                    form={pause.form(offer.id)}
+                                    variant="outline"
+                                >
+                                    Pause
+                                </ActionButton>
+                            ) : (
+                                <ActionButton form={activate.form(offer.id)}>
+                                    Activate
+                                </ActionButton>
+                            ))}
+                    </div>
                 </div>
 
                 <PageErrors except={[...offerFieldNames, 'outlet_ids']} />

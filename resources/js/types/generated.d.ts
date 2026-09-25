@@ -191,6 +191,18 @@ export type TagOptionData = {
 id: string,
 name: string,
 };
+export type VoucherData = {
+id: string,
+code_prefix: string,
+status: 'active' | 'used' | 'void' | 'expired',
+redemption_count: number,
+uses_per_voucher: number,
+expires_at: string,
+created_at: string | null,
+claimed_by_name: string | null,
+voided_at: string | null,
+void_reason: string | null,
+};
 export type WorkspaceOptionData = {
 business_id: string,
 business_name: string,
@@ -508,6 +520,8 @@ export type OnboardingStatus = 'draft' | 'pending' | 'approved' | 'rejected';
 export type OutboundDestination = 'map' | 'phone' | 'website' | 'whatsapp' | 'facebook' | 'instagram';
 export type OwnerMethod = 'existing' | 'temporary_password' | 'invite';
 export type TagStatus = 'pending' | 'approved' | 'rejected';
+export type VoidReason = 'guest_cancelled' | 'duplicate_claim' | 'issued_in_error' | 'suspected_abuse';
+export type VoucherStatus = 'active' | 'used' | 'void';
 }
 }
 declare namespace Illuminate {

@@ -14,7 +14,8 @@ export type Status =
     | 'paused'
     | 'scheduled'
     | 'ended'
-    | 'hidden';
+    | 'hidden'
+    | 'used';
 
 const tones = {
     neutral: 'border-transparent bg-secondary text-secondary-foreground',
@@ -44,6 +45,7 @@ const statuses: Record<Status, { label: string; tone: keyof typeof tones }> = {
     scheduled: { label: 'Scheduled', tone: 'waiting' },
     ended: { label: 'Ended', tone: 'closed' },
     hidden: { label: 'Hidden', tone: 'bad' },
+    used: { label: 'Used', tone: 'closed' },
 };
 
 /**

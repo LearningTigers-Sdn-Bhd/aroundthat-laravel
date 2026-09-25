@@ -16,6 +16,7 @@ use App\Http\Controllers\App\OutletPreviewController;
 use App\Http\Controllers\App\OutletPublicProfileController;
 use App\Http\Controllers\App\OutletStatusController;
 use App\Http\Controllers\App\StaffController;
+use App\Http\Controllers\App\VoucherController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(function () {
@@ -78,6 +79,13 @@ Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(functi
     });
 
     Route::put('offers/{offer}/outlets', [OfferOutletController::class, 'update'])->name('offers.outlets.update');
+
+    Route::controller(VoucherController::class)->prefix('offers/{offer}/vouchers')->name('offers.vouchers.')->scopeBindings()->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::post('{voucher}/reveal', 'reveal')->middleware('throttle:6,1')->name('reveal');
+        Route::post('{voucher}/void', 'void')->name('void');
+    });
 
     Route::prefix('staff')->name('staff.')->group(function () {
         Route::get('/', [StaffController::class, 'index'])->name('index');

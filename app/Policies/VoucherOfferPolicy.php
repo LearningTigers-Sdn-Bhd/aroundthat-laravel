@@ -26,4 +26,21 @@ class VoucherOfferPolicy
         return ! $offer->business->isSuspended()
             && $this->memberCan($user, $offer->business_id, Ability::ManageOffers);
     }
+
+    /**
+     * Issue vouchers or reveal a code again. Hidden and ended offers are refused by IssueVoucher.
+     */
+    public function issueVouchers(User $user, VoucherOffer $offer): bool
+    {
+        return $this->update($user, $offer);
+    }
+
+    /**
+     * Cancel a voucher for good: owners only.
+     */
+    public function voidVouchers(User $user, VoucherOffer $offer): bool
+    {
+        return ! $offer->business->isSuspended()
+            && $this->memberCan($user, $offer->business_id, Ability::VoidVouchers);
+    }
 }
