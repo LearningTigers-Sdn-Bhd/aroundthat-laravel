@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
+import HeaderTabLayout from '@/layouts/header-tab-layout';
 import { formatDateTime } from '@/lib/format';
 import { timezoneOptions } from '@/lib/locations';
 import { edit, submit, update } from '@/routes/business';
@@ -56,110 +57,126 @@ export default function EditBusiness({
         <>
             <Head title="Business details" />
 
-            <div className="flex max-w-2xl flex-1 flex-col gap-6 p-4">
-                <div className="flex items-center gap-2">
-                    <Heading
-                        title="Business details"
-                        description="Changes go live when you save them."
-                    />
-                    <StatusBadge
-                        status={recordStatus(business)}
-                        className="mb-8"
-                    />
-                </div>
-
+            <HeaderTabLayout
+                title="Business details"
+                description="Changes go live when you save them."
+                actions={<StatusBadge status={recordStatus(business)} />}
+                contentClassName="lg:max-w-none"
+            >
                 <ReviewBanner business={business} canSubmit={can.submit} />
                 <RevertNotices reverts={recentReverts} />
 
                 <PageErrors except={detailFields} />
 
-                <Form
-                    {...update.form()}
-                    options={{ preserveScroll: true }}
-                    className="space-y-6"
-                >
-                    {({ processing }) => (
-                        <fieldset
-                            disabled={!can.update}
-                            className="space-y-6 disabled:opacity-60"
+                <div className="grid gap-8 lg:grid-cols-2">
+                    <section className="space-y-6 lg:max-w-[80%]">
+                        <Heading
+                            variant="small"
+                            title="Details"
+                            description="Your registration and how customers reach you."
+                        />
+
+                        <Form
+                            {...update.form()}
+                            options={{ preserveScroll: true }}
+                            className="space-y-6"
                         >
-                            <TextField
-                                name="name"
-                                label="Name"
-                                defaultValue={business.name}
-                                error={errors.name}
-                                required
-                            />
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <TextField
-                                    name="registered_name"
-                                    label="Registered name"
-                                    defaultValue={
-                                        business.registered_name ?? ''
-                                    }
-                                    error={errors.registered_name}
-                                />
-                                <TextField
-                                    name="registration_number"
-                                    label="Registration number"
-                                    defaultValue={
-                                        business.registration_number ?? ''
-                                    }
-                                    error={errors.registration_number}
-                                />
-                            </div>
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <TextField
-                                    name="contact_email"
-                                    label="Contact email"
-                                    type="email"
-                                    defaultValue={business.contact_email}
-                                    error={errors.contact_email}
-                                    required
-                                />
-                                <TextField
-                                    name="contact_phone"
-                                    label="Contact phone"
-                                    defaultValue={business.contact_phone ?? ''}
-                                    error={errors.contact_phone}
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="address">Address</Label>
-                                <Textarea
-                                    id="address"
-                                    name="address"
-                                    rows={3}
-                                    defaultValue={business.address ?? ''}
-                                />
-                                <InputError message={errors.address} />
-                            </div>
-                            <ComboboxField
-                                name="timezone"
-                                label="Timezone"
-                                options={timezoneOptions(
-                                    locationOptions.timezones,
-                                )}
-                                defaultValue={business.timezone}
-                                error={errors.timezone}
-                                required
-                            />
+                            {({ processing }) => (
+                                <fieldset
+                                    disabled={!can.update}
+                                    className="space-y-6 disabled:opacity-60"
+                                >
+                                    <TextField
+                                        name="name"
+                                        label="Name"
+                                        defaultValue={business.name}
+                                        error={errors.name}
+                                        required
+                                    />
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <TextField
+                                            name="registered_name"
+                                            label="Registered name"
+                                            defaultValue={
+                                                business.registered_name ?? ''
+                                            }
+                                            error={errors.registered_name}
+                                        />
+                                        <TextField
+                                            name="registration_number"
+                                            label="Registration number"
+                                            defaultValue={
+                                                business.registration_number ??
+                                                ''
+                                            }
+                                            error={errors.registration_number}
+                                        />
+                                    </div>
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <TextField
+                                            name="contact_email"
+                                            label="Contact email"
+                                            type="email"
+                                            defaultValue={
+                                                business.contact_email
+                                            }
+                                            error={errors.contact_email}
+                                            required
+                                        />
+                                        <TextField
+                                            name="contact_phone"
+                                            label="Contact phone"
+                                            defaultValue={
+                                                business.contact_phone ?? ''
+                                            }
+                                            error={errors.contact_phone}
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="address">Address</Label>
+                                        <Textarea
+                                            id="address"
+                                            name="address"
+                                            rows={3}
+                                            defaultValue={
+                                                business.address ?? ''
+                                            }
+                                        />
+                                        <InputError message={errors.address} />
+                                    </div>
+                                    <ComboboxField
+                                        name="timezone"
+                                        label="Timezone"
+                                        options={timezoneOptions(
+                                            locationOptions.timezones,
+                                        )}
+                                        defaultValue={business.timezone}
+                                        error={errors.timezone}
+                                        required
+                                    />
 
-                            {can.update && (
-                                <Button type="submit" disabled={processing}>
-                                    {processing && <Spinner />}
-                                    Save
-                                </Button>
+                                    {can.update && (
+                                        <div className="flex justify-end">
+                                            <Button
+                                                type="submit"
+                                                disabled={processing}
+                                            >
+                                                {processing && <Spinner />}
+                                                Save
+                                            </Button>
+                                        </div>
+                                    )}
+                                </fieldset>
                             )}
-                        </fieldset>
-                    )}
-                </Form>
+                        </Form>
+                    </section>
 
-                <PublicProfile
-                    place={place}
-                    canUpdate={can.updatePublicProfile}
-                />
-            </div>
+                    <PublicProfile
+                        place={place}
+                        canUpdate={can.updatePublicProfile}
+                    />
+                </div>
+            </HeaderTabLayout>
         </>
     );
 }
@@ -175,7 +192,7 @@ function PublicProfile({
     canUpdate: boolean;
 }) {
     return (
-        <section className="space-y-6 border-t pt-6">
+        <section className="space-y-6 border-t pt-6 lg:max-w-[80%] lg:border-t-0 lg:pt-0">
             <Heading
                 variant="small"
                 title="Public profile"
@@ -286,10 +303,12 @@ function PublicProfile({
                             <InputError message={errors.description} />
                         </div>
                         {canUpdate && (
-                            <Button type="submit" disabled={processing}>
-                                {processing && <Spinner />}
-                                Save public profile
-                            </Button>
+                            <div className="flex justify-end">
+                                <Button type="submit" disabled={processing}>
+                                    {processing && <Spinner />}
+                                    Save public profile
+                                </Button>
+                            </div>
                         )}
                     </fieldset>
                 )}
