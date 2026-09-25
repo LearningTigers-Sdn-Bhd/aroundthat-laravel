@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\ApiKeyController;
 use App\Http\Controllers\Admin\BusinessController;
 use App\Http\Controllers\Admin\BusinessStatusController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ChangeController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\IntegrationController;
+use App\Http\Controllers\Admin\IntegrationStatusController;
 use App\Http\Controllers\Admin\InvitationController;
 use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Admin\OutletHostController;
@@ -61,6 +64,15 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->name('adm
     Route::post('changes/review', [ChangeController::class, 'reviewMany'])->name('changes.review-many');
     Route::post('changes/{change}/review', [ChangeController::class, 'review'])->name('changes.review');
     Route::post('changes/{change}/revert', [ChangeController::class, 'revert'])->name('changes.revert');
+
+    Route::resource('integrations', IntegrationController::class)->only(['index', 'store', 'show', 'update']);
+    Route::post('integrations/{integration}/suspend', [IntegrationStatusController::class, 'suspend'])->name('integrations.suspend');
+    Route::post('integrations/{integration}/reactivate', [IntegrationStatusController::class, 'reactivate'])->name('integrations.reactivate');
+    Route::controller(ApiKeyController::class)->prefix('integrations/{integration}/keys')->name('integrations.keys.')->group(function () {
+        Route::post('/', 'store')->name('store');
+        Route::post('{key}/rotate', 'rotate')->whereNumber('key')->name('rotate');
+        Route::delete('{key}', 'destroy')->whereNumber('key')->name('destroy');
+    });
 
     Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('settings/media', [SettingsController::class, 'updateMedia'])->name('settings.media.update');

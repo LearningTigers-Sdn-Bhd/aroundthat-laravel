@@ -187,6 +187,14 @@ reviewed_at: string | null,
 reverted_at: string | null,
 created_at: string | null,
 };
+export type ApiKeyData = {
+id: number,
+name: string,
+last_used_at: string | null,
+expires_at: string | null,
+is_expired: boolean,
+created_at: string | null,
+};
 export type BusinessData = {
 id: string,
 name: string,
@@ -231,6 +239,20 @@ export type HostOutletOptionData = {
 id: string,
 name: string,
 business_name: string,
+};
+export type IntegrationData = {
+id: string,
+name: string,
+type: App.Enums.IntegrationType,
+capabilities: string[],
+starts_at: string | null,
+expires_at: string | null,
+is_usable: boolean,
+keys_count: number,
+suspended_at: string | null,
+suspended_by_name: string | null,
+suspension_reason: string | null,
+created_at: string | null,
 };
 export type MembershipData = {
 id: string,
@@ -299,6 +321,10 @@ created_at: string | null,
 };
 }
 namespace Forms {
+export type ApiKeyData = {
+name: string,
+expires_on: string | null,
+};
 export type BusinessDetailsData = {
 name: string,
 contact_email: string,
@@ -320,6 +346,13 @@ export type ImageUploadData = {
 file: undefined,
 kind: App.Enums.ImageKind,
 alt_text: string,
+};
+export type IntegrationData = {
+name: string,
+type: App.Enums.IntegrationType,
+capabilities: string[],
+starts_on: string | null,
+ends_on: string | null,
 };
 export type InviteStaffData = {
 email: string,
@@ -398,6 +431,8 @@ is_active: boolean,
 namespace Enums {
 export type Ability = 'scan' | 'view_today_activity' | 'view_reports' | 'view_statements' | 'manage_offers' | 'void_vouchers' | 'manage_business' | 'manage_outlets' | 'manage_staff' | 'manage_public_content';
 export type ImageKind = 'cover' | 'gallery' | 'logo';
+export type IntegrationCapability = 'places:read' | 'engagement:write';
+export type IntegrationType = 'pms' | 'travel_agency' | 'internal';
 export type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'cancelled' | 'expired';
 export type MediaDisk = 'local' | 'r2';
 export type MembershipRole = 'owner' | 'manager' | 'cashier';

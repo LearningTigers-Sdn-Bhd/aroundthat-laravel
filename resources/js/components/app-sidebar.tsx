@@ -4,6 +4,7 @@ import {
     Building2,
     History,
     LayoutGrid,
+    Plug,
     Settings,
     Shapes,
     ShieldCheck,
@@ -33,6 +34,7 @@ import { index as staff } from '@/routes/staff';
 import { index as adminBusinesses } from '@/routes/admin/businesses';
 import { index as adminCategories } from '@/routes/admin/categories';
 import { index as adminChanges } from '@/routes/admin/changes';
+import { index as adminIntegrations } from '@/routes/admin/integrations';
 import { edit as adminSettings } from '@/routes/admin/settings';
 import { index as adminTags } from '@/routes/admin/tags';
 import { index as adminUsers } from '@/routes/admin/users';
@@ -94,6 +96,11 @@ export function AppSidebar() {
                   icon: Shapes,
               },
               { title: 'Tags', href: adminTags(), icon: Tags },
+              {
+                  title: 'Integrations',
+                  href: adminIntegrations(),
+                  icon: Plug,
+              },
               { title: 'Settings', href: adminSettings(), icon: Settings },
           ]
         : [];
