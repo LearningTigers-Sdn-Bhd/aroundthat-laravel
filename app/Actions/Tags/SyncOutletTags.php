@@ -26,6 +26,8 @@ class SyncOutletTags
         $names = $this->tagNames($outlet);
 
         if ($previousNames !== $names) {
+            $outlet->touch();
+
             $this->audit->record($outlet, $event, $reason, [
                 'tags' => ['old' => $previousNames, 'new' => $names],
                 'restore' => ['tag_ids' => ['old' => $previousIds, 'new' => $this->tagIds($outlet)]],

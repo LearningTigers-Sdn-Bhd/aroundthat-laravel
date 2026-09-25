@@ -39,6 +39,13 @@ class Image extends Model
     /** @use HasFactory<ImageFactory> */
     use HasFactory, HasUuids, Prunable;
 
+    /**
+     * A change bumps the outlet's or business's `updated_at`, so partners syncing with `updated_since` see it.
+     *
+     * @var list<string>
+     */
+    protected $touches = ['imageable'];
+
     public const int KEEP_REMOVED_DAYS = 30;
 
     /**

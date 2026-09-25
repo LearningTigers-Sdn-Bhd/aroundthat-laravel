@@ -27,6 +27,13 @@ class OutletDateException extends Model
     use HasUuids;
 
     /**
+     * A change bumps the outlet's `updated_at`, so partners syncing with `updated_since` see it.
+     *
+     * @var list<string>
+     */
+    protected $touches = ['outlet'];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
