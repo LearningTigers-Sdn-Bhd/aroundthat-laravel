@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Resolves which business the user is working in. Users with one active membership never have to choose.
+ *
+ * Pass "optional" (business:optional) on pages outside a business, such as settings, to keep the
+ * workspace when one is known without redirecting users who have not picked one.
  */
 class ResolveCurrentBusiness
 {
@@ -20,7 +23,7 @@ class ResolveCurrentBusiness
     /**
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, ?string $mode = null): Response
     {
         $user = $request->user();
 
@@ -30,6 +33,10 @@ class ResolveCurrentBusiness
             ?? ($memberships->count() === 1 ? $memberships->first() : null);
 
         if (! $current instanceof Membership) {
+            if ($mode === 'optional') {
+                return $next($request);
+            }
+
             return match (true) {
                 $memberships->isNotEmpty() => redirect()->route('workspace.choose'),
                 $user->can('admin') => redirect()->route('admin.dashboard'),

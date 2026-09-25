@@ -4,6 +4,7 @@ import {
     Building2,
     ChartNoAxesColumn,
     History,
+    House,
     LayoutGrid,
     MapPinned,
     Plug,
@@ -31,7 +32,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { dashboard, home } from '@/routes';
 import { show as counter } from '@/routes/counter';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import { edit as businessDetails } from '@/routes/business';
@@ -156,17 +157,20 @@ export function AppSidebar() {
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            size="lg"
-                            render={<Link href={dashboard()} prefetch />}
-                        >
-                            <AppLogo />
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-                <BusinessSwitcher />
+                {workspace ? (
+                    <BusinessSwitcher />
+                ) : (
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton
+                                size="lg"
+                                render={<Link href={home()} />}
+                            >
+                                <AppLogo />
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                )}
             </SidebarHeader>
 
             <SidebarContent>
@@ -180,6 +184,17 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            tooltip={{ children: 'Go to landing page' }}
+                            render={<Link href={home()} />}
+                        >
+                            <House />
+                            <span>Go to landing page</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

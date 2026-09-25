@@ -21,7 +21,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserStatusController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', 'can:admin', 'business:optional'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
 
     Route::resource('businesses', BusinessController::class)->only(['index', 'create', 'store', 'show']);

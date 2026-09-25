@@ -95,3 +95,21 @@ test('only admins can open the admin area', function () {
     $this->actingAs($user)->get(route('admin.dashboard'))->assertForbidden();
     $this->actingAs(User::factory()->admin()->create())->get(route('admin.dashboard'))->assertOk();
 });
+
+test('settings pages keep the business the user is working in', function () {
+    $membership = Membership::factory()->create();
+
+    $this->actingAs($membership->user)
+        ->get(route('profile.edit'))
+        ->assertInertia(fn (Assert $page) => $page->where('workspace.business_id', $membership->business_id));
+});
+
+test('settings pages open without a business when none is chosen', function () {
+    $user = User::factory()->create();
+    Membership::factory()->for($user)->count(2)->create();
+
+    $this->actingAs($user)
+        ->get(route('profile.edit'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->where('workspace', null));
+});
