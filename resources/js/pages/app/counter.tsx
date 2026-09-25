@@ -1,6 +1,7 @@
 import { Head, router, useHttp, usePage } from '@inertiajs/react';
-import { CheckCircle2, ScanLine, Store } from 'lucide-react';
+import { Camera, CheckCircle2, ScanLine, Store } from 'lucide-react';
 import { type FormEvent, useEffect, useState } from 'react';
+import CameraScanner from '@/components/app/counter/camera-scanner';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import Notice from '@/components/notice';
@@ -205,6 +206,8 @@ function Redeem({ outlet }: { outlet: App.Data.OutletOptionData }) {
     const [idempotencyKey, setIdempotencyKey] = useState('');
     const [redeeming, setRedeeming] = useState(false);
     const [done, setDone] = useState<App.Data.RedemptionData | undefined>();
+    const [scanning, setScanning] = useState(false);
+    const [scannedCode, setScannedCode] = useState<string | null>(null);
 
     useEffect(() => {
         if (flashedRedemption) {
@@ -213,6 +216,29 @@ function Redeem({ outlet }: { outlet: App.Data.OutletOptionData }) {
     }, [flashedRedemption]);
 
     const eligible = result?.eligible ? result : null;
+
+    // Check a scanned code once it is in the form data, which updates after the render.
+    useEffect(() => {
+        if (scannedCode !== null && http.data.code === scannedCode) {
+            setScannedCode(null);
+            runCheck();
+        }
+    });
+
+    function acceptScan(value: string): boolean {
+        if (!value.toUpperCase().startsWith('V1:')) {
+            return false;
+        }
+
+        const code = value.slice(3).trim();
+
+        setScanning(false);
+        setResult(null);
+        http.setData('code', code);
+        setScannedCode(code);
+
+        return true;
+    }
 
     function runCheck(event?: FormEvent) {
         event?.preventDefault();
@@ -305,7 +331,18 @@ function Redeem({ outlet }: { outlet: App.Data.OutletOptionData }) {
                     {http.processing ? <Spinner /> : <ScanLine />}
                     Check
                 </Button>
+                <Button
+                    type="button"
+                    size="lg"
+                    variant={scanning ? 'secondary' : 'outline'}
+                    onClick={() => setScanning(!scanning)}
+                    aria-pressed={scanning}
+                >
+                    <Camera />
+                    {scanning ? 'Stop' : 'Scan'}
+                </Button>
             </form>
+            {scanning && <CameraScanner onCode={acceptScan} />}
             <InputError message={http.errors.code ?? errors.code} />
 
             {result && !result.eligible && (
