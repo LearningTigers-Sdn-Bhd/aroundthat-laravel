@@ -1,9 +1,11 @@
+import { Link } from '@inertiajs/react';
 import { ArrowLeft, Keyboard } from 'lucide-react';
 import type { FormEvent } from 'react';
 import CameraScanner from '@/components/app/counter/camera-scanner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
+import { dashboard } from '@/routes';
 
 /**
  * The start of every redemption: the camera, or the code typed by hand when the camera cannot read it.
@@ -31,18 +33,11 @@ export default function ScanStep({
 }) {
     if (step === 'type') {
         return (
-            <section className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center py-6">
-                <Button
-                    variant="ghost"
-                    onClick={onBack}
-                    className="mb-8 w-fit text-muted-foreground"
-                >
-                    <ArrowLeft data-icon="inline-start" /> Back to camera
-                </Button>
+            <section className="flex flex-1 flex-col justify-center py-6 text-center">
                 <p className="text-sm font-medium tracking-[0.2em] text-primary uppercase">
                     Type voucher
                 </p>
-                <h2 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
+                <h2 className="mt-3 text-4xl font-semibold tracking-tight">
                     Enter the 10 characters
                 </h2>
                 <p className="mt-3 text-muted-foreground">
@@ -76,48 +71,65 @@ export default function ScanStep({
                             {error}
                         </p>
                     )}
-                    <Button
-                        type="submit"
-                        size="lg"
-                        disabled={busy}
-                        className="h-14 w-full text-base"
-                    >
-                        {busy ? <Spinner /> : 'Continue'}
-                    </Button>
+                    <div className="grid grid-cols-2 gap-3">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="lg"
+                            onClick={onBack}
+                            className="h-14 text-base"
+                        >
+                            <ArrowLeft data-icon="inline-start" />
+                            Camera
+                        </Button>
+                        <Button
+                            type="submit"
+                            size="lg"
+                            disabled={busy}
+                            className="h-14 text-base"
+                        >
+                            {busy ? <Spinner /> : 'Continue'}
+                        </Button>
+                    </div>
                 </form>
             </section>
         );
     }
 
     return (
-        <section className="flex flex-1 flex-col">
-            <div className="mb-5">
-                <p className="text-sm font-medium tracking-[0.2em] text-primary uppercase">
-                    Ready for the next guest
-                </p>
-                <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-                    Point at the voucher
-                </h2>
-            </div>
+        <section className="flex flex-1 flex-col gap-4">
+            <h2 className="sr-only">Point the camera at the voucher</h2>
             <CameraScanner active={!busy} onCode={onScannedValue} />
             {error && (
                 <div
                     role="alert"
-                    className="mt-4 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                    className="rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
                 >
                     {error}
                 </div>
             )}
-            <Button
-                variant="outline"
-                size="lg"
-                onClick={onChooseType}
-                disabled={busy}
-                className="mt-5 h-14 w-full text-base"
-            >
-                {busy ? <Spinner /> : <Keyboard data-icon="inline-start" />}
-                Type the code instead
-            </Button>
+            <div className="grid grid-cols-2 gap-3">
+                <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={onChooseType}
+                    disabled={busy}
+                    className="h-14 text-base"
+                >
+                    {busy ? <Spinner /> : <Keyboard data-icon="inline-start" />}
+                    Type code
+                </Button>
+                <Button
+                    variant="outline"
+                    size="lg"
+                    className="h-14 text-base"
+                    nativeButton={false}
+                    render={<Link href={dashboard()} />}
+                >
+                    <ArrowLeft data-icon="inline-start" />
+                    Back
+                </Button>
+            </div>
         </section>
     );
 }

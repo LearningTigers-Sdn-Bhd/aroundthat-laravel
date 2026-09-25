@@ -1,7 +1,7 @@
 import { ChevronRight, History } from 'lucide-react';
 
 /**
- * Today's count, pinned to the bottom of the counter. Opens the list of today's redemptions.
+ * Today's count, the last row of the counter. Opens the list of today's redemptions.
  */
 export default function ActivityBar({
     count,
@@ -14,7 +14,7 @@ export default function ActivityBar({
         <button
             type="button"
             onClick={onOpen}
-            className="fixed inset-x-4 bottom-4 mx-auto flex max-w-xl items-center justify-between rounded-[1.75rem] border bg-card/95 px-5 py-4 text-left shadow-2xl shadow-black/40 backdrop-blur focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            className="flex w-full items-center justify-between rounded-[1.75rem] border bg-card px-5 py-4 text-left shadow-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         >
             <span className="flex items-center gap-3">
                 <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary">

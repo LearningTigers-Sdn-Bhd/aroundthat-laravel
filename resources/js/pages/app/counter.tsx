@@ -1,5 +1,5 @@
-import { Head, router, useHttp, usePage } from '@inertiajs/react';
-import { Store } from 'lucide-react';
+import { Head, Link, router, useHttp, usePage } from '@inertiajs/react';
+import { ArrowLeft, Store } from 'lucide-react';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import ActivityBar from '@/components/app/counter/activity-bar';
 import BillStep from '@/components/app/counter/bill-step';
@@ -15,6 +15,7 @@ import type {
     CheckResponse,
     EligibleCheck,
 } from '@/components/app/counter/types';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -24,6 +25,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { useOnline } from '@/hooks/use-online';
+import { dashboard } from '@/routes';
 import { codeFromQr, codePattern, normalizeCode } from '@/lib/voucher-code';
 import { check, redeem, show } from '@/routes/counter';
 
@@ -50,7 +52,7 @@ export default function Counter({ outlets, outlet, today }: Props) {
         <>
             <Head title="Counter" />
 
-            <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col">
+            <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 pt-5 pb-4">
                 <CounterHeader
                     businessName={workspace?.business_name ?? 'Counter'}
                     online={online}
@@ -61,7 +63,7 @@ export default function Counter({ outlets, outlet, today }: Props) {
                     }
                 />
 
-                <div className="flex flex-1 flex-col px-4 pb-32 sm:px-8">
+                <div className="flex flex-1 flex-col">
                     {outlets.length === 0 ? (
                         <CounterNotice
                             title="No outlet to work at"
@@ -112,12 +114,22 @@ function CounterNotice({
     description: string;
 }) {
     return (
-        <section className="mt-10 rounded-3xl border bg-card p-8 text-center shadow-sm">
+        <section className="mt-6 rounded-3xl border bg-card p-8 text-center shadow-sm">
             <Store className="mx-auto size-10 text-muted-foreground" />
             <h1 className="mt-4 text-2xl font-semibold">{title}</h1>
             <p className="mx-auto mt-2 max-w-md text-muted-foreground">
                 {description}
             </p>
+            <Button
+                variant="outline"
+                size="lg"
+                className="mt-6 h-12"
+                nativeButton={false}
+                render={<Link href={dashboard()} />}
+            >
+                <ArrowLeft data-icon="inline-start" />
+                Back
+            </Button>
         </section>
     );
 }
@@ -131,9 +143,9 @@ function OutletPicker({
 }) {
     if (outlets.length === 1) {
         return (
-            <p className="text-sm text-muted-foreground">
-                At{' '}
-                <span className="font-medium text-foreground">
+            <p className="flex h-12 items-center rounded-2xl border px-4 text-sm text-muted-foreground">
+                At&nbsp;
+                <span className="truncate font-medium text-foreground">
                     {outlet?.name}
                 </span>
             </p>
@@ -141,7 +153,7 @@ function OutletPicker({
     }
 
     return (
-        <div>
+        <div className="w-full">
             <Label htmlFor="outlet" className="sr-only">
                 Outlet
             </Label>
@@ -160,7 +172,10 @@ function OutletPicker({
                     }
                 }}
             >
-                <SelectTrigger id="outlet" className="w-44 sm:w-56">
+                <SelectTrigger
+                    id="outlet"
+                    className="w-full rounded-2xl px-4 text-base data-[size=default]:h-12"
+                >
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

@@ -134,7 +134,7 @@ export default function CameraScanner({
     }, []);
 
     return (
-        <div className="relative min-h-[22rem] flex-1 overflow-hidden rounded-[2rem] border bg-black shadow-xl sm:min-h-[30rem]">
+        <div className="relative min-h-[20rem] flex-1 overflow-hidden rounded-[2rem] border bg-black shadow-xl">
             <video
                 ref={videoRef}
                 aria-hidden="true"

@@ -1,12 +1,9 @@
-import { Link } from '@inertiajs/react';
-import { LogOut, Wifi, WifiOff } from 'lucide-react';
+import { Wifi, WifiOff } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { dashboard } from '@/routes';
 
 /**
- * The business, whether the counter is online, the outlet, and the way back to the app.
+ * The business and whether the counter is online, with the outlet picker on its own full-width row below.
  */
 export default function CounterHeader({
     businessName,
@@ -18,14 +15,14 @@ export default function CounterHeader({
     outletPicker?: ReactNode;
 }) {
     return (
-        <header className="flex flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-8">
-            <div className="min-w-0">
-                <p className="truncate text-base font-semibold">
+        <header className="space-y-3">
+            <div className="flex items-center justify-between gap-4">
+                <p className="min-w-0 truncate text-base font-semibold">
                     {businessName}
                 </p>
-                <div
+                <p
                     className={cn(
-                        'mt-1 flex items-center gap-1.5 text-xs',
+                        'flex shrink-0 items-center gap-1.5 text-xs',
                         online ? 'text-primary' : 'text-destructive',
                     )}
                 >
@@ -34,20 +31,10 @@ export default function CounterHeader({
                     ) : (
                         <WifiOff className="size-3.5" />
                     )}
-                    {online ? 'Online' : 'Offline · network required'}
-                </div>
+                    {online ? 'Online' : 'Offline'}
+                </p>
             </div>
-            <div className="flex items-center gap-2">
-                {outletPicker}
-                <Button
-                    variant="ghost"
-                    nativeButton={false}
-                    render={<Link href={dashboard()} />}
-                >
-                    <LogOut data-icon="inline-start" />
-                    Exit counter
-                </Button>
-            </div>
+            {outletPicker}
         </header>
     );
 }
