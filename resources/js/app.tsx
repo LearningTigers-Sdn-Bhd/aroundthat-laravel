@@ -20,6 +20,7 @@ void createInertiaApp({
     layout: (name) => {
         switch (true) {
             case name === 'welcome':
+            case name.startsWith('places/'):
                 return ModalLayout;
             case name.startsWith('auth/'):
             case name.startsWith('workspace/'):

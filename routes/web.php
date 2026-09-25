@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+
+Route::get('places/{slug}', [PlaceController::class, 'show'])->name('places.show');
 
 Route::controller(InvitationController::class)->prefix('invitations/{token}')->name('invitations.')->group(function () {
     Route::get('/', 'show')->name('show');
