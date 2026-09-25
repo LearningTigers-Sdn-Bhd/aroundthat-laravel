@@ -18,8 +18,10 @@ import { Textarea } from '@/components/ui/textarea';
 import type { RouteFormDefinition } from '@/wayfinder';
 
 type Props = {
-    /** The button that opens the dialog. */
-    trigger: ReactElement;
+    /** The button that opens the dialog. Leave it out and pass `open` to open it from elsewhere, such as a menu. */
+    trigger?: ReactElement;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
     title: string;
     description?: string;
     /** Where the reason is posted, from a Wayfinder `.form()` call. */
@@ -38,12 +40,16 @@ export default function ReasonDialog({
     form,
     submitLabel,
     destructive = false,
+    open: controlledOpen,
+    onOpenChange,
 }: Props) {
-    const [open, setOpen] = useState(false);
+    const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+    const open = controlledOpen ?? uncontrolledOpen;
+    const setOpen = onOpenChange ?? setUncontrolledOpen;
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger render={trigger} />
+            {trigger && <DialogTrigger render={trigger} />}
             <DialogContent>
                 <DialogTitle>{title}</DialogTitle>
                 {description && (

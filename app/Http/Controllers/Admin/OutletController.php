@@ -23,6 +23,21 @@ use InertiaUI\Modal\Modal;
 
 class OutletController extends Controller
 {
+    /**
+     * The Outlets tab of a business.
+     */
+    public function index(Business $business): Response
+    {
+        $business->load(['approvedBy', 'suspendedBy']);
+
+        return Inertia::render('admin/businesses/outlets', [
+            'business' => BusinessData::fromModel($business),
+            'outlets' => OutletData::collect(
+                $business->outlets()->with(['business', 'hostOutlet', 'approvedBy', 'suspendedBy'])->orderBy('name')->get(),
+            ),
+        ]);
+    }
+
     public function create(Business $business): Modal
     {
         $business->load(['approvedBy', 'suspendedBy']);
@@ -30,7 +45,7 @@ class OutletController extends Controller
         return Inertia::modal('admin/outlets/create', [
             'business' => BusinessData::fromModel($business),
             'locationOptions' => LocationOptionsData::current(),
-        ])->baseRoute('admin.businesses.show', $business);
+        ])->baseRoute('admin.businesses.outlets.index', $business);
     }
 
     /**

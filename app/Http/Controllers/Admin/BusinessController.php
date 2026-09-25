@@ -3,21 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Businesses\OnboardBusiness;
-use App\Data\Admin\ActivityData;
 use App\Data\Admin\BusinessData;
-use App\Data\Admin\OutletData;
 use App\Data\Forms\OnboardBusinessData;
-use App\Data\InvitationData;
 use App\Data\LocationOptionsData;
-use App\Data\MemberData;
 use App\Enums\OnboardingStatus;
 use App\Enums\OwnerMethod;
 use App\Http\Controllers\Controller;
-use App\Models\Activity;
 use App\Models\Business;
 use App\Support\QueryFilters\SearchFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -73,7 +67,7 @@ class BusinessController extends Controller
     }
 
     /**
-     * Everything about one business: its details, outlets, staff, open invitations and change history.
+     * The Details tab of a business.
      */
     public function show(Business $business): Response
     {
@@ -81,42 +75,6 @@ class BusinessController extends Controller
 
         return Inertia::render('admin/businesses/show', [
             'business' => BusinessData::fromModel($business),
-            'outlets' => OutletData::collect(
-                $business->outlets()->with(['business', 'hostOutlet', 'approvedBy', 'suspendedBy'])->orderBy('name')->get(),
-            ),
-            'members' => MemberData::collect(
-                $business->memberships()->with(['user', 'outlets'])->get()->sortBy('user.name')->values(),
-            ),
-            'invitations' => InvitationData::collect(
-                $business->invitations()->open()->with(['invitedBy', 'outlets'])->latest()->get(),
-            ),
-            'activities' => Inertia::defer(fn () => ActivityData::collect($this->activities($business))),
         ]);
-    }
-
-    /**
-     * The latest changes to the business and to its outlets, members and invitations.
-     *
-     * @return Collection<int, Activity>
-     */
-    protected function activities(Business $business): Collection
-    {
-        $subjects = [
-            'business' => [$business->id],
-            'outlet' => $business->outlets()->pluck('id')->all(),
-            'membership' => $business->memberships()->pluck('id')->all(),
-            'invitation' => $business->invitations()->pluck('id')->all(),
-        ];
-
-        return Activity::query()
-            ->where(function (Builder $query) use ($subjects): void {
-                foreach ($subjects as $type => $ids) {
-                    $query->orWhere(fn (Builder $query) => $query->where('subject_type', $type)->whereIn('subject_id', $ids));
-                }
-            })
-            ->with('causer')
-            ->latest('id')
-            ->limit(100)
-            ->get();
     }
 }

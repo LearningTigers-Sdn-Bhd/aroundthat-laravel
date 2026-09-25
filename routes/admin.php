@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\ApiKeyController;
+use App\Http\Controllers\Admin\BusinessActivityController;
 use App\Http\Controllers\Admin\BusinessController;
+use App\Http\Controllers\Admin\BusinessMemberController;
 use App\Http\Controllers\Admin\BusinessStatusController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ChangeController;
@@ -35,7 +37,9 @@ Route::middleware(['auth', 'verified', 'can:admin', 'business:optional'])->prefi
         Route::post('reactivate', 'reactivate')->name('reactivate');
     });
 
-    Route::resource('businesses.outlets', OutletController::class)->only(['create', 'store', 'show'])->shallow();
+    Route::resource('businesses.outlets', OutletController::class)->only(['index', 'create', 'store', 'show'])->shallow();
+    Route::get('businesses/{business}/members', [BusinessMemberController::class, 'index'])->name('businesses.members.index');
+    Route::get('businesses/{business}/activity', [BusinessActivityController::class, 'index'])->name('businesses.activity.index');
 
     Route::controller(OutletStatusController::class)->prefix('outlets/{outlet}')->name('outlets.')->group(function () {
         Route::post('approve', 'approve')->name('approve');

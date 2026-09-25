@@ -83,23 +83,58 @@ test('onboarding reports missing business details under their field names', func
     $this->assertDatabaseCount('businesses', 0);
 });
 
-test('a business page shows its outlets, members, open invitations and only its own history', function () {
+test('a business page opens on its details', function () {
     $business = Business::factory()->approved()->create();
-    $outlet = Outlet::factory()->for($business)->approved()->create();
-    Membership::factory()->owner()->for($business)->create();
-    Invitation::factory()->for($business)->cashier()->create();
-    Invitation::factory()->for($business)->accepted()->create();
-    $outlet->update(['name' => 'Renamed Outlet']);
-    Business::factory()->create()->update(['name' => 'Someone else']);
 
     $this->actingAs($this->admin)
         ->get(route('admin.businesses.show', $business))
         ->assertInertia(fn (Assert $page) => $page
             ->component('admin/businesses/show')
             ->where('business.id', $business->id)
-            ->has('outlets', 1)
+            ->missing('outlets')
+            ->missing('members')
+            ->missing('activities'));
+});
+
+test('the outlets tab lists only the business\'s outlets', function () {
+    $business = Business::factory()->approved()->create();
+    Outlet::factory()->for($business)->approved()->create();
+    Outlet::factory()->create();
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.businesses.outlets.index', $business))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/businesses/outlets')
+            ->where('business.id', $business->id)
+            ->has('outlets', 1));
+});
+
+test('the members tab lists members and open invitations', function () {
+    $business = Business::factory()->approved()->create();
+    Membership::factory()->owner()->for($business)->create();
+    Invitation::factory()->for($business)->cashier()->create();
+    Invitation::factory()->for($business)->accepted()->create();
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.businesses.members.index', $business))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/businesses/members')
+            ->where('business.id', $business->id)
             ->has('members', 1)
-            ->has('invitations', 1)
+            ->has('invitations', 1));
+});
+
+test('the activity tab loads only the business\'s own history', function () {
+    $business = Business::factory()->approved()->create();
+    $outlet = Outlet::factory()->for($business)->approved()->create();
+    $outlet->update(['name' => 'Renamed Outlet']);
+    Business::factory()->create()->update(['name' => 'Someone else']);
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.businesses.activity.index', $business))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/businesses/activity')
+            ->where('business.id', $business->id)
             ->missing('activities')
             ->loadDeferredProps(fn (Assert $reload) => $reload
                 ->where('activities.0.event', 'updated')
@@ -108,6 +143,12 @@ test('a business page shows its outlets, members, open invitations and only its 
                     fn (array $activity) => $activity['subject_type'] !== 'business' || $activity['subject_id'] === $business->id,
                 ))));
 });
+
+test('only admins can open the business tabs', function (string $route) {
+    $business = Business::factory()->create();
+
+    $this->actingAs(User::factory()->create())->get(route($route, $business))->assertForbidden();
+})->with(['admin.businesses.outlets.index', 'admin.businesses.members.index', 'admin.businesses.activity.index']);
 
 test('an admin approves a pending business', function () {
     $business = Business::factory()->pending()->create();
