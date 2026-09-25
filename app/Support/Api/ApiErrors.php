@@ -3,6 +3,11 @@
 namespace App\Support\Api;
 
 use App\Rules\PublicOutletSlug;
+use Dedoc\Scramble\Support\Generator\OpenApi;
+use Dedoc\Scramble\Support\Generator\Schema;
+use Dedoc\Scramble\Support\Generator\Types\ArrayType;
+use Dedoc\Scramble\Support\Generator\Types\ObjectType;
+use Dedoc\Scramble\Support\Generator\Types\StringType;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -96,5 +101,25 @@ class ApiErrors
         }
 
         return new JsonResponse(['errors' => $errors], $exception->status);
+    }
+
+    /**
+     * Document the error shape in the API docs, in place of Laravel's default error bodies.
+     */
+    public static function document(OpenApi $openApi): void
+    {
+        $error = (new ObjectType)
+            ->addProperty('path', (new StringType)->setDescription('A JSON pointer to the input field, or empty.'))
+            ->addProperty('code', (new StringType)->setDescription('Stable, such as `required`, `invalid`, `unavailable`, `unauthenticated`, `forbidden`, `not_found` or `rate_limited`.'))
+            ->addProperty('message', (new StringType)->setDescription('For people. It may change.'))
+            ->setRequired(['path', 'code', 'message']);
+
+        $body = Schema::fromType((new ObjectType)
+            ->addProperty('errors', (new ArrayType)->setItems($error))
+            ->setRequired(['errors']));
+
+        foreach ($openApi->components->responses as $response) {
+            $response->setContent('application/json', $body);
+        }
     }
 }

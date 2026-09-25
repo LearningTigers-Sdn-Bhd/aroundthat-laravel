@@ -12,6 +12,7 @@ use App\Models\Outlet;
 use App\Models\Tag;
 use App\Support\Locations;
 use App\Support\QueryFilters\SearchFilter;
+use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -51,6 +52,14 @@ class OutletController extends Controller
      *
      * @throws ValidationException
      */
+    #[QueryParameter('filter[category]', description: 'Category slugs, separated by commas. Matches any.', type: 'string', example: 'cafe,restaurant')]
+    #[QueryParameter('filter[tag]', description: 'Tag slugs, separated by commas. Matches outlets with every tag.', type: 'string', example: 'halal,wifi')]
+    #[QueryParameter('filter[state]', description: 'State slugs, separated by commas. Matches any.', type: 'string', example: 'sabah')]
+    #[QueryParameter('filter[search]', description: 'Part of the name or summary.', type: 'string')]
+    #[QueryParameter('filter[updated_since]', description: 'An RFC 3339 time with a timezone. Only outlets changed since then.', type: 'string', format: 'date-time', example: '2026-09-01T00:00:00Z')]
+    #[QueryParameter('sort', description: '`name` (default) or `updated_at`. Prefix with `-` for descending.', type: 'string', default: 'name')]
+    #[QueryParameter('per_page', description: 'Outlets per page, 1 to 100.', type: 'integer', default: self::DEFAULT_PER_PAGE)]
+    #[QueryParameter('cursor', description: 'The `meta.next_cursor` of the previous page.', type: 'string')]
     public function index(Request $request): AnonymousResourceCollection
     {
         $validated = $this->validateQuery($request);

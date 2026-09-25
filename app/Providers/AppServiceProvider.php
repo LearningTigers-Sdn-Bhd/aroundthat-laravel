@@ -13,8 +13,11 @@ use App\Models\Setting;
 use App\Models\Tag;
 use App\Models\User;
 use App\Support\ActivityLog\AuditTrail;
+use App\Support\Api\ApiErrors;
 use App\Support\Workspace;
 use Carbon\CarbonImmutable;
+use Dedoc\Scramble\Scramble;
+use Dedoc\Scramble\Support\Generator\OpenApi;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -59,6 +62,8 @@ class AppServiceProvider extends ServiceProvider
                 && $token->tokenable->isUsable(),
         );
 
+        Scramble::afterOpenApiGenerated(fn (OpenApi $openApi) => ApiErrors::document($openApi));
+
         RateLimiter::for('partner-api', fn (Request $request): Limit => Limit::perMinute(300)
             ->by($request->user()?->getAuthIdentifier() ?? $request->ip()));
     }
@@ -69,6 +74,9 @@ class AppServiceProvider extends ServiceProvider
     protected function configureAuthorization(): void
     {
         Gate::define('admin', fn (User $user): bool => $user->is_admin && ! $user->isSuspended());
+
+        // The partner API docs at /docs/api. Scramble opens them to everyone only in the local environment.
+        Gate::define('viewApiDocs', fn (User $user): bool => Gate::forUser($user)->allows('admin'));
     }
 
     /**
