@@ -225,4 +225,17 @@ class VoucherOffer extends Model
             ->whereNull($this->qualifyColumn('voucher_limit'))
             ->orWhereColumn($this->qualifyColumn('issued_count'), '<', $this->qualifyColumn('voucher_limit')));
     }
+
+    /**
+     * Offers the owner runs or paused that have not ended and no admin has hidden, scheduled ones included.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function running(Builder $query): void
+    {
+        $query->whereIn($this->qualifyColumn('status'), [OfferStatus::Active, OfferStatus::Paused])
+            ->whereNull($this->qualifyColumn('hidden_at'))
+            ->where($this->qualifyColumn('ends_at'), '>', now());
+    }
 }

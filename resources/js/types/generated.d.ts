@@ -33,6 +33,30 @@ is_suspended: boolean,
 role: App.Enums.MembershipRole,
 abilities: App.Enums.Ability[],
 };
+export type DashboardAttentionData = {
+title: string,
+description: string,
+url: string,
+};
+export type DashboardOfferData = {
+id: string,
+name: string,
+state: 'active' | 'paused' | 'scheduled',
+issued_count: number,
+voucher_limit: number | null,
+ends_at: string,
+ends_soon: boolean,
+};
+export type DashboardRedemptionData = {
+id: string,
+offer_name: string,
+outlet_name: string,
+bill_amount: string,
+discount_amount: string,
+currency: string,
+redeemed_at: string,
+is_cancelled: boolean,
+};
 export type DashboardTileData = {
 label: string,
 value: string | number | null,

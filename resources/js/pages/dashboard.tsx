@@ -1,19 +1,14 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ChevronRight, LayoutGrid, ScanLine } from 'lucide-react';
-import ButtonLink from '@/components/button-link';
+import { ChevronRight, ScanLine } from 'lucide-react';
+import AttentionList from '@/components/app/dashboard/attention-list';
+import QuickActions from '@/components/app/dashboard/quick-actions';
+import type { QuickAction } from '@/components/app/dashboard/quick-actions';
+import RecentRedemptions from '@/components/app/dashboard/recent-redemptions';
+import RunningOffers from '@/components/app/dashboard/running-offers';
 import Heading from '@/components/heading';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    Empty,
-    EmptyContent,
-    EmptyDescription,
-    EmptyHeader,
-    EmptyMedia,
-    EmptyTitle,
-} from '@/components/ui/empty';
 import { formatReportValue } from '@/lib/reports';
 import { dashboard } from '@/routes';
-import { show as counter } from '@/routes/counter';
 import { show as report } from '@/routes/reports';
 
 type Props = {
@@ -23,11 +18,26 @@ type Props = {
         currency: string;
         tiles: App.Data.DashboardTileData[];
     } | null;
+    /** Vouchers used today at the member's outlets, for members who see today's activity but not reports. */
+    today: { used: number } | null;
+    quickActions: QuickAction[];
+    attention: App.Data.DashboardAttentionData[];
+    /** Deferred: undefined while loading, null when the member cannot see it. */
+    recentRedemptions?: App.Data.DashboardRedemptionData[] | null;
+    /** Deferred: undefined while loading, null when the member cannot see it. */
+    offers?: App.Data.DashboardOfferData[] | null;
 };
 
-export default function Dashboard({ month }: Props) {
+export default function Dashboard({
+    month,
+    today,
+    quickActions,
+    attention,
+    recentRedemptions,
+    offers,
+}: Props) {
     const { workspace } = usePage().props;
-    const canScan = workspace?.abilities.includes('scan') ?? false;
+    const showsLists = recentRedemptions !== null || offers !== null;
 
     return (
         <>
@@ -35,7 +45,7 @@ export default function Dashboard({ month }: Props) {
 
             <div className="flex flex-1 flex-col gap-6 p-4">
                 {month ? (
-                    <>
+                    <section className="flex flex-col gap-4">
                         <Heading
                             title="This month"
                             description={`${month.label}. Tap a number to open its report.`}
@@ -77,31 +87,54 @@ export default function Dashboard({ month }: Props) {
                                 </Link>
                             ))}
                         </div>
-                    </>
+                    </section>
                 ) : (
-                    <Empty className="border">
-                        <EmptyHeader>
-                            <EmptyMedia variant="icon">
-                                <LayoutGrid />
-                            </EmptyMedia>
-                            <EmptyTitle>
-                                Welcome to {workspace?.business_name}
-                            </EmptyTitle>
-                            <EmptyDescription>
-                                {canScan
-                                    ? 'Open the counter to check and redeem guest vouchers.'
-                                    : 'Use the menu to get started.'}
-                            </EmptyDescription>
-                        </EmptyHeader>
-                        {canScan && (
-                            <EmptyContent>
-                                <ButtonLink href={counter()}>
-                                    <ScanLine data-icon="inline-start" />
-                                    Open counter
-                                </ButtonLink>
-                            </EmptyContent>
+                    <Heading
+                        title={`Welcome to ${workspace?.business_name ?? 'your business'}`}
+                        description={
+                            quickActions.includes('counter')
+                                ? 'Open the counter to check and redeem guest vouchers.'
+                                : 'Use the menu to get started.'
+                        }
+                    />
+                )}
+
+                {today && (
+                    <Card size="sm" className="max-w-sm">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                                <ScanLine className="size-4" />
+                                Today at your outlets
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-2xl font-semibold tabular-nums">
+                                {today.used}{' '}
+                                <span className="text-sm font-normal text-muted-foreground">
+                                    {today.used === 1
+                                        ? 'voucher used'
+                                        : 'vouchers used'}
+                                </span>
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {quickActions.length > 0 && (
+                    <QuickActions actions={quickActions} />
+                )}
+
+                <AttentionList items={attention} />
+
+                {showsLists && (
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        {recentRedemptions !== null && (
+                            <RecentRedemptions
+                                redemptions={recentRedemptions}
+                            />
                         )}
-                    </Empty>
+                        {offers !== null && <RunningOffers items={offers} />}
+                    </div>
                 )}
             </div>
         </>

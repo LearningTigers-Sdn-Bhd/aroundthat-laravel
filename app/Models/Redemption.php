@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Models\Concerns\LocksForUpdate;
+use App\Support\Reports\ReportScope;
 use Database\Factories\RedemptionFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -103,5 +106,20 @@ class Redemption extends Model
     public function isCancellable(): bool
     {
         return ! $this->isCancelled() && $this->redeemed_at->greaterThan(now()->subHours(self::CANCEL_WINDOW_HOURS));
+    }
+
+    /**
+     * Only redemptions the member's reports cover: at their outlets and, for owners, the business's own offers
+     * used at other businesses' outlets.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function coveredBy(Builder $query, ReportScope $scope): void
+    {
+        $query->where(fn (Builder $query) => $query
+            ->whereIn($this->qualifyColumn('outlet_id'), $scope->outletIds)
+            ->when($scope->includesOffersElsewhere, fn (Builder $query) => $query
+                ->orWhereHas('voucher.offer', fn (Builder $offer) => $offer->where('business_id', $scope->business->id))));
     }
 }
