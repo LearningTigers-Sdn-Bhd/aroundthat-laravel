@@ -9,12 +9,18 @@ use RuntimeException;
 class AdminUserSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the database seeds. Skipped when ADMIN_SEED_EMAIL or ADMIN_SEED_PASSWORD is not set.
      */
     public function run(): void
     {
         $email = config('seeding.admin_email');
         $password = config('seeding.admin_password');
+
+        if (blank($email) || blank($password)) {
+            $this->command?->warn('Skipping Admin account: ADMIN_SEED_EMAIL or ADMIN_SEED_PASSWORD is not set.');
+
+            return;
+        }
 
         if (! is_string($email) || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             throw new RuntimeException('Set a valid ADMIN_SEED_EMAIL before seeding the Admin account.');

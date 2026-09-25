@@ -33,9 +33,22 @@ test('does not duplicate or reset an existing account', function () {
     expect(Hash::check('password', $existingUser->fresh()->password))->toBeTrue();
 });
 
-test('requires a configured password before creating an account', function () {
+test('skips the Admin account when the email or password is not set', function (?string $email, ?string $password) {
+    config()->set('seeding.admin_email', $email);
+    config()->set('seeding.admin_password', $password);
+
+    $this->seed(AdminUserSeeder::class);
+
+    expect(User::count())->toBe(0);
+})->with([
+    'no email' => [null, 'long-secret-password'],
+    'no password' => ['admin@example.com', null],
+    'empty password' => ['admin@example.com', ''],
+]);
+
+test('requires a long enough password before creating an account', function () {
     config()->set('seeding.admin_email', 'admin@example.com');
-    config()->set('seeding.admin_password', null);
+    config()->set('seeding.admin_password', 'short');
 
     expect(fn () => $this->seed(AdminUserSeeder::class))
         ->toThrow(RuntimeException::class, 'Set ADMIN_SEED_PASSWORD');
