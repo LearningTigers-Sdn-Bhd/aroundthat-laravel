@@ -5,6 +5,7 @@ import {
     History,
     LayoutGrid,
     Plug,
+    ScanLine,
     Settings,
     Shapes,
     Ticket,
@@ -28,6 +29,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { show as counter } from '@/routes/counter';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import { edit as businessDetails } from '@/routes/business';
 import { index as offers } from '@/routes/offers';
@@ -52,6 +54,9 @@ export function AppSidebar() {
     const mainNavItems: NavItem[] = workspace
         ? [
               { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
+              ...(can('scan')
+                  ? [{ title: 'Counter', href: counter(), icon: ScanLine }]
+                  : []),
               ...(can('manage_business')
                   ? [
                         {

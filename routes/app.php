@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\App\BusinessController;
 use App\Http\Controllers\App\BusinessPublicProfileController;
+use App\Http\Controllers\App\CounterController;
 use App\Http\Controllers\App\InvitationController;
 use App\Http\Controllers\App\OfferController;
 use App\Http\Controllers\App\OfferOutletController;
@@ -85,6 +86,15 @@ Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(functi
         Route::post('/', 'store')->name('store');
         Route::post('{voucher}/reveal', 'reveal')->middleware('throttle:6,1')->name('reveal');
         Route::post('{voucher}/void', 'void')->name('void');
+    });
+
+    Route::controller(CounterController::class)->prefix('counter')->name('counter.')->group(function () {
+        Route::get('/', 'show')->name('show');
+        Route::middleware('throttle:counter')->group(function () {
+            Route::post('check', 'check')->name('check');
+            Route::post('redemptions', 'redeem')->name('redeem');
+            Route::post('redemptions/{redemption}/cancel', 'cancel')->name('cancel');
+        });
     });
 
     Route::prefix('staff')->name('staff.')->group(function () {

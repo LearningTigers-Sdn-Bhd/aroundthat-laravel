@@ -182,6 +182,21 @@ is_public: boolean,
 hidden_reason: string | null,
 missing_for_listing: string[],
 };
+export type RedemptionData = {
+id: string,
+offer_name: string,
+code_prefix: string,
+bill_amount: string,
+discount_amount: string,
+net_amount: string,
+currency: string,
+redeemed_at: string,
+cashier_name: string | null,
+cancelled_at: string | null,
+cancelled_by_name: string | null,
+cancel_reason: string | null,
+can_cancel: boolean,
+};
 export type RevertNoticeData = {
 event: string,
 reason: string | null,
@@ -391,6 +406,12 @@ export type CategoryData = {
 name: string,
 is_active: boolean,
 };
+export type CounterCheckData = {
+outlet_id: string,
+code: string,
+bill_amount: string | null,
+free_item_value: string | null,
+};
 export type ImageUploadData = {
 file: undefined,
 kind: App.Enums.ImageKind,
@@ -498,6 +519,13 @@ tags: string[] | null,
 };
 export type ReasonData = {
 reason: string,
+};
+export type RedeemVoucherData = {
+outlet_id: string,
+code: string,
+bill_amount: string,
+idempotency_key: string,
+free_item_value: string | null,
 };
 export type TagData = {
 name: string,

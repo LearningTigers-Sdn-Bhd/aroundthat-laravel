@@ -30,9 +30,9 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property string $name
  * @property string|null $description
  * @property DiscountType $discount_type
- * @property string|null $discount_value
- * @property string|null $max_discount_amount
- * @property string|null $min_spend_amount
+ * @property numeric-string|null $discount_value
+ * @property numeric-string|null $max_discount_amount
+ * @property numeric-string|null $min_spend_amount
  * @property string|null $free_item
  * @property Carbon $starts_at
  * @property Carbon $ends_at

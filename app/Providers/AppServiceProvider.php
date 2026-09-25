@@ -68,6 +68,9 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('partner-api', fn (Request $request): Limit => Limit::perMinute(300)
             ->by($request->user()?->getAuthIdentifier() ?? $request->ip()));
+
+        RateLimiter::for('counter', fn (Request $request): Limit => Limit::perMinute(60)
+            ->by($request->user()?->getAuthIdentifier() ?? $request->ip()));
     }
 
     /**
