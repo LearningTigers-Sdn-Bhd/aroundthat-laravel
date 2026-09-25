@@ -527,6 +527,14 @@ bill_amount: string,
 idempotency_key: string,
 free_item_value: string | null,
 };
+export type ReportFiltersData = {
+period: App.Enums.ReportPeriodPreset,
+from: string | null,
+to: string | null,
+group: App.Enums.ReportGrouping | null,
+offer: string | null,
+outlet: string | null,
+};
 export type TagData = {
 name: string,
 is_active: boolean,
@@ -547,9 +555,28 @@ export type OfferStatus = 'draft' | 'active' | 'paused';
 export type OnboardingStatus = 'draft' | 'pending' | 'approved' | 'rejected';
 export type OutboundDestination = 'map' | 'phone' | 'website' | 'whatsapp' | 'facebook' | 'instagram';
 export type OwnerMethod = 'existing' | 'temporary_password' | 'invite';
+export type ReportFilter = 'offer' | 'outlet';
+export type ReportGrouping = 'day' | 'week' | 'month' | 'outlet' | 'offer';
+export type ReportPeriodPreset = 'today' | 'last_7_days' | 'last_30_days' | 'this_month' | 'last_month' | 'custom';
+export type ReportValueFormat = 'text' | 'count' | 'money' | 'percent';
 export type TagStatus = 'pending' | 'approved' | 'rejected';
 export type VoidReason = 'guest_cancelled' | 'duplicate_claim' | 'issued_in_error' | 'suspected_abuse';
 export type VoucherStatus = 'active' | 'used' | 'void';
+}
+namespace Support {
+namespace Reports {
+export type ReportColumn = {
+key: string,
+label: string,
+format: App.Enums.ReportValueFormat,
+};
+export type ReportTile = {
+label: string,
+value: string | number | null,
+format: App.Enums.ReportValueFormat,
+hint: string | null,
+};
+}
 }
 }
 declare namespace Illuminate {
