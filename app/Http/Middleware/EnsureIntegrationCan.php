@@ -3,9 +3,11 @@
 namespace App\Http\Middleware;
 
 use App\Enums\IntegrationCapability;
+use App\Models\Integration;
 use Closure;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -20,9 +22,9 @@ class EnsureIntegrationCan
      */
     public function handle(Request $request, Closure $next, string $capability): Response
     {
-        $integration = $request->user('sanctum');
+        $integration = Auth::guard('sanctum')->user();
 
-        if (! $integration?->hasCapability(IntegrationCapability::from($capability))) {
+        if (! $integration instanceof Integration || ! $integration->hasCapability(IntegrationCapability::from($capability))) {
             throw new AuthorizationException(__('This API key cannot use this endpoint.'));
         }
 

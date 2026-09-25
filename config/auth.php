@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Integration;
 use App\Models\User;
 
 return [
@@ -43,12 +42,6 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-
-        // The partner API: bearer API keys that belong to integrations, never to users.
-        'sanctum' => [
-            'driver' => 'sanctum',
-            'provider' => 'integrations',
-        ],
     ],
 
     /*
@@ -72,11 +65,6 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
-        ],
-
-        'integrations' => [
-            'driver' => 'eloquent',
-            'model' => Integration::class,
         ],
 
         // 'users' => [
