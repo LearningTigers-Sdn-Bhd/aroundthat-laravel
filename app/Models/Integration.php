@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
@@ -82,6 +83,16 @@ class Integration extends Model implements AuthenticatableContract
     public function suspendedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'suspended_by_id');
+    }
+
+    /**
+     * Engagement events this integration sent.
+     *
+     * @return HasMany<EngagementEvent, $this>
+     */
+    public function engagementEvents(): HasMany
+    {
+        return $this->hasMany(EngagementEvent::class);
     }
 
     public function isSuspended(): bool

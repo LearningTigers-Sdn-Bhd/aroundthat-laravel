@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\EngagementEventController;
 use App\Http\Controllers\Api\V1\LookupController;
 use App\Http\Controllers\Api\V1\OutletController;
 use Illuminate\Support\Facades\Route;
@@ -15,4 +16,8 @@ Route::prefix('v1')->name('api.v1.')->middleware(['auth:sanctum', 'throttle:part
         Route::get('outlets', [OutletController::class, 'index'])->name('outlets.index');
         Route::get('outlets/{slug}', [OutletController::class, 'show'])->name('outlets.show');
     });
+
+    Route::post('engagement-events', [EngagementEventController::class, 'store'])
+        ->middleware('capability:engagement:write')
+        ->name('engagement-events.store');
 });

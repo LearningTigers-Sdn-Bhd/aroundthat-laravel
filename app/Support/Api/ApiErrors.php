@@ -2,6 +2,7 @@
 
 namespace App\Support\Api;
 
+use App\Rules\PublicOutletSlug;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -26,6 +27,9 @@ class ApiErrors
      */
     protected const array RULE_CODES = [
         'Required' => 'required',
+        'RequiredIf' => 'required',
+        'RequiredWith' => 'required',
+        PublicOutletSlug::class => 'unavailable',
     ];
 
     public static function handles(Request $request): bool

@@ -430,6 +430,7 @@ is_active: boolean,
 }
 namespace Enums {
 export type Ability = 'scan' | 'view_today_activity' | 'view_reports' | 'view_statements' | 'manage_offers' | 'void_vouchers' | 'manage_business' | 'manage_outlets' | 'manage_staff' | 'manage_public_content';
+export type EngagementEventType = 'place_impression' | 'place_view' | 'outbound_click';
 export type ImageKind = 'cover' | 'gallery' | 'logo';
 export type IntegrationCapability = 'places:read' | 'engagement:write';
 export type IntegrationType = 'pms' | 'travel_agency' | 'internal';
@@ -437,6 +438,7 @@ export type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'cancelled'
 export type MediaDisk = 'local' | 'r2';
 export type MembershipRole = 'owner' | 'manager' | 'cashier';
 export type OnboardingStatus = 'draft' | 'pending' | 'approved' | 'rejected';
+export type OutboundDestination = 'map' | 'phone' | 'website' | 'whatsapp' | 'facebook' | 'instagram';
 export type OwnerMethod = 'existing' | 'temporary_password' | 'invite';
 export type TagStatus = 'pending' | 'approved' | 'rejected';
 }
