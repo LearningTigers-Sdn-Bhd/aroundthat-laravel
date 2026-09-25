@@ -98,4 +98,12 @@ class Business extends Model
     {
         return $this->hasMany(Outlet::class);
     }
+
+    /**
+     * @return HasMany<VoucherOffer, $this>
+     */
+    public function voucherOffers(): HasMany
+    {
+        return $this->hasMany(VoucherOffer::class);
+    }
 }

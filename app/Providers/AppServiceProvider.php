@@ -12,6 +12,7 @@ use App\Models\Outlet;
 use App\Models\Setting;
 use App\Models\Tag;
 use App\Models\User;
+use App\Models\VoucherOffer;
 use App\Support\ActivityLog\AuditTrail;
 use App\Support\Api\ApiErrors;
 use App\Support\Workspace;
@@ -97,6 +98,7 @@ class AppServiceProvider extends ServiceProvider
             'setting' => Setting::class,
             'image' => Image::class,
             'integration' => Integration::class,
+            'voucher_offer' => VoucherOffer::class,
         ]);
 
         DB::prohibitDestructiveCommands(

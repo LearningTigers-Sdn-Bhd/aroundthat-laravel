@@ -158,6 +158,16 @@ class Outlet extends Model
     }
 
     /**
+     * Offers whose vouchers can be redeemed here, including offers other businesses sponsor.
+     *
+     * @return BelongsToMany<VoucherOffer, $this>
+     */
+    public function voucherOffers(): BelongsToMany
+    {
+        return $this->belongsToMany(VoucherOffer::class)->withPivot('created_at');
+    }
+
+    /**
      * The outlet this one physically sits inside, such as a mall.
      *
      * @return BelongsTo<Outlet, $this>
