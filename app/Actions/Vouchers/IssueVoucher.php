@@ -6,6 +6,7 @@ use App\Models\Voucher;
 use App\Models\VoucherOffer;
 use App\Support\ActivityLog\AuditTrail;
 use App\Support\Vouchers\VoucherCode;
+use App\Support\Vouchers\VoucherLimitReached;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -62,7 +63,7 @@ class IssueVoucher
             ->increment('issued_count');
 
         if ($reserved === 0) {
-            throw ValidationException::withMessages(['offer' => __('Every voucher of this offer has been issued.')]);
+            throw VoucherLimitReached::withMessages(['offer' => __('Every voucher of this offer has been issued.')]);
         }
 
         $offer->refresh();

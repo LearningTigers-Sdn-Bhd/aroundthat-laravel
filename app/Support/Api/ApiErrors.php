@@ -110,7 +110,7 @@ class ApiErrors
     {
         $error = (new ObjectType)
             ->addProperty('path', (new StringType)->setDescription('A JSON pointer to the input field, or empty.'))
-            ->addProperty('code', (new StringType)->setDescription('Stable, such as `required`, `invalid`, `unavailable`, `unauthenticated`, `forbidden`, `not_found` or `rate_limited`.'))
+            ->addProperty('code', (new StringType)->setDescription('Stable, such as `required`, `invalid`, `unavailable`, `unauthenticated`, `forbidden`, `not_found`, `rate_limited`, `offer_limit_reached`, `idempotency_conflict` or `voucher_not_active`.'))
             ->addProperty('message', (new StringType)->setDescription('For people. It may change.'))
             ->setRequired(['path', 'code', 'message']);
 

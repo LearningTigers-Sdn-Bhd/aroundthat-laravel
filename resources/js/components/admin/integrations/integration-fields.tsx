@@ -20,6 +20,8 @@ export const integrationTypes: Record<App.Enums.IntegrationType, string> = {
 export const capabilities: Record<App.Enums.IntegrationCapability, string> = {
     'places:read': 'Read public places',
     'engagement:write': 'Send engagement events',
+    'vouchers:read': 'Read voucher offers',
+    'vouchers:claim': 'Claim, read and void vouchers for guests',
 };
 
 /**

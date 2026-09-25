@@ -14,6 +14,7 @@ test('the API docs describe every partner endpoint, bearer authentication and th
 
     expect(array_keys($spec['paths']))->toEqualCanonicalizing([
         '/v1/categories', '/v1/tags', '/v1/states', '/v1/outlets', '/v1/outlets/{slug}', '/v1/engagement-events',
+        '/v1/outlets/{slug}/voucher-offers', '/v1/voucher-offers/{offer}/claims', '/v1/vouchers/{voucher}', '/v1/vouchers/{voucher}/void',
     ])
         ->and($spec['components']['securitySchemes'])->toHaveKey('http')
         ->and($spec['components']['responses']['ValidationException']['content']['application/json']['schema']['properties'])->toHaveKeys(['errors'])
