@@ -15,7 +15,6 @@ use App\Http\Controllers\Admin\OfferStatusController;
 use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Admin\OutletHostController;
 use App\Http\Controllers\Admin\OutletStatusController;
-use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserStatusController;
@@ -82,9 +81,6 @@ Route::middleware(['auth', 'verified', 'can:admin', 'business:optional'])->prefi
         Route::post('{key}/rotate', 'rotate')->whereNumber('key')->name('rotate');
         Route::delete('{key}', 'destroy')->whereNumber('key')->name('destroy');
     });
-
-    Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
-    Route::put('settings/media', [SettingsController::class, 'updateMedia'])->name('settings.media.update');
 
     Route::post('invitations/{invitation}/resend', [InvitationController::class, 'resend'])->name('invitations.resend');
     Route::delete('invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');

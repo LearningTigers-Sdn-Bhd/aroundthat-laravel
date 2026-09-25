@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Settings;
 
 use App\Actions\Settings\UpdateMediaDisk;
 use App\Data\Forms\MediaSettingsData;
@@ -13,13 +13,13 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * App-wide settings an admin can change without a deploy.
+ * App-wide image settings an admin can change without a deploy.
  */
-class SettingsController extends Controller
+class ImageController extends Controller
 {
     public function edit(Settings $settings): Response
     {
-        return Inertia::render('admin/settings/index', [
+        return Inertia::render('settings/images', [
             'mediaDisk' => $settings->mediaDisk(),
             'mediaDisks' => collect(MediaDisk::cases())->map(fn (MediaDisk $disk): array => [
                 'value' => $disk->value,
@@ -32,7 +32,7 @@ class SettingsController extends Controller
     /**
      * @throws ValidationException
      */
-    public function updateMedia(MediaSettingsData $data, UpdateMediaDisk $updateMediaDisk): RedirectResponse
+    public function update(MediaSettingsData $data, UpdateMediaDisk $updateMediaDisk): RedirectResponse
     {
         $updateMediaDisk->handle($data->mediaDisk);
 

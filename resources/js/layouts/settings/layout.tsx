@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
 import Heading from '@/components/heading';
 import ButtonLink from '@/components/button-link';
@@ -5,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
+import { edit as editImages } from '@/routes/images';
 import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import type { NavItem } from '@/types';
@@ -27,8 +29,21 @@ const sidebarNavItems: NavItem[] = [
     },
 ];
 
+const adminNavItems: NavItem[] = [
+    {
+        title: 'Image Configuration',
+        href: editImages(),
+        icon: null,
+    },
+];
+
 export default function SettingsLayout({ children }: PropsWithChildren) {
+    const { auth } = usePage().props;
     const { isCurrentOrParentUrl } = useCurrentUrl();
+
+    const navItems = auth.user.is_admin
+        ? [...sidebarNavItems, ...adminNavItems]
+        : sidebarNavItems;
 
     return (
         <div className="px-4 py-6">
@@ -43,7 +58,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                         className="flex flex-col space-y-1 space-x-0"
                         aria-label="Settings"
                     >
-                        {sidebarNavItems.map((item, index) => (
+                        {navItems.map((item, index) => (
                             <ButtonLink
                                 key={`${toUrl(item.href)}-${index}`}
                                 size="sm"

@@ -9,7 +9,6 @@ import {
     MapPinned,
     Plug,
     ScanLine,
-    Settings,
     Shapes,
     Ticket,
     ShieldCheck,
@@ -45,7 +44,6 @@ import { index as adminCategories } from '@/routes/admin/categories';
 import { index as adminChanges } from '@/routes/admin/changes';
 import { index as adminIntegrations } from '@/routes/admin/integrations';
 import { index as adminOffers } from '@/routes/admin/offers';
-import { edit as adminSettings } from '@/routes/admin/settings';
 import { index as adminTags } from '@/routes/admin/tags';
 import { index as adminUsers } from '@/routes/admin/users';
 import type { NavItem } from '@/types';
@@ -150,7 +148,6 @@ export function AppSidebar() {
                   href: adminIntegrations(),
                   icon: Plug,
               },
-              { title: 'Settings', href: adminSettings(), icon: Settings },
           ]
         : [];
 

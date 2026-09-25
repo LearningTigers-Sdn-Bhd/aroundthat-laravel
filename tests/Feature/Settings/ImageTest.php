@@ -24,9 +24,9 @@ test('new images are stored locally until an admin chooses otherwise', function 
     expect(app(Settings::class)->mediaDisk())->toBe(MediaDisk::Local);
 
     $this->actingAs($this->admin)
-        ->get(route('admin.settings.edit'))
+        ->get(route('images.edit'))
         ->assertInertia(fn (Assert $page) => $page
-            ->component('admin/settings/index')
+            ->component('settings/images')
             ->where('mediaDisk', 'local')
             ->where('mediaDisks.1.configured', false));
 });
@@ -35,7 +35,7 @@ test('an admin switches image storage to r2 once it is set up', function () {
     configureR2();
 
     $this->actingAs($this->admin)
-        ->put(route('admin.settings.media.update'), ['media_disk' => 'r2'])
+        ->put(route('images.update'), ['media_disk' => 'r2'])
         ->assertSessionHasNoErrors();
 
     expect(app(Settings::class)->mediaDisk())->toBe(MediaDisk::R2);
@@ -43,7 +43,7 @@ test('an admin switches image storage to r2 once it is set up', function () {
 
 test('r2 cannot be chosen before its keys are set', function () {
     $this->actingAs($this->admin)
-        ->put(route('admin.settings.media.update'), ['media_disk' => 'r2'])
+        ->put(route('images.update'), ['media_disk' => 'r2'])
         ->assertSessionHasErrors('media_disk');
 
     expect(app(Settings::class)->mediaDisk())->toBe(MediaDisk::Local);
@@ -51,6 +51,9 @@ test('r2 cannot be chosen before its keys are set', function () {
 
 test('only admins can change settings', function () {
     $this->actingAs(User::factory()->create())
-        ->put(route('admin.settings.media.update'), ['media_disk' => 'local'])
+        ->get(route('images.edit'))
+        ->assertForbidden();
+
+    $this->put(route('images.update'), ['media_disk' => 'local'])
         ->assertForbidden();
 });

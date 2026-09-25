@@ -1,4 +1,4 @@
-import { Form, Head, setLayoutProps } from '@inertiajs/react';
+import { Form, Head } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
-import { dashboard } from '@/routes/admin';
-import { edit } from '@/routes/admin/settings';
-import { update as updateMedia } from '@/routes/admin/settings/media';
+import { edit, update as updateMedia } from '@/routes/images';
 
 type Props = {
     mediaDisk: App.Enums.MediaDisk;
@@ -24,22 +22,18 @@ type Props = {
     }[];
 };
 
-export default function Settings({ mediaDisk, mediaDisks }: Props) {
-    setLayoutProps({
-        breadcrumbs: [
-            { title: 'Admin', href: dashboard() },
-            { title: 'Settings', href: edit() },
-        ],
-    });
-
+export default function Images({ mediaDisk, mediaDisks }: Props) {
     return (
         <>
-            <Head title="Settings" />
+            <Head title="Image configuration" />
 
-            <div className="flex max-w-2xl flex-1 flex-col gap-6 p-4">
+            <h1 className="sr-only">Image configuration</h1>
+
+            <div className="space-y-6">
                 <Heading
-                    title="Settings"
-                    description="App-wide settings. Changes apply at once."
+                    variant="small"
+                    title="Image storage"
+                    description="Applies to the whole app. Changes apply at once."
                 />
 
                 <Form
@@ -49,7 +43,6 @@ export default function Settings({ mediaDisk, mediaDisks }: Props) {
                 >
                     {({ processing, errors }) => (
                         <>
-                            <Heading variant="small" title="Image storage" />
                             <div className="grid gap-2">
                                 <Label htmlFor="media_disk">
                                     Store new images on
@@ -101,3 +94,12 @@ export default function Settings({ mediaDisk, mediaDisks }: Props) {
         </>
     );
 }
+
+Images.layout = {
+    breadcrumbs: [
+        {
+            title: 'Image configuration',
+            href: edit(),
+        },
+    ],
+};
