@@ -33,6 +33,13 @@ is_suspended: boolean,
 role: App.Enums.MembershipRole,
 abilities: App.Enums.Ability[],
 };
+export type DashboardTileData = {
+label: string,
+value: string | number | null,
+format: App.Enums.ReportValueFormat,
+hint: string | null,
+report: string,
+};
 export type DateExceptionData = {
 date: string,
 is_closed: boolean,

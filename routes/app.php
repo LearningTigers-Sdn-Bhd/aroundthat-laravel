@@ -3,6 +3,7 @@
 use App\Http\Controllers\App\BusinessController;
 use App\Http\Controllers\App\BusinessPublicProfileController;
 use App\Http\Controllers\App\CounterController;
+use App\Http\Controllers\App\DashboardController;
 use App\Http\Controllers\App\InvitationController;
 use App\Http\Controllers\App\OfferController;
 use App\Http\Controllers\App\OfferOutletController;
@@ -22,7 +23,7 @@ use App\Http\Controllers\App\VoucherController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(function () {
-    Route::inertia('/', 'dashboard')->name('dashboard');
+    Route::get('/', DashboardController::class)->name('dashboard');
 
     Route::get('business', [BusinessController::class, 'edit'])->name('business.edit');
     Route::put('business', [BusinessController::class, 'update'])->name('business.update');
