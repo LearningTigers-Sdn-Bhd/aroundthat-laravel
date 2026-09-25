@@ -84,6 +84,36 @@ suspended_at: string | null,
 suspension_reason: string | null,
 joined_at: string | null,
 };
+export type OfferData = {
+id: string,
+name: string,
+description: string | null,
+discount_type: App.Enums.DiscountType,
+discount_value: string | null,
+max_discount_amount: string | null,
+min_spend_amount: string | null,
+free_item: string | null,
+currency: string,
+starts_at: string,
+ends_at: string,
+starts_at_local: string,
+ends_at_local: string,
+voucher_valid_days: number | null,
+voucher_limit: number | null,
+issued_count: number,
+uses_per_voucher: number,
+status: App.Enums.OfferStatus,
+state: 'draft' | 'active' | 'paused' | 'scheduled' | 'ended' | 'hidden',
+is_locked: boolean,
+hidden_reason: string | null,
+outlets: App.Data.OfferOutletData[],
+};
+export type OfferOutletData = {
+id: string,
+name: string,
+is_sponsored: boolean,
+business_name: string | null,
+};
 export type OpeningPeriodData = {
 opens: string,
 closes: string,
@@ -369,6 +399,28 @@ outlet_ids: string[],
 export type NewAccountData = {
 name: string,
 password: string,
+};
+export type OfferFormData = {
+name: string,
+discount_type: App.Enums.DiscountType,
+starts_at: string,
+ends_at: string,
+description: string | null,
+discount_value: string | null,
+max_discount_amount: string | null,
+min_spend_amount: string | null,
+free_item: string | null,
+voucher_valid_days: number | null,
+voucher_limit: number | null,
+uses_per_voucher: number,
+};
+export type OfferLimitsData = {
+ends_at: string,
+description: string | null,
+voucher_limit: number | null,
+};
+export type OfferOutletsData = {
+outlet_ids: string[],
 };
 export type OnboardBusinessData = {
 business: App.Data.Forms.BusinessDetailsData,

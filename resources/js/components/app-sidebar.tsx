@@ -7,6 +7,7 @@ import {
     Plug,
     Settings,
     Shapes,
+    Ticket,
     ShieldCheck,
     Store,
     Tags,
@@ -29,6 +30,7 @@ import {
 import { dashboard } from '@/routes';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import { edit as businessDetails } from '@/routes/business';
+import { index as offers } from '@/routes/offers';
 import { index as outlets } from '@/routes/outlets';
 import { index as staff } from '@/routes/staff';
 import { index as adminBusinesses } from '@/routes/admin/businesses';
@@ -64,6 +66,16 @@ export function AppSidebar() {
                             title: 'Outlets',
                             href: outlets(),
                             icon: Store,
+                            matchChildren: true,
+                        },
+                    ]
+                  : []),
+              ...(can('manage_offers')
+                  ? [
+                        {
+                            title: 'Offers',
+                            href: offers(),
+                            icon: Ticket,
                             matchChildren: true,
                         },
                     ]

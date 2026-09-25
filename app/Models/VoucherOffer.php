@@ -158,6 +158,21 @@ class VoucherOffer extends Model
         return $this->status === OfferStatus::Active && ! $this->isHidden();
     }
 
+    /**
+     * The one state that matters most right now: hidden, then ended, then not started, then the owner's status.
+     *
+     * @return 'draft'|'active'|'paused'|'scheduled'|'ended'|'hidden'
+     */
+    public function state(): string
+    {
+        return match (true) {
+            $this->isHidden() => 'hidden',
+            $this->hasEnded() => 'ended',
+            $this->status === OfferStatus::Active && ! $this->hasStarted() => 'scheduled',
+            default => $this->status->value,
+        };
+    }
+
     public function hasReachedLimit(): bool
     {
         return $this->voucher_limit !== null && $this->issued_count >= $this->voucher_limit;

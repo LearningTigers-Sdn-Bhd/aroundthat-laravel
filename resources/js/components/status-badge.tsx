@@ -10,7 +10,11 @@ export type Status =
     | 'archived'
     | 'unreviewed'
     | 'reviewed'
-    | 'reverted';
+    | 'reverted'
+    | 'paused'
+    | 'scheduled'
+    | 'ended'
+    | 'hidden';
 
 const tones = {
     neutral: 'border-transparent bg-secondary text-secondary-foreground',
@@ -36,10 +40,14 @@ const statuses: Record<Status, { label: string; tone: keyof typeof tones }> = {
     unreviewed: { label: 'To review', tone: 'waiting' },
     reviewed: { label: 'Reviewed', tone: 'good' },
     reverted: { label: 'Reverted', tone: 'bad' },
+    paused: { label: 'Paused', tone: 'waiting' },
+    scheduled: { label: 'Scheduled', tone: 'waiting' },
+    ended: { label: 'Ended', tone: 'closed' },
+    hidden: { label: 'Hidden', tone: 'bad' },
 };
 
 /**
- * One label for an onboarding, invitation, tag review, change review, membership or suspension state.
+ * One label for an onboarding, invitation, tag review, change review, membership, suspension or offer state.
  */
 export default function StatusBadge({
     status,

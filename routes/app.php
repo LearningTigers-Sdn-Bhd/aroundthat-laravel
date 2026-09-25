@@ -3,6 +3,9 @@
 use App\Http\Controllers\App\BusinessController;
 use App\Http\Controllers\App\BusinessPublicProfileController;
 use App\Http\Controllers\App\InvitationController;
+use App\Http\Controllers\App\OfferController;
+use App\Http\Controllers\App\OfferOutletController;
+use App\Http\Controllers\App\OfferStatusController;
 use App\Http\Controllers\App\OutletController;
 use App\Http\Controllers\App\OutletHoursController;
 use App\Http\Controllers\App\OutletLinksController;
@@ -66,6 +69,15 @@ Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(functi
         Route::get('/', 'edit')->name('edit');
         Route::put('/', 'update')->name('update');
     });
+
+    Route::resource('offers', OfferController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+
+    Route::controller(OfferStatusController::class)->prefix('offers/{offer}')->name('offers.')->group(function () {
+        Route::post('activate', 'activate')->name('activate');
+        Route::post('pause', 'pause')->name('pause');
+    });
+
+    Route::put('offers/{offer}/outlets', [OfferOutletController::class, 'update'])->name('offers.outlets.update');
 
     Route::prefix('staff')->name('staff.')->group(function () {
         Route::get('/', [StaffController::class, 'index'])->name('index');
