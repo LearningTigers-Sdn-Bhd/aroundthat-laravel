@@ -5,6 +5,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
+import CounterLayout from '@/layouts/counter-layout';
 import ModalLayout from '@/layouts/modal-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { configureEcho } from '@laravel/echo-react';
@@ -26,6 +27,8 @@ void createInertiaApp({
             case name.startsWith('workspace/'):
             case name.startsWith('invitations/'):
                 return [ModalLayout, AuthLayout];
+            case name === 'app/counter':
+                return [ModalLayout, CounterLayout];
             case name.startsWith('settings/'):
                 return [ModalLayout, AppLayout, SettingsLayout];
             default:

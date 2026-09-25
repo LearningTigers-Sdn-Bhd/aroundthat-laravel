@@ -10,6 +10,18 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+    /* The counter scanner's line, sweeping down and back inside the frame. */
+    --animate-scanline: scanline 2.4s ease-in-out infinite alternate;
+
+    @keyframes scanline {
+        from {
+            top: 1rem;
+        }
+        to {
+            top: calc(100% - 1rem);
+        }
+    }
+
     --font-sans:
         'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
@@ -132,6 +144,33 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(0.269 0 0);
     --sidebar-ring: oklch(0.439 0 0);
+}
+
+/* The counter: a till screen worked with one hand and half turned toward a guest, so it keeps its own palette.
+   It rides on .dark and moves only the tokens that differ, so shared components take the counter colours without
+   a class at every call site. Set on the html element too, because dialogs and sheets portal out to the body. */
+.counter {
+    --background: oklch(0.166 0.017 173.9);
+    --foreground: oklch(1 0 0);
+    --card: oklch(0.234 0.028 167.1);
+    --card-foreground: oklch(1 0 0);
+    --popover: oklch(0.234 0.028 167.1);
+    --popover-foreground: oklch(1 0 0);
+    --primary: oklch(0.845 0.13 165);
+    --primary-foreground: oklch(0.262 0.049 172.6);
+    --secondary: oklch(1 0 0 / 8%);
+    --secondary-foreground: oklch(1 0 0);
+    --muted: oklch(1 0 0 / 8%);
+    /* White at 55%. Anything lighter fails 4.5:1 on this background. */
+    --muted-foreground: oklch(0.662 0.006 182.9);
+    --accent: oklch(0.845 0.13 165);
+    --accent-foreground: oklch(0.262 0.049 172.6);
+    --destructive: oklch(0.81 0.106 11.6);
+    --destructive-foreground: oklch(0.81 0.106 11.6);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 10%);
+    --ring: oklch(0.845 0.13 165);
+    color-scheme: dark;
 }
 
 @layer base {

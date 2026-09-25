@@ -1,21 +1,19 @@
 import { Head, router, useHttp, usePage } from '@inertiajs/react';
-import { Camera, CheckCircle2, ScanLine, Store } from 'lucide-react';
-import { type FormEvent, useEffect, useState } from 'react';
-import CameraScanner from '@/components/app/counter/camera-scanner';
-import Heading from '@/components/heading';
-import InputError from '@/components/input-error';
-import Notice from '@/components/notice';
-import ReasonDialog from '@/components/reason-dialog';
-import StatusBadge from '@/components/status-badge';
-import TextField from '@/components/text-field';
-import { Button } from '@/components/ui/button';
-import {
-    Empty,
-    EmptyDescription,
-    EmptyHeader,
-    EmptyMedia,
-    EmptyTitle,
-} from '@/components/ui/empty';
+import { Store } from 'lucide-react';
+import { type FormEvent, useCallback, useEffect, useState } from 'react';
+import ActivityBar from '@/components/app/counter/activity-bar';
+import BillStep from '@/components/app/counter/bill-step';
+import ConfirmStep from '@/components/app/counter/confirm-step';
+import CounterHeader from '@/components/app/counter/counter-header';
+import DoneStep from '@/components/app/counter/done-step';
+import HistoryPanel from '@/components/app/counter/history-panel';
+import RejectedStep from '@/components/app/counter/rejected-step';
+import ScanStep from '@/components/app/counter/scan-step';
+import type {
+    Amounts,
+    CheckResponse,
+    EligibleCheck,
+} from '@/components/app/counter/types';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -24,18 +22,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Spinner } from '@/components/ui/spinner';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import { formatDate, formatDateTime } from '@/lib/format';
-import { discountSummary, formatMoney } from '@/lib/offers';
-import { cancel, check, redeem, show } from '@/routes/counter';
+import { useOnline } from '@/hooks/use-online';
+import { codeFromQr, codePattern, normalizeCode } from '@/lib/voucher-code';
+import { check, redeem, show } from '@/routes/counter';
 
 type Props = {
     outlets: App.Data.OutletOptionData[];
@@ -51,90 +40,84 @@ type CheckForm = {
     free_item_value: string;
 };
 
-type Amounts = {
-    bill_amount: string;
-    discount_amount: string;
-    net_amount: string;
-    capped: boolean;
-};
-
-type CheckResponse =
-    | { eligible: false; reason: string; message: string }
-    | {
-          eligible: true;
-          voucher: {
-              code_prefix: string;
-              uses_left: number;
-              expires_at: string;
-          };
-          offer: Pick<
-              App.Data.OfferData,
-              | 'name'
-              | 'description'
-              | 'discount_type'
-              | 'discount_value'
-              | 'max_discount_amount'
-              | 'min_spend_amount'
-              | 'free_item'
-              | 'currency'
-          > & { business_name: string };
-          amounts: Amounts | null;
-      };
-
-export default function Counter({ outlets, outlet, currency, today }: Props) {
-    if (outlets.length === 0) {
-        return (
-            <>
-                <Head title="Counter" />
-                <div className="p-4">
-                    <Empty className="border">
-                        <EmptyHeader>
-                            <EmptyMedia variant="icon">
-                                <Store />
-                            </EmptyMedia>
-                            <EmptyTitle>No outlet to work at</EmptyTitle>
-                            <EmptyDescription>
-                                You can redeem vouchers once you work at an
-                                approved outlet that is trading.
-                            </EmptyDescription>
-                        </EmptyHeader>
-                    </Empty>
-                </div>
-            </>
-        );
-    }
+export default function Counter({ outlets, outlet, today }: Props) {
+    const workspace = usePage().props.workspace;
+    const online = useOnline();
+    const [historyOpen, setHistoryOpen] = useState(false);
 
     return (
         <>
             <Head title="Counter" />
 
-            <div className="flex max-w-3xl flex-1 flex-col gap-8 p-4">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                    <Heading
-                        title="Counter"
-                        description="Check a guest's voucher, enter the bill and redeem it."
-                    />
-                    <OutletPicker outlets={outlets} outlet={outlet} />
+            <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col">
+                <CounterHeader
+                    businessName={workspace?.business_name ?? 'Counter'}
+                    online={online}
+                    outletPicker={
+                        outlets.length > 0 && (
+                            <OutletPicker outlets={outlets} outlet={outlet} />
+                        )
+                    }
+                />
+
+                <div className="flex flex-1 flex-col px-4 pb-32 sm:px-8">
+                    {outlets.length === 0 ? (
+                        <CounterNotice
+                            title="No outlet to work at"
+                            description="You can redeem vouchers once you work at an approved outlet that is trading."
+                        />
+                    ) : outlet ? (
+                        <Redeem
+                            key={outlet.id}
+                            outlet={outlet}
+                            online={online}
+                        />
+                    ) : (
+                        <CounterNotice
+                            title="Choose your outlet"
+                            description="Pick the outlet you are working at to start scanning."
+                        />
+                    )}
                 </div>
 
-                {outlet ? (
-                    <>
-                        <Redeem key={outlet.id} outlet={outlet} />
-                        {today && (
-                            <Today
-                                today={today}
-                                currency={currency}
-                                outlet={outlet}
-                            />
-                        )}
-                    </>
-                ) : (
-                    <p className="text-sm text-muted-foreground">
-                        Choose the outlet you are working at.
-                    </p>
+                {outlet && today && (
+                    <ActivityBar
+                        count={today.total}
+                        onOpen={() => {
+                            setHistoryOpen(true);
+                            router.reload({ only: ['today'] });
+                        }}
+                    />
                 )}
-            </div>
+            </main>
+
+            {outlet && today && (
+                <HistoryPanel
+                    open={historyOpen}
+                    today={today}
+                    outletName={outlet.name}
+                    onClose={() => setHistoryOpen(false)}
+                />
+            )}
         </>
+    );
+}
+
+function CounterNotice({
+    title,
+    description,
+}: {
+    title: string;
+    description: string;
+}) {
+    return (
+        <section className="mt-10 rounded-3xl border bg-card p-8 text-center shadow-sm">
+            <Store className="mx-auto size-10 text-muted-foreground" />
+            <h1 className="mt-4 text-2xl font-semibold">{title}</h1>
+            <p className="mx-auto mt-2 max-w-md text-muted-foreground">
+                {description}
+            </p>
+        </section>
     );
 }
 
@@ -148,14 +131,19 @@ function OutletPicker({
     if (outlets.length === 1) {
         return (
             <p className="text-sm text-muted-foreground">
-                At <span className="font-medium">{outlet?.name}</span>
+                At{' '}
+                <span className="font-medium text-foreground">
+                    {outlet?.name}
+                </span>
             </p>
         );
     }
 
     return (
-        <div className="grid gap-2">
-            <Label htmlFor="outlet">Outlet</Label>
+        <div>
+            <Label htmlFor="outlet" className="sr-only">
+                Outlet
+            </Label>
             <Select
                 items={[
                     { value: null, label: 'Choose an outlet' },
@@ -171,7 +159,7 @@ function OutletPicker({
                     }
                 }}
             >
-                <SelectTrigger id="outlet" className="w-64">
+                <SelectTrigger id="outlet" className="w-44 sm:w-56">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -186,13 +174,42 @@ function OutletPicker({
     );
 }
 
+type Step =
+    | { step: 'scan'; error: string }
+    | { step: 'type'; error: string }
+    | { step: 'bill'; check: EligibleCheck }
+    | {
+          step: 'confirm';
+          check: EligibleCheck;
+          amounts: Amounts;
+          /** Minted when the bill is priced, so retrying the accept cannot use the voucher twice. */
+          idempotencyKey: string;
+      }
+    | { step: 'done'; redemption: App.Data.RedemptionData }
+    | {
+          step: 'rejected';
+          message: string;
+          /** The priced bill to go back to when the accept is what failed. */
+          resume: Extract<Step, { step: 'confirm' }> | null;
+      };
+
+/** The result screen returns to the camera on its own after this long. */
+const DONE_TIMEOUT = 10_000;
+
+const REFUSED = 'This voucher could not be checked';
+
 /**
- * Check a code, preview the discount on a bill, then redeem. Each checked voucher gets a fresh idempotency key,
- * so a double submit or a retry cannot use it twice.
+ * One voucher from the camera to an accepted redemption: scan or type the code, enter the bill, show the guest the
+ * price, accept.
  */
-function Redeem({ outlet }: { outlet: App.Data.OutletOptionData }) {
+function Redeem({
+    outlet,
+    online,
+}: {
+    outlet: App.Data.OutletOptionData;
+    online: boolean;
+}) {
     const page = usePage();
-    const errors = page.props.errors;
     const flashedRedemption = page.flash.redemption as
         | App.Data.RedemptionData
         | undefined;
@@ -202,20 +219,37 @@ function Redeem({ outlet }: { outlet: App.Data.OutletOptionData }) {
         bill_amount: '',
         free_item_value: '',
     });
-    const [result, setResult] = useState<CheckResponse | null>(null);
-    const [idempotencyKey, setIdempotencyKey] = useState('');
+    const [step, setStep] = useState<Step>({ step: 'scan', error: '' });
     const [redeeming, setRedeeming] = useState(false);
-    const [done, setDone] = useState<App.Data.RedemptionData | undefined>();
-    const [scanning, setScanning] = useState(false);
     const [scannedCode, setScannedCode] = useState<string | null>(null);
+    const [doneHeld, setDoneHeld] = useState(false);
+
+    const busy = http.processing || redeeming;
+    const { reset: resetForm, clearErrors } = http;
+
+    const nextGuest = useCallback(() => {
+        resetForm();
+        clearErrors();
+        setDoneHeld(false);
+        setStep({ step: 'scan', error: '' });
+    }, [resetForm, clearErrors]);
 
     useEffect(() => {
         if (flashedRedemption) {
-            setDone(flashedRedemption);
+            setDoneHeld(false);
+            setStep({ step: 'done', redemption: flashedRedemption });
         }
     }, [flashedRedemption]);
 
-    const eligible = result?.eligible ? result : null;
+    useEffect(() => {
+        if (step.step !== 'done' || doneHeld) {
+            return;
+        }
+
+        const timer = window.setTimeout(nextGuest, DONE_TIMEOUT);
+
+        return () => window.clearTimeout(timer);
+    }, [doneHeld, nextGuest, step.step]);
 
     // Check a scanned code once it is in the form data, which updates after the render.
     useEffect(() => {
@@ -226,41 +260,84 @@ function Redeem({ outlet }: { outlet: App.Data.OutletOptionData }) {
     });
 
     function acceptScan(value: string): boolean {
-        if (!value.toUpperCase().startsWith('V1:')) {
+        const code = codeFromQr(value);
+
+        if (code === null) {
+            setStep({ step: 'scan', error: 'This is not a voucher' });
+
             return false;
         }
 
-        const code = value.slice(3).trim();
+        if (!codePattern.test(code)) {
+            setStep({ step: 'scan', error: 'This voucher code is not valid' });
 
-        setScanning(false);
-        setResult(null);
+            return false;
+        }
+
         http.setData('code', code);
         setScannedCode(code);
 
         return true;
     }
 
+    function submitTyped(event: FormEvent) {
+        event.preventDefault();
+
+        if (!codePattern.test(http.data.code)) {
+            setStep({
+                step: 'type',
+                error: 'Enter all 10 characters. The letters I, L, O and U are not used',
+            });
+
+            return;
+        }
+
+        runCheck();
+    }
+
     function runCheck(event?: FormEvent) {
         event?.preventDefault();
+        const from = step.step;
 
         void http.post(check.url(), {
             onSuccess: (response) => {
-                if (!result?.eligible || !response.eligible) {
-                    setIdempotencyKey(crypto.randomUUID());
+                if (!response.eligible) {
+                    setStep({
+                        step: 'rejected',
+                        message: response.message,
+                        resume: null,
+                    });
+                } else if (response.amounts) {
+                    setStep({
+                        step: 'confirm',
+                        check: response,
+                        amounts: response.amounts,
+                        idempotencyKey: crypto.randomUUID(),
+                    });
+                } else {
+                    setStep({ step: 'bill', check: response });
                 }
-
-                setResult(response);
+            },
+            onError: (errors) => {
+                // Bill errors show under their fields; a code the server would not read ends the attempt.
+                if (from !== 'bill') {
+                    setStep({
+                        step: 'rejected',
+                        message: Object.values(errors)[0] ?? REFUSED,
+                        resume: null,
+                    });
+                }
             },
         });
     }
 
-    function nextGuest() {
-        http.reset();
-        setResult(null);
-        setDone(undefined);
-    }
+    function accept() {
+        if (step.step !== 'confirm' || !online) {
+            return;
+        }
 
-    function submitRedemption() {
+        const priced = step;
+
         router.post(
             redeem.url(),
             {
@@ -268,310 +345,93 @@ function Redeem({ outlet }: { outlet: App.Data.OutletOptionData }) {
                 code: http.data.code,
                 bill_amount: http.data.bill_amount,
                 free_item_value: http.data.free_item_value || null,
-                idempotency_key: idempotencyKey,
+                idempotency_key: priced.idempotencyKey,
             },
             {
                 preserveScroll: true,
                 onStart: () => setRedeeming(true),
                 onFinish: () => setRedeeming(false),
-                onSuccess: () => {
-                    http.reset();
-                    setResult(null);
-                },
+                onSuccess: () => http.reset(),
+                onError: (errors) =>
+                    setStep({
+                        step: 'rejected',
+                        message: Object.values(errors)[0] ?? REFUSED,
+                        resume: priced,
+                    }),
             },
         );
     }
 
-    if (done) {
-        return (
-            <section className="space-y-4 rounded-md border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/30 dark:bg-emerald-500/10">
-                <div className="flex items-center gap-2 font-medium text-emerald-900 dark:text-emerald-200">
-                    <CheckCircle2 className="size-5" />
-                    Redeemed: {done.offer_name}
-                </div>
-                <Amounts
-                    amounts={{
-                        bill_amount: done.bill_amount,
-                        discount_amount: done.discount_amount,
-                        net_amount: done.net_amount,
-                        capped: false,
+    switch (step.step) {
+        case 'scan':
+        case 'type':
+            return (
+                <ScanStep
+                    step={step.step}
+                    busy={busy}
+                    error={step.error}
+                    typedCode={http.data.code}
+                    onScannedValue={acceptScan}
+                    onTypedCode={(value) => {
+                        http.setData('code', normalizeCode(value));
+                        setStep({ step: 'type', error: '' });
                     }}
-                    currency={done.currency}
+                    onSubmitTyped={submitTyped}
+                    onChooseType={() => {
+                        http.setData('code', '');
+                        setStep({ step: 'type', error: '' });
+                    }}
+                    onBack={() => setStep({ step: 'scan', error: '' })}
                 />
-                <Button onClick={nextGuest}>Next guest</Button>
-            </section>
-        );
+            );
+
+        case 'bill':
+            return (
+                <BillStep
+                    check={step.check}
+                    billAmount={http.data.bill_amount}
+                    freeItemValue={http.data.free_item_value}
+                    busy={busy}
+                    errors={http.errors}
+                    onBillAmount={(value) => http.setData('bill_amount', value)}
+                    onFreeItemValue={(value) =>
+                        http.setData('free_item_value', value)
+                    }
+                    onSubmit={runCheck}
+                    onBack={nextGuest}
+                />
+            );
+
+        case 'confirm':
+            return (
+                <ConfirmStep
+                    offer={step.check.offer}
+                    amounts={step.amounts}
+                    busy={busy}
+                    online={online}
+                    onAccept={accept}
+                    onBack={() => setStep({ step: 'bill', check: step.check })}
+                />
+            );
+
+        case 'done':
+            return (
+                <DoneStep
+                    redemption={step.redemption}
+                    held={doneHeld}
+                    onNext={nextGuest}
+                    onHold={() => setDoneHeld(true)}
+                />
+            );
+
+        case 'rejected':
+            return (
+                <RejectedStep
+                    message={step.message}
+                    onRetry={() =>
+                        step.resume ? setStep(step.resume) : nextGuest()
+                    }
+                />
+            );
     }
-
-    return (
-        <section className="space-y-6">
-            <form onSubmit={runCheck} className="flex items-end gap-2">
-                <div className="grid flex-1 gap-2">
-                    <Label htmlFor="code">Voucher code</Label>
-                    <input
-                        id="code"
-                        value={http.data.code}
-                        onChange={(event) => {
-                            http.setData('code', event.target.value);
-                            setResult(null);
-                        }}
-                        autoComplete="off"
-                        autoCapitalize="characters"
-                        autoFocus
-                        placeholder="ABCDE-12345"
-                        aria-invalid={!!(http.errors.code || errors.code)}
-                        className="h-11 w-full rounded-md border border-input bg-transparent px-3 font-mono text-lg tracking-widest uppercase shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive"
-                    />
-                </div>
-                <Button
-                    type="submit"
-                    size="lg"
-                    disabled={http.processing || http.data.code === ''}
-                >
-                    {http.processing ? <Spinner /> : <ScanLine />}
-                    Check
-                </Button>
-                <Button
-                    type="button"
-                    size="lg"
-                    variant={scanning ? 'secondary' : 'outline'}
-                    onClick={() => setScanning(!scanning)}
-                    aria-pressed={scanning}
-                >
-                    <Camera />
-                    {scanning ? 'Stop' : 'Scan'}
-                </Button>
-            </form>
-            {scanning && <CameraScanner onCode={acceptScan} />}
-            <InputError message={http.errors.code ?? errors.code} />
-
-            {result && !result.eligible && (
-                <Notice title="Cannot use this voucher">
-                    {result.message}
-                </Notice>
-            )}
-
-            {eligible && (
-                <div className="space-y-4 rounded-md border p-4">
-                    <div className="space-y-1">
-                        <p className="font-medium">{eligible.offer.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                            {discountSummary(eligible.offer)} ·{' '}
-                            {eligible.offer.business_name}
-                        </p>
-                        {eligible.offer.description && (
-                            <p className="text-sm">
-                                {eligible.offer.description}
-                            </p>
-                        )}
-                        <p className="text-sm text-muted-foreground">
-                            {eligible.voucher.uses_left}{' '}
-                            {eligible.voucher.uses_left === 1 ? 'use' : 'uses'}{' '}
-                            left · valid until{' '}
-                            {formatDate(eligible.voucher.expires_at)}
-                        </p>
-                    </div>
-
-                    <form
-                        onSubmit={runCheck}
-                        className="grid gap-4 sm:grid-cols-2"
-                    >
-                        <TextField
-                            name="bill_amount"
-                            label={`Bill (${eligible.offer.currency})`}
-                            type="number"
-                            step="0.01"
-                            min="0.01"
-                            value={http.data.bill_amount}
-                            onChange={(event) =>
-                                http.setData('bill_amount', event.target.value)
-                            }
-                            error={
-                                http.errors.bill_amount ?? errors.bill_amount
-                            }
-                            required
-                        />
-                        {eligible.offer.discount_type === 'free_item' && (
-                            <TextField
-                                name="free_item_value"
-                                label={`${eligible.offer.free_item} price (${eligible.offer.currency})`}
-                                type="number"
-                                step="0.01"
-                                min="0.01"
-                                value={http.data.free_item_value}
-                                onChange={(event) =>
-                                    http.setData(
-                                        'free_item_value',
-                                        event.target.value,
-                                    )
-                                }
-                                error={
-                                    http.errors.free_item_value ??
-                                    errors.free_item_value
-                                }
-                                required
-                            />
-                        )}
-                        <div className="sm:col-span-2">
-                            <Button
-                                type="submit"
-                                variant="outline"
-                                disabled={
-                                    http.processing ||
-                                    http.data.bill_amount === ''
-                                }
-                            >
-                                Work out discount
-                            </Button>
-                        </div>
-                    </form>
-
-                    {eligible.amounts && (
-                        <>
-                            <Amounts
-                                amounts={eligible.amounts}
-                                currency={eligible.offer.currency}
-                            />
-                            <Button
-                                size="lg"
-                                onClick={submitRedemption}
-                                disabled={redeeming}
-                            >
-                                {redeeming && <Spinner />}
-                                Redeem
-                            </Button>
-                        </>
-                    )}
-                </div>
-            )}
-        </section>
-    );
 }
-
-function Amounts({
-    amounts,
-    currency,
-}: {
-    amounts: Amounts;
-    currency: string;
-}) {
-    return (
-        <dl className="grid grid-cols-3 gap-4 text-sm">
-            <div>
-                <dt className="text-muted-foreground">Bill</dt>
-                <dd className="text-base font-medium">
-                    {formatMoney(amounts.bill_amount, currency)}
-                </dd>
-            </div>
-            <div>
-                <dt className="text-muted-foreground">
-                    Discount{amounts.capped && ' (capped)'}
-                </dt>
-                <dd className="text-base font-medium">
-                    − {formatMoney(amounts.discount_amount, currency)}
-                </dd>
-            </div>
-            <div>
-                <dt className="text-muted-foreground">Guest pays</dt>
-                <dd className="text-lg font-semibold">
-                    {formatMoney(amounts.net_amount, currency)}
-                </dd>
-            </div>
-        </dl>
-    );
-}
-
-function Today({
-    today,
-    currency,
-    outlet,
-}: {
-    today: { redemptions: App.Data.RedemptionData[]; total: number };
-    currency: string;
-    outlet: App.Data.OutletOptionData;
-}) {
-    return (
-        <section className="space-y-3">
-            <Heading
-                variant="small"
-                title="Today"
-                description={`${today.total} ${today.total === 1 ? 'redemption' : 'redemptions'} at ${outlet.name} today${today.total > 10 ? ', the latest 10 shown' : ''}.`}
-            />
-            {today.redemptions.length > 0 && (
-                <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Time</TableHead>
-                                <TableHead>Offer</TableHead>
-                                <TableHead>Bill</TableHead>
-                                <TableHead>Discount</TableHead>
-                                <TableHead>By</TableHead>
-                                <TableHead />
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {today.redemptions.map((redemption) => (
-                                <TableRow key={redemption.id}>
-                                    <TableCell className="whitespace-nowrap">
-                                        {formatDateTime(redemption.redeemed_at)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {redemption.offer_name}
-                                        <span className="ml-2 font-mono text-muted-foreground">
-                                            {redemption.code_prefix}…
-                                        </span>
-                                    </TableCell>
-                                    <TableCell>
-                                        {formatMoney(
-                                            redemption.bill_amount,
-                                            currency,
-                                        )}
-                                    </TableCell>
-                                    <TableCell>
-                                        {formatMoney(
-                                            redemption.discount_amount,
-                                            currency,
-                                        )}
-                                    </TableCell>
-                                    <TableCell>
-                                        {redemption.cashier_name ?? '—'}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        {redemption.cancelled_at ? (
-                                            <StatusBadge status="cancelled" />
-                                        ) : (
-                                            redemption.can_cancel && (
-                                                <ReasonDialog
-                                                    trigger={
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                        >
-                                                            Cancel
-                                                        </Button>
-                                                    }
-                                                    title="Cancel this redemption?"
-                                                    description="The voucher gets the use back. The redemption stays on the list, marked cancelled."
-                                                    form={cancel.form(
-                                                        redemption.id,
-                                                    )}
-                                                    submitLabel="Cancel redemption"
-                                                    destructive
-                                                />
-                                            )
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
-            )}
-        </section>
-    );
-}
-
-Counter.layout = {
-    breadcrumbs: [{ title: 'Counter', href: show() }],
-};
