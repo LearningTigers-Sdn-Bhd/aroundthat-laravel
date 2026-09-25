@@ -18,7 +18,7 @@ export default function ReportTiles({ tiles, currency }: Props) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-1">
-                        <p className="text-xl font-semibold tabular-nums sm:text-2xl">
+                        <p className="text-xl font-semibold break-words tabular-nums sm:text-2xl">
                             {formatReportValue(
                                 tile.value,
                                 tile.format,

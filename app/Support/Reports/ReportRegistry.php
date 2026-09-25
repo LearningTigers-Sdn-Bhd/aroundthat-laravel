@@ -2,6 +2,7 @@
 
 namespace App\Support\Reports;
 
+use App\Support\Reports\Types\OfferPerformanceReport;
 use App\Support\Reports\Types\RedemptionsReport;
 
 /**
@@ -16,6 +17,7 @@ final class ReportRegistry
      */
     protected const array REPORTS = [
         RedemptionsReport::class,
+        OfferPerformanceReport::class,
     ];
 
     /**
