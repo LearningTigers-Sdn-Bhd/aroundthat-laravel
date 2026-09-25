@@ -37,6 +37,7 @@ const eventLabels: Record<string, string> = {
     outlets_changed: 'Outlets changed',
     sponsored_outlet_added: 'Sponsored outlet added',
     sponsored_outlet_removed: 'Sponsored outlet removed',
+    redemption_refused: 'Voucher refused at the counter',
 };
 
 /**
