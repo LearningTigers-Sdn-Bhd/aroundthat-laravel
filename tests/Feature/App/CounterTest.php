@@ -49,12 +49,78 @@ test('checking a code shows the offer and previews the discount without saving',
         ->postJson(route('counter.check'), ['outlet_id' => $this->outlet->id, 'code' => 'abcde12345', 'bill_amount' => '80'])
         ->assertOk()
         ->assertJsonPath('eligible', true)
+        ->assertJsonPath('outlet.id', $this->outlet->id)
         ->assertJsonPath('offer.name', $this->offer->name)
         ->assertJsonPath('voucher.uses_left', 2)
         ->assertJsonPath('amounts.discount_amount', '8.00')
         ->assertJsonPath('amounts.net_amount', '72.00');
 
     expect(Redemption::count())->toBe(0);
+});
+
+test('the counter reopens at the outlet the cashier last chose', function () {
+    $secondOutlet = Outlet::factory()->for($this->outlet->business)->approved()->create();
+    $this->cashier->outlets()->attach($secondOutlet);
+
+    $this->actingAs($this->cashier->user)
+        ->get(route('counter.show'))
+        ->assertInertia(fn (Assert $page) => $page->where('outlet', null));
+
+    $this->get(route('counter.show', ['outlet' => $secondOutlet->id]));
+
+    $this->get(route('counter.show'))
+        ->assertInertia(fn (Assert $page) => $page->where('outlet.id', $secondOutlet->id));
+});
+
+test('the counter forgets a remembered outlet the cashier no longer works at', function () {
+    $secondOutlet = Outlet::factory()->for($this->outlet->business)->approved()->create();
+    $thirdOutlet = Outlet::factory()->for($this->outlet->business)->approved()->create();
+    $this->cashier->outlets()->attach([$secondOutlet->id, $thirdOutlet->id]);
+
+    $this->actingAs($this->cashier->user)->get(route('counter.show', ['outlet' => $secondOutlet->id]));
+    $this->cashier->outlets()->detach($secondOutlet);
+
+    $this->get(route('counter.show'))
+        ->assertInertia(fn (Assert $page) => $page->where('outlet', null));
+});
+
+test('checking a voucher for the cashier\'s other outlet switches to that outlet', function () {
+    $counterOutlet = Outlet::factory()->for($this->outlet->business)->approved()->create();
+    $this->cashier->outlets()->attach($counterOutlet);
+
+    $this->actingAs($this->cashier->user)
+        ->postJson(route('counter.check'), ['outlet_id' => $counterOutlet->id, 'code' => 'ABCDE12345'])
+        ->assertOk()
+        ->assertJsonPath('eligible', true)
+        ->assertJsonPath('outlet.id', $this->outlet->id);
+});
+
+test('checking a voucher that works at several of the cashier\'s other outlets asks which one', function () {
+    $counterOutlet = Outlet::factory()->for($this->outlet->business)->approved()->create();
+    $secondOutlet = Outlet::factory()->for($this->outlet->business)->approved()->create();
+    $this->cashier->outlets()->attach([$counterOutlet->id, $secondOutlet->id]);
+    $this->offer->outlets()->attach($secondOutlet);
+
+    $response = $this->actingAs($this->cashier->user)
+        ->postJson(route('counter.check'), ['outlet_id' => $counterOutlet->id, 'code' => 'ABCDE12345'])
+        ->assertOk()
+        ->assertJsonPath('eligible', false)
+        ->assertJsonPath('reason', 'choose_outlet')
+        ->assertJsonCount(2, 'outlets');
+
+    expect(collect($response->json('outlets'))->pluck('id')->all())
+        ->toEqualCanonicalizing([$this->outlet->id, $secondOutlet->id]);
+});
+
+test('checking a voucher that works at none of the cashier\'s outlets is refused', function () {
+    $counterOutlet = Outlet::factory()->for($this->outlet->business)->approved()->create();
+    $cashier = Membership::factory()->cashier()->for($this->outlet->business)->withOutlets($counterOutlet)->create();
+
+    $this->actingAs($cashier->user)
+        ->postJson(route('counter.check'), ['outlet_id' => $counterOutlet->id, 'code' => 'ABCDE12345'])
+        ->assertOk()
+        ->assertJsonPath('eligible', false)
+        ->assertJsonPath('reason', 'outlet_not_permitted');
 });
 
 test('checking a code that cannot be used says why', function () {
@@ -68,7 +134,7 @@ test('checking a code that cannot be used says why', function () {
 test('redeeming uses the voucher once and marks it used after its last use', function () {
     $this->actingAs($this->cashier->user)
         ->post(route('counter.redeem'), redeemInput($this->outlet))
-        ->assertRedirect(route('counter.show', ['outlet' => $this->outlet->id]))
+        ->assertRedirect(route('counter.show'))
         ->assertInertiaFlash('redemption.discount_amount', '8.00');
 
     $redemption = Redemption::sole();

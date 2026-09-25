@@ -7,6 +7,7 @@ import ConfirmStep from '@/components/app/counter/confirm-step';
 import CounterHeader from '@/components/app/counter/counter-header';
 import DoneStep from '@/components/app/counter/done-step';
 import HistoryPanel from '@/components/app/counter/history-panel';
+import OutletStep from '@/components/app/counter/outlet-step';
 import RejectedStep from '@/components/app/counter/rejected-step';
 import ScanStep from '@/components/app/counter/scan-step';
 import type {
@@ -177,6 +178,11 @@ function OutletPicker({
 type Step =
     | { step: 'scan'; error: string }
     | { step: 'type'; error: string }
+    | {
+          step: 'outlet';
+          outlets: App.Data.OutletOptionData[];
+          message: string;
+      }
     | { step: 'bill'; check: EligibleCheck }
     | {
           step: 'confirm';
@@ -221,7 +227,10 @@ function Redeem({
     });
     const [step, setStep] = useState<Step>({ step: 'scan', error: '' });
     const [redeeming, setRedeeming] = useState(false);
-    const [scannedCode, setScannedCode] = useState<string | null>(null);
+    /** Form data a check waits for: `setData` lands on the next render, so the check runs once it has. */
+    const [pendingCheck, setPendingCheck] = useState<Partial<CheckForm> | null>(
+        null,
+    );
     const [doneHeld, setDoneHeld] = useState(false);
 
     const busy = http.processing || redeeming;
@@ -251,10 +260,14 @@ function Redeem({
         return () => window.clearTimeout(timer);
     }, [doneHeld, nextGuest, step.step]);
 
-    // Check a scanned code once it is in the form data, which updates after the render.
     useEffect(() => {
-        if (scannedCode !== null && http.data.code === scannedCode) {
-            setScannedCode(null);
+        if (
+            pendingCheck !== null &&
+            Object.entries(pendingCheck).every(
+                ([key, value]) => http.data[key as keyof CheckForm] === value,
+            )
+        ) {
+            setPendingCheck(null);
             runCheck();
         }
     });
@@ -275,7 +288,7 @@ function Redeem({
         }
 
         http.setData('code', code);
-        setScannedCode(code);
+        setPendingCheck({ code });
 
         return true;
     }
@@ -301,12 +314,22 @@ function Redeem({
 
         void http.post(check.url(), {
             onSuccess: (response) => {
-                if (!response.eligible) {
+                if (!response.eligible && 'outlets' in response) {
+                    setStep({
+                        step: 'outlet',
+                        outlets: response.outlets,
+                        message: response.message,
+                    });
+                } else if (!response.eligible) {
                     setStep({
                         step: 'rejected',
                         message: response.message,
                         resume: null,
                     });
+                } else if (response.outlet.id !== http.data.outlet_id) {
+                    // The voucher is for another of the cashier's outlets: check and redeem there from now on.
+                    http.setData('outlet_id', response.outlet.id);
+                    setStep({ step: 'bill', check: response });
                 } else if (response.amounts) {
                     setStep({
                         step: 'confirm',
@@ -341,7 +364,7 @@ function Redeem({
         router.post(
             redeem.url(),
             {
-                outlet_id: outlet.id,
+                outlet_id: http.data.outlet_id,
                 code: http.data.code,
                 bill_amount: http.data.bill_amount,
                 free_item_value: http.data.free_item_value || null,
@@ -385,10 +408,28 @@ function Redeem({
                 />
             );
 
+        case 'outlet':
+            return (
+                <OutletStep
+                    outlets={step.outlets}
+                    message={step.message}
+                    onChoose={(choice) => {
+                        http.setData('outlet_id', choice.id);
+                        setPendingCheck({ outlet_id: choice.id });
+                    }}
+                    onBack={nextGuest}
+                />
+            );
+
         case 'bill':
             return (
                 <BillStep
                     check={step.check}
+                    switchedOutlet={
+                        step.check.outlet.id !== outlet.id
+                            ? step.check.outlet
+                            : null
+                    }
                     billAmount={http.data.bill_amount}
                     freeItemValue={http.data.free_item_value}
                     busy={busy}
@@ -406,6 +447,11 @@ function Redeem({
             return (
                 <ConfirmStep
                     offer={step.check.offer}
+                    switchedOutlet={
+                        step.check.outlet.id !== outlet.id
+                            ? step.check.outlet
+                            : null
+                    }
                     amounts={step.amounts}
                     busy={busy}
                     online={online}

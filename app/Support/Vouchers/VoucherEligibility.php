@@ -5,6 +5,7 @@ namespace App\Support\Vouchers;
 use App\Enums\VoucherStatus;
 use App\Models\Outlet;
 use App\Models\Voucher;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Find the voucher behind a typed or scanned code and check that it can be used at an outlet now.
@@ -53,5 +54,22 @@ class VoucherEligibility
         }
 
         return $voucher;
+    }
+
+    /**
+     * Which of the given outlets the code's offer can be used at, by name. Empty when no voucher has the code.
+     *
+     * @param  Collection<int, Outlet>  $outlets
+     * @return Collection<int, Outlet>
+     */
+    public function permittedOutlets(string $input, Collection $outlets): Collection
+    {
+        $voucher = Voucher::query()->where('code_hash', VoucherCode::hash(VoucherCode::normalize($input)))->first();
+
+        if ($voucher === null || $outlets->isEmpty()) {
+            return new Collection;
+        }
+
+        return $voucher->offer->outlets()->whereKey($outlets->modelKeys())->orderBy('name')->get();
     }
 }

@@ -1,3 +1,4 @@
+import OutletSwitchNotice from '@/components/app/counter/outlet-switch-notice';
 import type { Amounts, EligibleCheck } from '@/components/app/counter/types';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -8,6 +9,7 @@ import { formatMoney } from '@/lib/offers';
  */
 export default function ConfirmStep({
     offer,
+    switchedOutlet,
     amounts,
     busy,
     online,
@@ -15,6 +17,7 @@ export default function ConfirmStep({
     onBack,
 }: {
     offer: EligibleCheck['offer'];
+    switchedOutlet: App.Data.OutletOptionData | null;
     amounts: Amounts;
     busy: boolean;
     online: boolean;
@@ -26,6 +29,11 @@ export default function ConfirmStep({
             <h2 className="text-center text-sm font-medium tracking-[0.2em] text-primary uppercase">
                 Show the guest
             </h2>
+            {switchedOutlet && (
+                <div className="mt-4">
+                    <OutletSwitchNotice outletName={switchedOutlet.name} />
+                </div>
+            )}
             {/* Paper, not chrome: the guest reads this card, so it stays light whatever the theme. */}
             <div className="mt-5 rounded-[2rem] border border-slate-200 bg-white p-6 text-slate-900 shadow-xl sm:p-8">
                 <p className="text-sm font-medium text-slate-500">

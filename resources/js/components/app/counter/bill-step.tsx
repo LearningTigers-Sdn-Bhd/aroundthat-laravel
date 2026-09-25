@@ -1,4 +1,5 @@
 import { ArrowLeft } from 'lucide-react';
+import OutletSwitchNotice from '@/components/app/counter/outlet-switch-notice';
 import type { FormEvent } from 'react';
 import type { EligibleCheck } from '@/components/app/counter/types';
 import InputError from '@/components/input-error';
@@ -18,6 +19,7 @@ import { discountSummary } from '@/lib/offers';
  */
 export default function BillStep({
     check,
+    switchedOutlet,
     billAmount,
     freeItemValue,
     busy,
@@ -28,6 +30,8 @@ export default function BillStep({
     onBack,
 }: {
     check: EligibleCheck;
+    /** The outlet the voucher moved the redemption to, when it is not the one picked in the header. */
+    switchedOutlet: App.Data.OutletOptionData | null;
     billAmount: string;
     freeItemValue: string;
     busy: boolean;
@@ -48,6 +52,11 @@ export default function BillStep({
             >
                 <ArrowLeft data-icon="inline-start" /> Scan another voucher
             </Button>
+            {switchedOutlet && (
+                <div className="mb-4">
+                    <OutletSwitchNotice outletName={switchedOutlet.name} />
+                </div>
+            )}
             <div className="rounded-3xl border border-primary/15 bg-primary/5 p-5">
                 <p className="text-sm font-medium text-primary">{offer.name}</p>
                 <p className="mt-1 text-xl font-semibold">

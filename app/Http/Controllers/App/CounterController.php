@@ -17,6 +17,7 @@ use App\Support\Vouchers\DiscountCalculator;
 use App\Support\Vouchers\RedemptionRefused;
 use App\Support\Vouchers\VoucherEligibility;
 use App\Support\Workspace;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,8 +37,16 @@ class CounterController extends Controller
     {
         $this->workspace->authorize(Ability::Scan);
 
-        $outlets = $this->workspace->membership()->accessibleOutlets()->operational()->orderBy('name')->get();
-        $outlet = $outlets->firstWhere('id', $request->query('outlet')) ?? ($outlets->count() === 1 ? $outlets->first() : null);
+        $outlets = $this->counterOutlets();
+        $rememberKey = 'counter.outlet.'.$this->workspace->membership()->business_id;
+        $outlet = $outlets->firstWhere('id', $request->query('outlet'))
+            ?? $outlets->firstWhere('id', $request->session()->get($rememberKey))
+            ?? ($outlets->count() === 1 ? $outlets->first() : null);
+
+        if ($outlet !== null) {
+            $request->session()->put($rememberKey, $outlet->id);
+        }
+
         $showsToday = $outlet !== null && $this->workspace->membership()->can(Ability::ViewTodayActivity);
 
         return Inertia::render('app/counter', [
@@ -51,6 +60,10 @@ class CounterController extends Controller
     /**
      * Look up a code and, when a bill is given, preview the discount. Nothing is saved. A code that cannot be used
      * answers `eligible: false` with the reason, so the page can tell it from a request that failed.
+     *
+     * A voucher that does not work at the chosen outlet is checked against the member's other outlets, so a cashier
+     * who forgot to switch is not refused: one match is used and named in `outlet`, and several come back as
+     * `choose_outlet` for the cashier to pick where the guest is.
      */
     public function check(CounterCheckData $data, VoucherEligibility $eligibility, DiscountCalculator $calculator): JsonResponse
     {
@@ -58,31 +71,62 @@ class CounterController extends Controller
 
         try {
             $voucher = $eligibility->check($data->code, $outlet);
-            $offer = $voucher->offer;
-
-            return response()->json([
-                'eligible' => true,
-                'voucher' => [
-                    'code_prefix' => $voucher->code_prefix,
-                    'uses_left' => $voucher->usesLeft(),
-                    'expires_at' => $voucher->expires_at->min($offer->ends_at)->toIso8601String(),
-                ],
-                'offer' => [
-                    'name' => $offer->name,
-                    'description' => $offer->description,
-                    'business_name' => $offer->business->name,
-                    'discount_type' => $offer->discount_type,
-                    'discount_value' => $offer->discount_value,
-                    'max_discount_amount' => $offer->max_discount_amount,
-                    'min_spend_amount' => $offer->min_spend_amount,
-                    'free_item' => $offer->free_item,
-                    'currency' => config('vouchers.currency'),
-                ],
-                'amounts' => $data->billAmount === null ? null : $calculator->calculate($offer, $data->billAmount, $data->freeItemValue)->toArray(),
-            ]);
         } catch (RedemptionRefused $refusal) {
-            return response()->json(['eligible' => false, 'reason' => $refusal->reason, 'message' => $refusal->getMessage()]);
+            $choices = $refusal->reason === 'outlet_not_permitted'
+                ? $eligibility->permittedOutlets($data->code, $this->counterOutlets()->except([$outlet->getKey()]))
+                : new EloquentCollection;
+
+            if ($choices->count() > 1) {
+                return response()->json([
+                    'eligible' => false,
+                    'reason' => 'choose_outlet',
+                    'message' => __('This voucher works at more than one of your outlets. Choose where the guest is.'),
+                    'outlets' => OutletOptionData::collect($choices),
+                ]);
+            }
+
+            if ($choices->isEmpty()) {
+                return $this->refused($refusal);
+            }
+
+            $outlet = $choices->first();
+
+            try {
+                $voucher = $eligibility->check($data->code, $outlet);
+            } catch (RedemptionRefused $refusal) {
+                return $this->refused($refusal);
+            }
         }
+
+        $offer = $voucher->offer;
+
+        try {
+            $amounts = $data->billAmount === null ? null : $calculator->calculate($offer, $data->billAmount, $data->freeItemValue)->toArray();
+        } catch (RedemptionRefused $refusal) {
+            return $this->refused($refusal);
+        }
+
+        return response()->json([
+            'eligible' => true,
+            'outlet' => OutletOptionData::fromModel($outlet),
+            'voucher' => [
+                'code_prefix' => $voucher->code_prefix,
+                'uses_left' => $voucher->usesLeft(),
+                'expires_at' => $voucher->expires_at->min($offer->ends_at)->toIso8601String(),
+            ],
+            'offer' => [
+                'name' => $offer->name,
+                'description' => $offer->description,
+                'business_name' => $offer->business->name,
+                'discount_type' => $offer->discount_type,
+                'discount_value' => $offer->discount_value,
+                'max_discount_amount' => $offer->max_discount_amount,
+                'min_spend_amount' => $offer->min_spend_amount,
+                'free_item' => $offer->free_item,
+                'currency' => config('vouchers.currency'),
+            ],
+            'amounts' => $amounts,
+        ]);
     }
 
     /**
@@ -102,7 +146,7 @@ class CounterController extends Controller
 
         Inertia::flash('redemption', RedemptionData::fromModel($redemption)->toArray());
 
-        return to_route('counter.show', ['outlet' => $outlet->id]);
+        return to_route('counter.show');
     }
 
     /**
@@ -117,6 +161,21 @@ class CounterController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Redemption cancelled. The voucher has the use back.')]);
 
         return to_route('counter.show', ['outlet' => $redemption->outlet_id]);
+    }
+
+    /**
+     * The outlets the member can scan at: theirs, trading, by name.
+     *
+     * @return EloquentCollection<int, Outlet>
+     */
+    protected function counterOutlets(): EloquentCollection
+    {
+        return $this->workspace->membership()->accessibleOutlets()->operational()->orderBy('name')->get();
+    }
+
+    protected function refused(RedemptionRefused $refusal): JsonResponse
+    {
+        return response()->json(['eligible' => false, 'reason' => $refusal->reason, 'message' => $refusal->getMessage()]);
     }
 
     /**
