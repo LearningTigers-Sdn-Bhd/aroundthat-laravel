@@ -8,6 +8,7 @@ use App\Models\Outlet;
 use App\Models\Redemption;
 use App\Models\Voucher;
 use App\Models\VoucherOffer;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -42,6 +43,19 @@ test('the counter opens at the only outlet the cashier works at', function () {
             ->where('outlet.id', $this->outlet->id)
             ->where('today.total', 1)
             ->where('today.redemptions.0.code_prefix', 'ABCD'));
+});
+
+test('today starts at midnight in the outlet\'s time zone', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-09-25 04:00:00', 'UTC'));
+    $this->outlet->update(['timezone' => 'Asia/Kuala_Lumpur']);
+    $afterMidnight = Redemption::factory()->for($this->voucher)->for($this->outlet)->create(['redeemed_at' => '2026-09-24 16:30:00']);
+    Redemption::factory()->for($this->voucher)->for($this->outlet)->create(['redeemed_at' => '2026-09-24 15:30:00']);
+
+    $this->actingAs($this->cashier->user)
+        ->get(route('counter.show'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('today.total', 1)
+            ->where('today.redemptions.0.id', $afterMidnight->id));
 });
 
 test('checking a code shows the offer and previews the discount without saving', function () {

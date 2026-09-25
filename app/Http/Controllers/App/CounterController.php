@@ -201,7 +201,7 @@ class CounterController extends Controller
     {
         $query = Redemption::query()
             ->where('outlet_id', $outlet->id)
-            ->where('redeemed_at', '>=', now($outlet->timezone)->startOfDay());
+            ->where('redeemed_at', '>=', now($outlet->timezone)->startOfDay()->utc());
 
         return [
             'redemptions' => array_values((clone $query)->with(['voucher.offer', 'user', 'cancelledBy'])->latest('redeemed_at')->limit(10)->get()
