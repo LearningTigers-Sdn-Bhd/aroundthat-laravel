@@ -16,7 +16,10 @@ use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Admin\OutletHostController;
 use App\Http\Controllers\Admin\OutletStatusController;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\Admin\UserActivityController;
+use App\Http\Controllers\Admin\UserBusinessController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserRecoveryController;
 use App\Http\Controllers\Admin\UserStatusController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +60,15 @@ Route::middleware(['auth', 'verified', 'can:admin', 'business:optional'])->prefi
     Route::resource('users', UserController::class)->only(['index', 'show']);
     Route::post('users/{user}/suspend', [UserStatusController::class, 'suspend'])->name('users.suspend');
     Route::post('users/{user}/reactivate', [UserStatusController::class, 'reactivate'])->name('users.reactivate');
+    Route::get('users/{user}/businesses', [UserBusinessController::class, 'index'])->name('users.businesses.index');
+    Route::get('users/{user}/activity', [UserActivityController::class, 'index'])->name('users.activity.index');
+
+    Route::controller(UserRecoveryController::class)->prefix('users/{user}/recovery')->name('users.recovery.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('password-reset', 'sendPasswordReset')->name('password-reset');
+        Route::post('temporary-password', 'setTemporaryPassword')->name('temporary-password');
+        Route::post('two-factor-reset', 'resetTwoFactor')->name('two-factor-reset');
+    });
 
     Route::put('categories/order', [CategoryController::class, 'reorder'])->name('categories.reorder');
     Route::resource('categories', CategoryController::class)->only(['index', 'store', 'update']);

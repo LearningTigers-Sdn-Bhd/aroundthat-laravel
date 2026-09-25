@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Data\Admin\ActivityData;
-use App\Data\Admin\MembershipData;
 use App\Data\Admin\UserData;
 use App\Http\Controllers\Controller;
-use App\Models\Activity;
 use App\Models\User;
 use App\Support\QueryFilters\SearchFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -41,7 +38,7 @@ class UserController extends Controller
     }
 
     /**
-     * One login: its account state, the businesses it belongs to, and its change history.
+     * The Details tab of a login: its account state.
      */
     public function show(User $user): Response
     {
@@ -49,12 +46,6 @@ class UserController extends Controller
 
         return Inertia::render('admin/users/show', [
             'user' => UserData::fromModel($user),
-            'memberships' => MembershipData::collect(
-                $user->memberships()->with(['business', 'outlets'])->get()->sortBy('business.name')->values(),
-            ),
-            'activities' => Inertia::defer(fn () => ActivityData::collect(
-                Activity::forSubject($user)->with('causer')->latest('id')->limit(100)->get(),
-            )),
         ]);
     }
 }

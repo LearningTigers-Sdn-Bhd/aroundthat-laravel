@@ -59,7 +59,7 @@ is_cancelled: boolean,
 };
 export type DashboardTileData = {
 label: string,
-value: string | number | null,
+value: number | string | null,
 format: App.Enums.ReportValueFormat,
 hint: string | null,
 report: string,
@@ -569,6 +569,9 @@ outlet: string | null,
 export type TagData = {
 name: string,
 is_active: boolean,
+};
+export type TemporaryPasswordData = {
+password: string,
 };
 }
 namespace Reports {

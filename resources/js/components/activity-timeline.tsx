@@ -38,6 +38,9 @@ const eventLabels: Record<string, string> = {
     sponsored_outlet_added: 'Sponsored outlet added',
     sponsored_outlet_removed: 'Sponsored outlet removed',
     redemption_refused: 'Voucher refused at the counter',
+    password_reset_sent: 'Password reset email sent',
+    temporary_password_set: 'Temporary password set',
+    two_factor_reset: 'Two-factor authentication turned off',
 };
 
 /**
