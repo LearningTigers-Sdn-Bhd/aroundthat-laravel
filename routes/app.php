@@ -16,6 +16,7 @@ use App\Http\Controllers\App\OutletPhotoController;
 use App\Http\Controllers\App\OutletPreviewController;
 use App\Http\Controllers\App\OutletPublicProfileController;
 use App\Http\Controllers\App\OutletStatusController;
+use App\Http\Controllers\App\ReportController;
 use App\Http\Controllers\App\StaffController;
 use App\Http\Controllers\App\VoucherController;
 use Illuminate\Support\Facades\Route;
@@ -95,6 +96,12 @@ Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(functi
             Route::post('redemptions', 'redeem')->name('redeem');
             Route::post('redemptions/{redemption}/cancel', 'cancel')->name('cancel');
         });
+    });
+
+    Route::controller(ReportController::class)->prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('{report}', 'show')->name('show');
+        Route::get('{report}/export', 'export')->middleware('throttle:30,1')->name('export');
     });
 
     Route::prefix('staff')->name('staff.')->group(function () {

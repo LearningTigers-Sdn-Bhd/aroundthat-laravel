@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     Briefcase,
     Building2,
+    ChartNoAxesColumn,
     History,
     LayoutGrid,
     Plug,
@@ -34,6 +35,7 @@ import { dashboard as adminDashboard } from '@/routes/admin';
 import { edit as businessDetails } from '@/routes/business';
 import { index as offers } from '@/routes/offers';
 import { index as outlets } from '@/routes/outlets';
+import { index as reports } from '@/routes/reports';
 import { index as staff } from '@/routes/staff';
 import { index as adminBusinesses } from '@/routes/admin/businesses';
 import { index as adminCategories } from '@/routes/admin/categories';
@@ -82,6 +84,16 @@ export function AppSidebar() {
                             title: 'Offers',
                             href: offers(),
                             icon: Ticket,
+                            matchChildren: true,
+                        },
+                    ]
+                  : []),
+              ...(can('view_reports')
+                  ? [
+                        {
+                            title: 'Reports',
+                            href: reports(),
+                            icon: ChartNoAxesColumn,
                             matchChildren: true,
                         },
                     ]

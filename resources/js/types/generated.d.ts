@@ -540,6 +540,37 @@ name: string,
 is_active: boolean,
 };
 }
+namespace Reports {
+export type ReportOptionData = {
+value: string,
+label: string,
+};
+export type ReportPageData = {
+key: string,
+title: string,
+question: string,
+period: App.Enums.ReportPeriodPreset,
+from: string,
+to: string,
+period_label: string,
+period_options: App.Data.Reports.ReportOptionData[],
+grouping: App.Enums.ReportGrouping,
+grouping_options: App.Data.Reports.ReportOptionData[],
+offer: string | null,
+offer_options: App.Data.Reports.ReportOptionData[] | null,
+outlet: string | null,
+outlet_options: App.Data.Reports.ReportOptionData[] | null,
+currency: string,
+tiles: App.Support.Reports.ReportTile[],
+columns: App.Support.Reports.ReportColumn[],
+rows: Record<string, any>[],
+};
+export type ReportSummaryData = {
+key: string,
+title: string,
+question: string,
+};
+}
 }
 namespace Enums {
 export type Ability = 'scan' | 'view_today_activity' | 'view_reports' | 'view_statements' | 'manage_offers' | 'void_vouchers' | 'manage_business' | 'manage_outlets' | 'manage_staff' | 'manage_public_content';

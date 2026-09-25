@@ -2,6 +2,8 @@
 
 namespace App\Support\Reports;
 
+use App\Support\Reports\Types\RedemptionsReport;
+
 /**
  * Every report a business can open, found by the key in its URL.
  */
@@ -12,7 +14,9 @@ final class ReportRegistry
      *
      * @var list<class-string<Report>>
      */
-    protected const array REPORTS = [];
+    protected const array REPORTS = [
+        RedemptionsReport::class,
+    ];
 
     /**
      * @return list<Report>
