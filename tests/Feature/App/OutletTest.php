@@ -88,7 +88,7 @@ test('an outlet waiting for review opens read-only', function () {
         ->get(route('outlets.edit', $outlet))
         ->assertInertia(fn (Assert $page) => $page
             ->component('app/outlets/edit')
-            ->where('can', ['update' => false, 'submit' => false, 'archive' => true]));
+            ->where('can', ['update' => false, 'updateListing' => false, 'submit' => false, 'archive' => true]));
 
     $this->put(route('outlets.update', $outlet), ownerOutletInput())->assertForbidden();
 });

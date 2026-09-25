@@ -45,10 +45,8 @@ function savePublicPage(Outlet $outlet, array $overrides = []): void
 
     app(UpdateOutletPublicProfile::class)->handle($outlet, OutletPublicProfileData::from([
         'summary' => $outlet->summary,
+        'description' => $outlet->description,
         'category_id' => $outlet->category_id,
-        'latitude' => $outlet->latitude,
-        'longitude' => $outlet->longitude,
-        'is_listed' => $outlet->is_listed,
         'tags' => $outlet->tags()->pluck('name')->all(),
         ...$overrides,
     ]));
@@ -170,8 +168,9 @@ test('reverting an hours change restores the week and the special dates', functi
 });
 
 test('a revert that leaves a listed outlet incomplete also unlists it', function () {
-    $this->outlet->forceFill(['summary' => null])->saveQuietly();
-    savePublicPage($this->outlet, ['summary' => 'Now complete.', 'is_listed' => true]);
+    $this->outlet->forceFill(['summary' => null, 'is_listed' => false])->saveQuietly();
+    savePublicPage($this->outlet, ['summary' => 'Now complete.']);
+    $this->outlet->forceFill(['is_listed' => true])->saveQuietly();
 
     app(RevertChange::class)->revert($this->admin, lastChange($this->outlet, 'public_profile_changed'), 'Summary is spam.');
 

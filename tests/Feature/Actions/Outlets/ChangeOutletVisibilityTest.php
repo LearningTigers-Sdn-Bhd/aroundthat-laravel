@@ -2,7 +2,7 @@
 
 use App\Actions\Outlets\ChangeOutletVisibility;
 use App\Actions\Outlets\UpdateOutletPublicProfile;
-use App\Data\Forms\OutletPublicProfileData;
+use App\Data\Forms\OutletListingData;
 use App\Jobs\NotifyPlaceModeration;
 use App\Models\Activity;
 use App\Models\Business;
@@ -53,13 +53,7 @@ test('hiding a hidden outlet or unhiding a shown one is refused', function () {
 
 test('the owner cannot list a hidden outlet but can unlist it', function () {
     $outlet = Outlet::factory()->for(Business::factory()->approved())->approved()->listed()->hidden()->create(['is_listed' => false]);
-    $profile = fn (bool $isListed) => OutletPublicProfileData::from([
-        'summary' => $outlet->summary,
-        'category_id' => $outlet->category_id,
-        'latitude' => $outlet->latitude,
-        'longitude' => $outlet->longitude,
-        'is_listed' => $isListed,
-    ]);
+    $profile = fn (bool $isListed) => OutletListingData::from(['is_listed' => $isListed]);
 
     expect(fn () => app(UpdateOutletPublicProfile::class)->handle($outlet, $profile(true)))
         ->toThrow(ValidationException::class, 'An admin hid this outlet');

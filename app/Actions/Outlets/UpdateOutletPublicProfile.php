@@ -4,6 +4,9 @@ namespace App\Actions\Outlets;
 
 use App\Actions\Tags\FindOrCreateTag;
 use App\Actions\Tags\SyncOutletTags;
+use App\Data\Forms\OutletLinksData;
+use App\Data\Forms\OutletListingData;
+use App\Data\Forms\OutletLocationData;
 use App\Data\Forms\OutletPublicProfileData;
 use App\Enums\TagStatus;
 use App\Models\Category;
@@ -16,7 +19,8 @@ use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
 /**
- * Save what visitors see about an outlet. It goes live at once; the change log keeps the old values.
+ * Save one part of what visitors see about an outlet: its description, map location, links or listing. It goes live
+ * at once; the change log keeps the old values.
  */
 class UpdateOutletPublicProfile
 {
@@ -39,7 +43,7 @@ class UpdateOutletPublicProfile
     /**
      * @throws ValidationException
      */
-    public function handle(Outlet $outlet, OutletPublicProfileData $data): Outlet
+    public function handle(Outlet $outlet, OutletPublicProfileData|OutletLocationData|OutletLinksData|OutletListingData $data): Outlet
     {
         return DB::transaction(function () use ($outlet, $data): Outlet {
             $outlet = $outlet->lockedForUpdate();
@@ -50,33 +54,27 @@ class UpdateOutletPublicProfile
                 ]);
             }
 
-            $outlet->fill([
-                'summary' => $data->summary,
-                'description' => $data->description,
-                'category_id' => $this->categoryId($outlet, $data->categoryId),
-                ...$this->coordinates($data),
-                'website' => $data->website,
-                'whatsapp' => $data->whatsapp,
-                'facebook' => $data->facebook,
-                'instagram' => $data->instagram,
-                'is_listed' => $data->isListed,
-            ]);
+            $missingBefore = $outlet->missingForListing();
 
-            if ($outlet->is_listed && ! $outlet->getOriginal('is_listed') && $outlet->isHidden()) {
-                throw ValidationException::withMessages([
-                    'is_listed' => __('An admin hid this outlet from the public listing. It can be listed again once an admin unhides it.'),
-                ]);
-            }
+            $outlet->fill(match (true) {
+                $data instanceof OutletPublicProfileData => [
+                    'summary' => $data->summary,
+                    'description' => $data->description,
+                    'category_id' => $this->categoryId($outlet, $data->categoryId),
+                ],
+                $data instanceof OutletLocationData => $this->coordinates($data),
+                $data instanceof OutletLinksData => [
+                    'website' => $data->website,
+                    'whatsapp' => $data->whatsapp,
+                    'facebook' => $data->facebook,
+                    'instagram' => $data->instagram,
+                ],
+                $data instanceof OutletListingData => ['is_listed' => $data->isListed],
+            });
 
-            if ($outlet->is_listed && ($missing = $outlet->missingForListing()) !== []) {
-                throw ValidationException::withMessages([
-                    'is_listed' => __('Add :fields before listing the outlet.', [
-                        'fields' => collect($missing)->map(fn (string $field): string => __(self::LISTING_FIELDS[$field]))->join(', ', ' and '),
-                    ]),
-                ]);
-            }
+            $this->ensureListable($outlet, $data instanceof OutletListingData, $missingBefore);
 
-            $tagIds = $this->tagIds($outlet, $data->tags ?? []);
+            $tagIds = $data instanceof OutletPublicProfileData ? $this->tagIds($outlet, $data->tags ?? []) : null;
             $previousCategoryId = $outlet->getOriginal('category_id');
 
             return $this->audit->contentChange('public_profile_changed', function () use ($outlet, $tagIds, $previousCategoryId): Outlet {
@@ -92,11 +90,50 @@ class UpdateOutletPublicProfile
                     ]);
                 }
 
-                $this->syncOutletTags->handle($outlet, $tagIds);
+                if ($tagIds !== null) {
+                    $this->syncOutletTags->handle($outlet, $tagIds);
+                }
 
                 return $outlet;
             });
         });
+    }
+
+    /**
+     * Listing needs every public field, and is refused while an admin hides the outlet. Once listed, other saves cannot
+     * remove a field the listing needs, but gaps they did not cause do not block them.
+     *
+     * @param  list<string>  $missingBefore
+     *
+     * @throws ValidationException
+     */
+    protected function ensureListable(Outlet $outlet, bool $isListingChange, array $missingBefore): void
+    {
+        if ($isListingChange && $outlet->is_listed && ! $outlet->getOriginal('is_listed') && $outlet->isHidden()) {
+            throw ValidationException::withMessages([
+                'is_listed' => __('An admin hid this outlet from the public listing. It can be listed again once an admin unhides it.'),
+            ]);
+        }
+
+        if (! $outlet->is_listed) {
+            return;
+        }
+
+        $missing = $isListingChange
+            ? $outlet->missingForListing()
+            : array_values(array_diff($outlet->missingForListing(), $missingBefore));
+
+        if ($missing === []) {
+            return;
+        }
+
+        $fields = collect($missing)->map(fn (string $field): string => __(self::LISTING_FIELDS[$field]))->join(', ', ' and ');
+
+        throw ValidationException::withMessages([
+            'is_listed' => $isListingChange
+                ? __('Add :fields before listing the outlet.', ['fields' => $fields])
+                : __('A listed outlet needs :fields. Unlist it on the Details tab first.', ['fields' => $fields]),
+        ]);
     }
 
     /**
@@ -124,7 +161,7 @@ class UpdateOutletPublicProfile
      *
      * @throws ValidationException
      */
-    protected function coordinates(OutletPublicProfileData $data): array
+    protected function coordinates(OutletLocationData $data): array
     {
         $link = filled($data->googleMapsUrl) ? trim((string) $data->googleMapsUrl) : null;
 

@@ -1,6 +1,9 @@
 <?php
 
 use App\Actions\Outlets\UpdateOutletPublicProfile;
+use App\Data\Forms\OutletLinksData;
+use App\Data\Forms\OutletListingData;
+use App\Data\Forms\OutletLocationData;
 use App\Data\Forms\OutletPublicProfileData;
 use App\Enums\TagStatus;
 use App\Models\Activity;
@@ -15,8 +18,6 @@ function publicProfile(array $overrides = []): OutletPublicProfileData
     return OutletPublicProfileData::from([
         'summary' => 'Kopi and kaya toast by the waterfront.',
         'category_id' => Category::factory()->create()->id,
-        'latitude' => 5.9804,
-        'longitude' => 116.0735,
         ...$overrides,
     ]);
 }
@@ -24,18 +25,24 @@ function publicProfile(array $overrides = []): OutletPublicProfileData
 function approvedOutlet(): Outlet
 {
     return Outlet::factory()->for(Business::factory()->approved())->approved()->create([
+        'latitude' => 5.9804,
+        'longitude' => 116.0735,
         'regular_hours' => ['1' => [['opens' => '09:00', 'closes' => '17:00']]],
     ]);
 }
 
-test('saves the public fields and lists an outlet once they are complete', function () {
+test('each section saves only its own fields, and the outlet lists once they are complete', function () {
     $outlet = approvedOutlet();
+    $update = app(UpdateOutletPublicProfile::class);
 
-    app(UpdateOutletPublicProfile::class)->handle($outlet, publicProfile(['is_listed' => true, 'website' => 'https://kopi.test']));
+    $update->handle($outlet, publicProfile());
+    $update->handle($outlet, OutletLinksData::from(['website' => 'https://kopi.test']));
+    $update->handle($outlet, OutletListingData::from(['is_listed' => true]));
 
     $outlet->refresh();
     expect($outlet->summary)->toBe('Kopi and kaya toast by the waterfront.');
     expect($outlet->website)->toBe('https://kopi.test');
+    expect((float) $outlet->latitude)->toBe(5.9804);
     expect($outlet->isPublic())->toBeTrue();
     expect(Outlet::public()->pluck('id')->all())->toBe([$outlet->id]);
 });
@@ -43,7 +50,7 @@ test('saves the public fields and lists an outlet once they are complete', funct
 test('a Google Maps link fills the coordinates', function () {
     $outlet = approvedOutlet();
 
-    app(UpdateOutletPublicProfile::class)->handle($outlet, publicProfile([
+    app(UpdateOutletPublicProfile::class)->handle($outlet, OutletLocationData::from([
         'google_maps_url' => 'https://www.google.com/maps/@1.5535,110.3593,17z',
         'latitude' => 5.0,
         'longitude' => 116.0,
@@ -53,22 +60,33 @@ test('a Google Maps link fills the coordinates', function () {
 });
 
 test('an unreadable Google Maps link is refused with its reason', function () {
-    app(UpdateOutletPublicProfile::class)->handle(approvedOutlet(), publicProfile(['google_maps_url' => 'https://maps.app.goo.gl/abc']));
+    app(UpdateOutletPublicProfile::class)->handle(approvedOutlet(), OutletLocationData::from(['google_maps_url' => 'https://maps.app.goo.gl/abc']));
 })->throws(ValidationException::class, 'shortened link');
 
 test('an outlet cannot be listed before its public fields are complete', function () {
     $outlet = approvedOutlet();
 
-    $outlet->forceFill(['regular_hours' => null])->save();
+    $outlet->forceFill(['regular_hours' => null, 'latitude' => null, 'longitude' => null])->save();
 
-    expect(fn () => app(UpdateOutletPublicProfile::class)->handle($outlet, publicProfile([
-        'summary' => null,
-        'latitude' => null,
-        'longitude' => null,
-        'is_listed' => true,
-    ])))->toThrow(ValidationException::class, 'Add a summary, the map location and opening hours before listing the outlet.');
+    expect(fn () => app(UpdateOutletPublicProfile::class)->handle($outlet, OutletListingData::from(['is_listed' => true])))
+        ->toThrow(ValidationException::class, 'Add a summary, a category, the map location and opening hours before listing the outlet.');
 
     expect($outlet->refresh()->is_listed)->toBeFalse();
+});
+
+test('a listed outlet cannot lose a field its listing needs, but older gaps do not block other saves', function () {
+    $outlet = approvedOutlet();
+    $update = app(UpdateOutletPublicProfile::class);
+    $update->handle($outlet, publicProfile());
+    $update->handle($outlet, OutletListingData::from(['is_listed' => true]));
+
+    expect(fn () => $update->handle($outlet, publicProfile(['summary' => null])))
+        ->toThrow(ValidationException::class, 'A listed outlet needs a summary. Unlist it on the Details tab first.');
+    expect($outlet->refresh()->summary)->not->toBeNull();
+
+    $outlet->forceFill(['regular_hours' => null])->saveQuietly();
+    $update->handle($outlet, OutletLinksData::from(['website' => 'https://kopi.test']));
+    expect($outlet->refresh()->website)->toBe('https://kopi.test');
 });
 
 test('typed tags reuse existing tags and new ones wait for review', function () {

@@ -30,14 +30,7 @@ test('the owner saves the public page', function () {
     $outlet = Outlet::factory()->for($owner->business)->approved()->create();
 
     $this->actingAs($owner->user)
-        ->put(route('outlets.public.update', $outlet), [
-            'summary' => 'Kopi by the sea.',
-            'tags' => ['Halal'],
-            'whatsapp' => 'not a phone',
-        ])
-        ->assertSessionHasErrors('whatsapp');
-
-    $this->put(route('outlets.public.update', $outlet), ['summary' => 'Kopi by the sea.', 'tags' => ['Halal']])
+        ->put(route('outlets.public.update', $outlet), ['summary' => 'Kopi by the sea.', 'tags' => ['Halal']])
         ->assertSessionHasNoErrors();
 
     expect($outlet->refresh()->summary)->toBe('Kopi by the sea.');

@@ -1,6 +1,6 @@
 import { Head, router, setLayoutProps } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, ImagePlus, Pencil, Trash2 } from 'lucide-react';
-import OutletHeader from '@/components/app/outlets/outlet-header';
+import OutletPage from '@/components/app/outlets/outlet-page';
 import ConfirmDialog from '@/components/confirm-dialog';
 import FormDialog from '@/components/form-dialog';
 import Heading from '@/components/heading';
@@ -56,13 +56,7 @@ export default function OutletPhotos({
         <>
             <Head title={`${outlet.name} · Photos`} />
 
-            <div className="flex max-w-3xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader
-                    outlet={outlet}
-                    can={can}
-                    recentReverts={recentReverts}
-                />
-
+            <OutletPage outlet={outlet} can={can} recentReverts={recentReverts}>
                 <PageErrors except={['file', 'alt_text', 'kind']} />
 
                 <section className="space-y-4">
@@ -132,7 +126,7 @@ export default function OutletPhotos({
                         </div>
                     )}
                 </section>
-            </div>
+            </OutletPage>
         </>
     );
 }

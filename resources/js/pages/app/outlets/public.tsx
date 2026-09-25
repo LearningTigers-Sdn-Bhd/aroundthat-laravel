@@ -1,13 +1,10 @@
 import { Form, Head, Link, setLayoutProps } from '@inertiajs/react';
-import OutletHeader from '@/components/app/outlets/outlet-header';
+import OutletPage from '@/components/app/outlets/outlet-page';
 import TagPicker from '@/components/app/outlets/tag-picker';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
-import Notice from '@/components/notice';
 import PageErrors from '@/components/page-errors';
-import TextField from '@/components/text-field';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -32,27 +29,7 @@ type Props = {
 
 const MAX_TAGS = 10;
 
-const fieldNames = [
-    'summary',
-    'description',
-    'category_id',
-    'google_maps_url',
-    'latitude',
-    'longitude',
-    'website',
-    'whatsapp',
-    'facebook',
-    'instagram',
-    'tags',
-    'is_listed',
-];
-
-const missingLabels: Record<string, string> = {
-    summary: 'a summary',
-    category_id: 'a category',
-    coordinates: 'the map location',
-    hours: 'opening hours (on the Hours tab)',
-};
+const fieldNames = ['summary', 'description', 'category_id', 'tags'];
 
 export default function OutletPublicPage({
     outlet,
@@ -74,13 +51,7 @@ export default function OutletPublicPage({
         <>
             <Head title={`${outlet.name} · Public page`} />
 
-            <div className="flex max-w-2xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader
-                    outlet={outlet}
-                    can={can}
-                    recentReverts={recentReverts}
-                />
-
+            <OutletPage outlet={outlet} can={can} recentReverts={recentReverts}>
                 <PageErrors except={fieldNames} />
 
                 <Form
@@ -189,6 +160,7 @@ export default function OutletPublicPage({
                                     >
                                         <SelectTrigger
                                             id="category_id"
+                                            className="w-full"
                                             aria-invalid={!!errors.category_id}
                                         >
                                             <SelectValue />
@@ -216,143 +188,18 @@ export default function OutletPublicPage({
                                 />
                             </section>
 
-                            <section className="space-y-6">
-                                <Heading
-                                    variant="small"
-                                    title="Map location"
-                                    description="Paste the link from Google Maps, or type the coordinates."
-                                />
-                                <TextField
-                                    name="google_maps_url"
-                                    label="Google Maps link"
-                                    type="url"
-                                    defaultValue={place.google_maps_url ?? ''}
-                                    placeholder="https://www.google.com/maps/place/…"
-                                    error={errors.google_maps_url}
-                                />
-                                <div className="grid gap-4 sm:grid-cols-2">
-                                    <TextField
-                                        name="latitude"
-                                        label="Latitude"
-                                        inputMode="decimal"
-                                        defaultValue={place.latitude ?? ''}
-                                        error={errors.latitude}
-                                    />
-                                    <TextField
-                                        name="longitude"
-                                        label="Longitude"
-                                        inputMode="decimal"
-                                        defaultValue={place.longitude ?? ''}
-                                        error={errors.longitude}
-                                    />
-                                </div>
-                                <p className="text-sm text-muted-foreground">
-                                    When a link is given, its coordinates
-                                    replace the ones typed here.
-                                </p>
-                            </section>
-
-                            <section className="space-y-6">
-                                <Heading
-                                    variant="small"
-                                    title="Links"
-                                    description="The outlet's phone and email come from the Details tab."
-                                />
-                                <div className="grid gap-4 sm:grid-cols-2">
-                                    <TextField
-                                        name="website"
-                                        label="Website"
-                                        type="url"
-                                        defaultValue={place.website ?? ''}
-                                        placeholder="https://"
-                                        error={errors.website}
-                                    />
-                                    <TextField
-                                        name="whatsapp"
-                                        label="WhatsApp"
-                                        type="tel"
-                                        defaultValue={place.whatsapp ?? ''}
-                                        placeholder="+60 12-345 6789"
-                                        error={errors.whatsapp}
-                                    />
-                                    <TextField
-                                        name="facebook"
-                                        label="Facebook"
-                                        type="url"
-                                        defaultValue={place.facebook ?? ''}
-                                        placeholder="https://facebook.com/…"
-                                        error={errors.facebook}
-                                    />
-                                    <TextField
-                                        name="instagram"
-                                        label="Instagram"
-                                        type="url"
-                                        defaultValue={place.instagram ?? ''}
-                                        placeholder="https://instagram.com/…"
-                                        error={errors.instagram}
-                                    />
-                                </div>
-                            </section>
-
-                            <section className="space-y-4">
-                                <Heading variant="small" title="Listing" />
-                                {place.hidden_reason && (
-                                    <Notice title="Hidden by an admin">
-                                        {place.hidden_reason} Visitors cannot
-                                        find this outlet until an admin shows it
-                                        again.
-                                    </Notice>
-                                )}
-                                {place.missing_for_listing.length > 0 && (
-                                    <Notice title="Not ready to list">
-                                        Add{' '}
-                                        {place.missing_for_listing
-                                            .map(
-                                                (field) =>
-                                                    missingLabels[field] ??
-                                                    field,
-                                            )
-                                            .join(', ')}{' '}
-                                        before listing the outlet.
-                                    </Notice>
-                                )}
-                                <div className="flex items-start gap-2">
-                                    <Checkbox
-                                        id="is_listed"
-                                        name="is_listed"
-                                        value="1"
-                                        defaultChecked={place.is_listed}
-                                        disabled={
-                                            !!place.hidden_reason &&
-                                            !place.is_listed
-                                        }
-                                    />
-                                    <div className="grid gap-1">
-                                        <Label htmlFor="is_listed">
-                                            List this outlet publicly
-                                        </Label>
-                                        <p className="text-sm text-muted-foreground">
-                                            {place.is_public
-                                                ? 'Visitors can find it now.'
-                                                : place.is_listed
-                                                  ? 'It shows once an admin has approved the outlet and its business.'
-                                                  : 'Visitors cannot find it until you list it.'}
-                                        </p>
-                                    </div>
-                                </div>
-                                <InputError message={errors.is_listed} />
-                            </section>
-
                             {can.update && (
-                                <Button type="submit" disabled={processing}>
-                                    {processing && <Spinner />}
-                                    Save
-                                </Button>
+                                <div className="flex justify-end">
+                                    <Button type="submit" disabled={processing}>
+                                        {processing && <Spinner />}
+                                        Save
+                                    </Button>
+                                </div>
                             )}
                         </fieldset>
                     )}
                 </Form>
-            </div>
+            </OutletPage>
         </>
     );
 }

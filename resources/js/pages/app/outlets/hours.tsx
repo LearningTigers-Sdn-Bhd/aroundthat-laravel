@@ -1,7 +1,7 @@
 import { Head, setLayoutProps, useForm } from '@inertiajs/react';
 import { Plus, X } from 'lucide-react';
 import type { FormEvent } from 'react';
-import OutletHeader from '@/components/app/outlets/outlet-header';
+import OutletPage from '@/components/app/outlets/outlet-page';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import PageErrors from '@/components/page-errors';
@@ -93,13 +93,7 @@ export default function OutletHours({
         <>
             <Head title={`${outlet.name} · Hours`} />
 
-            <div className="flex max-w-2xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader
-                    outlet={outlet}
-                    can={can}
-                    recentReverts={recentReverts}
-                />
-
+            <OutletPage outlet={outlet} can={can} recentReverts={recentReverts}>
                 <PageErrors
                     except={Object.keys(errors).filter(
                         (key) =>
@@ -282,14 +276,19 @@ export default function OutletHours({
                         </section>
 
                         {can.update && (
-                            <Button type="submit" disabled={form.processing}>
-                                {form.processing && <Spinner />}
-                                Save
-                            </Button>
+                            <div className="flex justify-end">
+                                <Button
+                                    type="submit"
+                                    disabled={form.processing}
+                                >
+                                    {form.processing && <Spinner />}
+                                    Save
+                                </Button>
+                            </div>
                         )}
                     </fieldset>
                 </form>
-            </div>
+            </OutletPage>
         </>
     );
 }

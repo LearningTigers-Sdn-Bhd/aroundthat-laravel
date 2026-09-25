@@ -1,5 +1,5 @@
 import { Head, setLayoutProps } from '@inertiajs/react';
-import OutletHeader from '@/components/app/outlets/outlet-header';
+import OutletPage from '@/components/app/outlets/outlet-page';
 import Notice from '@/components/notice';
 import PlacePreview from '@/components/place-preview';
 import { edit, index, preview as previewRoute } from '@/routes/outlets';
@@ -29,25 +29,19 @@ export default function OutletPreview({
         <>
             <Head title={`${outlet.name} · Preview`} />
 
-            <div className="flex max-w-3xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader
-                    outlet={outlet}
-                    can={can}
-                    recentReverts={recentReverts}
-                />
-
+            <OutletPage outlet={outlet} can={can} recentReverts={recentReverts}>
                 {!preview.place.is_public && (
                     <Notice title="Visitors cannot see this yet">
                         {preview.place.hidden_reason
                             ? `An admin hid this outlet: ${preview.place.hidden_reason}`
                             : preview.place.is_listed
                               ? 'It shows once an admin has approved the outlet and its business, and its public page is complete.'
-                              : 'List the outlet on the Public page tab when it is ready.'}
+                              : 'List the outlet on the Details tab when it is ready.'}
                     </Notice>
                 )}
 
                 <PlacePreview preview={preview} />
-            </div>
+            </OutletPage>
         </>
     );
 }

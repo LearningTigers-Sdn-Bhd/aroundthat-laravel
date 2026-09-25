@@ -5,6 +5,9 @@ use App\Http\Controllers\App\BusinessPublicProfileController;
 use App\Http\Controllers\App\InvitationController;
 use App\Http\Controllers\App\OutletController;
 use App\Http\Controllers\App\OutletHoursController;
+use App\Http\Controllers\App\OutletLinksController;
+use App\Http\Controllers\App\OutletListingController;
+use App\Http\Controllers\App\OutletLocationController;
 use App\Http\Controllers\App\OutletPhotoController;
 use App\Http\Controllers\App\OutletPreviewController;
 use App\Http\Controllers\App\OutletPublicProfileController;
@@ -36,6 +39,18 @@ Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(functi
         Route::get('/', 'edit')->name('edit');
         Route::put('/', 'update')->name('update');
     });
+
+    Route::controller(OutletLocationController::class)->prefix('outlets/{outlet}/location')->name('outlets.location.')->group(function () {
+        Route::get('/', 'edit')->name('edit');
+        Route::put('/', 'update')->name('update');
+    });
+
+    Route::controller(OutletLinksController::class)->prefix('outlets/{outlet}/links')->name('outlets.links.')->group(function () {
+        Route::get('/', 'edit')->name('edit');
+        Route::put('/', 'update')->name('update');
+    });
+
+    Route::put('outlets/{outlet}/listing', [OutletListingController::class, 'update'])->name('outlets.listing.update');
 
     Route::get('outlets/{outlet}/preview', OutletPreviewController::class)->name('outlets.preview');
 

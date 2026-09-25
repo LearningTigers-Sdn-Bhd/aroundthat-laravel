@@ -7,6 +7,7 @@ use App\Actions\Outlets\UpdateOutlet;
 use App\Data\Forms\OutletDetailsData;
 use App\Data\LocationOptionsData;
 use App\Data\OutletData;
+use App\Data\PlaceProfileData;
 use App\Data\RevertNoticeData;
 use App\Enums\Ability;
 use App\Http\Controllers\Controller;
@@ -72,12 +73,16 @@ class OutletController extends Controller
 
         $outlet->load(['business', 'hostOutlet']);
 
+        $managesPublicContent = $this->workspace->membership()->can(Ability::ManagePublicContent);
+
         return Inertia::render('app/outlets/edit', [
             'outlet' => OutletData::fromModel($outlet),
             'recentReverts' => RevertNoticeData::recentFor($outlet),
             'locationOptions' => LocationOptionsData::current(),
+            'place' => $managesPublicContent ? PlaceProfileData::fromModel($outlet->load(['category', 'tags'])) : null,
             'can' => [
                 'update' => $request->user()->can('update', $outlet),
+                'updateListing' => $request->user()->can('updatePublicProfile', $outlet),
                 'submit' => $request->user()->can('submit', $outlet),
                 'archive' => $request->user()->can('archive', $outlet),
             ],

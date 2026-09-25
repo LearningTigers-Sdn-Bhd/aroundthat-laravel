@@ -1,15 +1,16 @@
 import { usePage } from '@inertiajs/react';
+import type { ReactNode } from 'react';
 import ActionButton from '@/components/action-button';
 import RevertNotices from '@/components/app/revert-notices';
-import ButtonLink from '@/components/button-link';
 import Notice from '@/components/notice';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
 import { Badge } from '@/components/ui/badge';
-import { useCurrentUrl } from '@/hooks/use-current-url';
+import HeaderTabLayout from '@/layouts/header-tab-layout';
 import { formatDateTime } from '@/lib/format';
-import { cn } from '@/lib/utils';
 import { archive, edit, preview, restore, submit } from '@/routes/outlets';
 import { edit as editHours } from '@/routes/outlets/hours';
+import { edit as editLinks } from '@/routes/outlets/links';
+import { edit as editLocation } from '@/routes/outlets/location';
 import { index as photos } from '@/routes/outlets/photos';
 import { edit as editPublic } from '@/routes/outlets/public';
 import type { NavItem } from '@/types';
@@ -18,15 +19,20 @@ type Props = {
     outlet: App.Data.OutletData;
     can: { archive: boolean; submit: boolean };
     recentReverts: App.Data.RevertNoticeData[];
+    children: ReactNode;
 };
 
 /**
- * The top of every outlet tab: its name and state, archive and review actions, and the tabs. Each tab saves one form,
- * so no field is edited in two places.
+ * Every outlet tab: its name and state, archive and review actions, and the tabs. Each tab saves one form, so no
+ * field is edited in two places.
  */
-export default function OutletHeader({ outlet, can, recentReverts }: Props) {
+export default function OutletPage({
+    outlet,
+    can,
+    recentReverts,
+    children,
+}: Props) {
     const { workspace } = usePage().props;
-    const { isCurrentUrl } = useCurrentUrl();
 
     const canManagePublicContent =
         workspace?.abilities.includes('manage_public_content') ?? false;
@@ -36,6 +42,8 @@ export default function OutletHeader({ outlet, can, recentReverts }: Props) {
         ...(canManagePublicContent
             ? [
                   { title: 'Public page', href: editPublic(outlet.id) },
+                  { title: 'Location', href: editLocation(outlet.id) },
+                  { title: 'Social links', href: editLinks(outlet.id) },
                   { title: 'Hours', href: editHours(outlet.id) },
                   { title: 'Photos', href: photos(outlet.id) },
                   { title: 'Preview', href: preview(outlet.id) },
@@ -44,26 +52,23 @@ export default function OutletHeader({ outlet, can, recentReverts }: Props) {
     ];
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                        <h1 className="text-xl font-semibold tracking-tight">
-                            {outlet.name}
-                        </h1>
-                        <StatusBadge status={recordStatus(outlet)} />
-                        {outlet.is_public && (
-                            <Badge variant="secondary">Listed</Badge>
-                        )}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                        {outlet.host_outlet
-                            ? `Inside ${outlet.host_outlet.name}`
-                            : 'Changes go live when you save them.'}
-                    </p>
-                </div>
-
-                {can.archive && (
+        <HeaderTabLayout
+            title={outlet.name}
+            badges={
+                <>
+                    <StatusBadge status={recordStatus(outlet)} />
+                    {outlet.is_public && (
+                        <Badge variant="secondary">Listed</Badge>
+                    )}
+                </>
+            }
+            description={
+                outlet.host_outlet
+                    ? `Inside ${outlet.host_outlet.name}`
+                    : 'Changes go live when you save them.'
+            }
+            actions={
+                can.archive && (
                     <ActionButton
                         form={
                             outlet.archived_at
@@ -74,9 +79,11 @@ export default function OutletHeader({ outlet, can, recentReverts }: Props) {
                     >
                         {outlet.archived_at ? 'Restore' : 'Archive'}
                     </ActionButton>
-                )}
-            </div>
-
+                )
+            }
+            tabs={tabs}
+            tabsLabel="Outlet sections"
+        >
             <ReviewBanner outlet={outlet} canSubmit={can.submit} />
 
             {outlet.hidden_reason && (
@@ -88,29 +95,8 @@ export default function OutletHeader({ outlet, can, recentReverts }: Props) {
 
             <RevertNotices reverts={recentReverts} />
 
-            {tabs.length > 1 && (
-                <nav
-                    className="flex gap-1 overflow-x-auto border-b"
-                    aria-label="Outlet sections"
-                >
-                    {tabs.map((tab) => (
-                        <ButtonLink
-                            key={tab.title}
-                            href={tab.href}
-                            variant="ghost"
-                            size="sm"
-                            className={cn(
-                                '-mb-px rounded-b-none border-b-2 border-transparent',
-                                isCurrentUrl(tab.href) &&
-                                    'border-primary text-foreground',
-                            )}
-                        >
-                            {tab.title}
-                        </ButtonLink>
-                    ))}
-                </nav>
-            )}
-        </div>
+            {children}
+        </HeaderTabLayout>
     );
 }
 

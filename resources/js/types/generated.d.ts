@@ -405,19 +405,25 @@ address_line_2: string | null,
 contact_email: string | null,
 contact_phone: string | null,
 };
-export type OutletPublicProfileData = {
-summary: string | null,
-description: string | null,
-category_id: string | null,
-google_maps_url: string | null,
-latitude: number | null,
-longitude: number | null,
+export type OutletLinksData = {
 website: string | null,
 whatsapp: string | null,
 facebook: string | null,
 instagram: string | null,
-tags: string[] | null,
+};
+export type OutletListingData = {
 is_listed: boolean,
+};
+export type OutletLocationData = {
+google_maps_url: string | null,
+latitude: number | null,
+longitude: number | null,
+};
+export type OutletPublicProfileData = {
+summary: string | null,
+description: string | null,
+category_id: string | null,
+tags: string[] | null,
 };
 export type ReasonData = {
 reason: string,
