@@ -103,6 +103,18 @@ class Tag extends Model
     }
 
     /**
+     * Tags visitors and partners see: approved and not merged into another tag.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function public(Builder $query): void
+    {
+        $query->where($this->qualifyColumn('status'), TagStatus::Approved)
+            ->whereNull($this->qualifyColumn('merged_into_id'));
+    }
+
+    /**
      * Tags a business can pick: active approved tags, plus the pending ones it created itself.
      *
      * @param  Builder<static>  $query

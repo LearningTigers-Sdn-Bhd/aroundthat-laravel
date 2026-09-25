@@ -5,7 +5,10 @@ namespace App\Models;
 use App\Enums\IntegrationCapability;
 use App\Enums\IntegrationType;
 use App\Models\Concerns\LocksForUpdate;
+use Carbon\CarbonInterface;
 use Database\Factories\IntegrationFactory;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,6 +21,7 @@ use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * An external partner, such as a PMS or a travel agency, that calls the partner API with its own API keys.
+ * It is what `\$request->user()` returns on the API. It has no password and cannot log in to the web app.
  *
  * @property string $id
  * @property string $name
@@ -32,10 +36,10 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property Carbon|null $updated_at
  */
 #[Fillable(['name', 'type', 'capabilities', 'starts_at', 'expires_at'])]
-class Integration extends Model
+class Integration extends Model implements AuthenticatableContract
 {
     /** @use HasFactory<IntegrationFactory> */
-    use HasApiTokens, HasFactory, HasUuids, LocksForUpdate, LogsActivity;
+    use Authenticatable, HasApiTokens, HasFactory, HasUuids, LocksForUpdate, LogsActivity;
 
     /**
      * Column defaults, so a new integration reads the same before and after it is saved.
@@ -88,7 +92,7 @@ class Integration extends Model
     /**
      * Whether its API keys work right now: not suspended, and inside its start and expiry times.
      */
-    public function isUsable(?Carbon $at = null): bool
+    public function isUsable(?CarbonInterface $at = null): bool
     {
         $at ??= now();
 

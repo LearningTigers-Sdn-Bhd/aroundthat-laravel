@@ -51,6 +51,14 @@ class OutletFactory extends Factory
     }
 
     /**
+     * Indicate that visitors and partners can see the outlet: it and its business are approved, and it is listed.
+     */
+    public function publiclyVisible(): static
+    {
+        return $this->for(Business::factory()->approved())->approved()->listed();
+    }
+
+    /**
      * Indicate that an admin hid the outlet from the public listing.
      */
     public function hidden(string $reason = 'Photos do not match the place.'): static
