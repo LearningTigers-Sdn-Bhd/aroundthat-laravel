@@ -127,6 +127,7 @@ export default function OutletFields({
                         >
                             <SelectTrigger
                                 id="state"
+                                className="w-full"
                                 aria-invalid={!!errors.state}
                             >
                                 <SelectValue />
