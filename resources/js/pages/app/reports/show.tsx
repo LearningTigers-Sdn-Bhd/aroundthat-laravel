@@ -1,6 +1,7 @@
 import { Head, setLayoutProps } from '@inertiajs/react';
 import { ChartNoAxesColumn } from 'lucide-react';
 import Heading from '@/components/heading';
+import ReportChart from '@/components/reports/report-chart';
 import ReportTable from '@/components/reports/report-table';
 import ReportTiles from '@/components/reports/report-tiles';
 import ReportToolbar from '@/components/reports/report-toolbar';
@@ -54,11 +55,20 @@ export default function ReportShow({ report }: Props) {
                         </EmptyHeader>
                     </Empty>
                 ) : (
-                    <ReportTable
-                        columns={report.columns}
-                        rows={report.rows}
-                        currency={report.currency}
-                    />
+                    <>
+                        {report.chart_series.length > 0 && (
+                            <ReportChart
+                                series={report.chart_series}
+                                columns={report.columns}
+                                rows={report.rows}
+                            />
+                        )}
+                        <ReportTable
+                            columns={report.columns}
+                            rows={report.rows}
+                            currency={report.currency}
+                        />
+                    </>
                 )}
             </div>
         </>

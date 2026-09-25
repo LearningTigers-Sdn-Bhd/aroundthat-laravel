@@ -61,6 +61,11 @@ final class RedemptionsReport implements Report
         ];
     }
 
+    public function chartSeries(): array
+    {
+        return ['used'];
+    }
+
     public function rows(ReportFilters $filters): array
     {
         return match ($filters->grouping) {

@@ -52,6 +52,11 @@ function csvReport(array $rows): Report
             ];
         }
 
+        public function chartSeries(): array
+        {
+            return [];
+        }
+
         public function rows(ReportFilters $filters): array
         {
             return $this->fixedRows;

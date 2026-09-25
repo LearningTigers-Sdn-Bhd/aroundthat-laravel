@@ -40,6 +40,13 @@ interface Report
     public function columns(ReportFilters $filters): array;
 
     /**
+     * The count columns drawn as bars when each row is a day, week or month. Empty for no chart.
+     *
+     * @return list<string>
+     */
+    public function chartSeries(): array;
+
+    /**
      * @return list<array<string, mixed>>
      */
     public function rows(ReportFilters $filters): array;

@@ -29,6 +29,7 @@ class ReportPageData extends Data
      * @param  list<ReportOptionData>|null  $outletOptions
      * @param  list<ReportTile>  $tiles
      * @param  list<ReportColumn>  $columns
+     * @param  list<string>  $chartSeries  the columns to draw as bars; empty when rows are not days, weeks or months
      * @param  list<array<string, mixed>>  $rows
      */
     public function __construct(
@@ -49,6 +50,7 @@ class ReportPageData extends Data
         public string $currency,
         public array $tiles,
         public array $columns,
+        public array $chartSeries,
         public array $rows,
     ) {}
 
@@ -76,6 +78,7 @@ class ReportPageData extends Data
             currency: config('vouchers.currency'),
             tiles: $report->summary($filters),
             columns: $report->columns($filters),
+            chartSeries: $filters->grouping->isTime() ? $report->chartSeries() : [],
             rows: $report->rows($filters),
         );
     }

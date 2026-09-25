@@ -58,6 +58,11 @@ final class PlaceVisitsReport implements Report
         ];
     }
 
+    public function chartSeries(): array
+    {
+        return ['opened', 'claimed'];
+    }
+
     public function rows(ReportFilters $filters): array
     {
         return $filters->grouping === ReportGrouping::Outlet ? $this->outletRows($filters) : $this->timeRows($filters);

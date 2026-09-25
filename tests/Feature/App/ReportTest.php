@@ -91,3 +91,12 @@ test('the download holds the report rows for the chosen dates', function () {
     $response->assertDownload('redemptions-2026-09-01-to-2026-09-03.csv');
     expect($response->streamedContent())->toBe("Offer,\"Vouchers used\",\"Total bills\",\"Discount given\",\"Customers paid\",Cancelled\n\"Ten off\",1,80.00,8.00,72.00,0\n");
 });
+
+test('the chart is drawn only when each row is a stretch of time', function (string $group, array $series) {
+    $this->actingAs($this->owner->user)
+        ->get(route('reports.show', ['report' => 'redemptions', 'group' => $group]))
+        ->assertInertia(fn (Assert $page) => $page->where('report.chart_series', $series));
+})->with([
+    'by week' => ['week', ['used']],
+    'by outlet' => ['outlet', []],
+]);

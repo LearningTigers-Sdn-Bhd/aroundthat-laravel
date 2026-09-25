@@ -563,6 +563,7 @@ outlet_options: App.Data.Reports.ReportOptionData[] | null,
 currency: string,
 tiles: App.Support.Reports.ReportTile[],
 columns: App.Support.Reports.ReportColumn[],
+chart_series: string[],
 rows: Record<string, any>[],
 };
 export type ReportSummaryData = {
@@ -603,7 +604,7 @@ format: App.Enums.ReportValueFormat,
 };
 export type ReportTile = {
 label: string,
-value: string | number | null,
+value: number | string | null,
 format: App.Enums.ReportValueFormat,
 hint: string | null,
 };

@@ -61,6 +61,11 @@ final class OfferPerformanceReport implements Report
         ];
     }
 
+    public function chartSeries(): array
+    {
+        return [];
+    }
+
     public function rows(ReportFilters $filters): array
     {
         return array_values($this->offers($filters)->map(fn (VoucherOffer $offer): array => [
