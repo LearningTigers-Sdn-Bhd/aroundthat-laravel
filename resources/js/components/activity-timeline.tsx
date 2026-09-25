@@ -32,6 +32,11 @@ const eventLabels: Record<string, string> = {
     image_removed: 'Photo removed',
     images_reordered: 'Photos reordered',
     reverted: 'Reverted by an admin',
+    activated: 'Activated',
+    paused: 'Paused',
+    outlets_changed: 'Outlets changed',
+    sponsored_outlet_added: 'Sponsored outlet added',
+    sponsored_outlet_removed: 'Sponsored outlet removed',
 };
 
 /**

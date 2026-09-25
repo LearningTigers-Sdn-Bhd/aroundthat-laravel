@@ -294,6 +294,13 @@ suspended_at: string | null,
 suspension_reason: string | null,
 joined_at: string | null,
 };
+export type OfferData = {
+offer: App.Data.OfferData,
+business_id: string,
+business_name: string,
+is_sponsored: boolean,
+hidden_at: string | null,
+};
 export type OutletData = {
 id: string,
 business_id: string,

@@ -37,6 +37,7 @@ import { index as adminBusinesses } from '@/routes/admin/businesses';
 import { index as adminCategories } from '@/routes/admin/categories';
 import { index as adminChanges } from '@/routes/admin/changes';
 import { index as adminIntegrations } from '@/routes/admin/integrations';
+import { index as adminOffers } from '@/routes/admin/offers';
 import { edit as adminSettings } from '@/routes/admin/settings';
 import { index as adminTags } from '@/routes/admin/tags';
 import { index as adminUsers } from '@/routes/admin/users';
@@ -94,6 +95,12 @@ export function AppSidebar() {
                   title: 'Businesses',
                   href: adminBusinesses(),
                   icon: Building2,
+                  matchChildren: true,
+              },
+              {
+                  title: 'Offers',
+                  href: adminOffers(),
+                  icon: Ticket,
                   matchChildren: true,
               },
               {

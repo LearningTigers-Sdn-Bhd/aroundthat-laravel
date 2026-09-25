@@ -9,6 +9,9 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\IntegrationController;
 use App\Http\Controllers\Admin\IntegrationStatusController;
 use App\Http\Controllers\Admin\InvitationController;
+use App\Http\Controllers\Admin\OfferController;
+use App\Http\Controllers\Admin\OfferOutletController;
+use App\Http\Controllers\Admin\OfferStatusController;
 use App\Http\Controllers\Admin\OutletController;
 use App\Http\Controllers\Admin\OutletHostController;
 use App\Http\Controllers\Admin\OutletStatusController;
@@ -45,6 +48,12 @@ Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->name('adm
 
     Route::put('outlets/{outlet}/host', [OutletHostController::class, 'update'])->name('outlets.host.update');
     Route::delete('outlets/{outlet}/host', [OutletHostController::class, 'destroy'])->name('outlets.host.destroy');
+
+    Route::resource('offers', OfferController::class)->only(['index', 'show']);
+    Route::post('offers/{offer}/hide', [OfferStatusController::class, 'hide'])->name('offers.hide');
+    Route::post('offers/{offer}/unhide', [OfferStatusController::class, 'unhide'])->name('offers.unhide');
+    Route::post('offers/{offer}/outlets', [OfferOutletController::class, 'store'])->name('offers.outlets.store');
+    Route::delete('offers/{offer}/outlets/{outlet}', [OfferOutletController::class, 'destroy'])->name('offers.outlets.destroy');
 
     Route::resource('users', UserController::class)->only(['index', 'show']);
     Route::post('users/{user}/suspend', [UserStatusController::class, 'suspend'])->name('users.suspend');
