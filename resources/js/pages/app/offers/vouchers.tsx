@@ -1,21 +1,20 @@
 import { Head, setLayoutProps, usePage } from '@inertiajs/react';
 import { Ticket } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import VoucherCodeNotice, {
+import OfferPage from '@/components/app/offers/offer-page';
+import VoucherCodeDialog, {
     type ShownVoucher,
-} from '@/components/app/offers/voucher-code-notice';
+} from '@/components/app/offers/voucher-code-dialog';
 import ActionButton from '@/components/action-button';
 import type { DataTableColumn } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import FormDialog from '@/components/form-dialog';
 import Heading from '@/components/heading';
-import PageErrors from '@/components/page-errors';
 import ReasonDialog from '@/components/reason-dialog';
 import StatusBadge from '@/components/status-badge';
 import TextField from '@/components/text-field';
 import { Button } from '@/components/ui/button';
 import { formatDate, formatDateTime } from '@/lib/format';
-import { discountSummary } from '@/lib/offers';
 import { edit, index } from '@/routes/offers';
 import {
     index as vouchersIndex,
@@ -27,7 +26,7 @@ import {
 type Props = {
     offer: App.Data.OfferData;
     vouchers: Illuminate.LengthAwarePaginator<number, App.Data.VoucherData>;
-    can: { issue: boolean; void: boolean };
+    can: { update: boolean; issue: boolean; void: boolean };
 };
 
 export default function OfferVouchers({ offer, vouchers, can }: Props) {
@@ -39,7 +38,7 @@ export default function OfferVouchers({ offer, vouchers, can }: Props) {
         ],
     });
 
-    // Flash data is gone on the next request, so keep the code in state until the page is left.
+    // Flash data is gone on the next request, so keep the code in state until the dialog is closed.
     const flashedVoucher = usePage().flash.voucher as ShownVoucher | undefined;
     const [shownVoucher, setShownVoucher] = useState(flashedVoucher);
 
@@ -144,11 +143,12 @@ export default function OfferVouchers({ offer, vouchers, can }: Props) {
         <>
             <Head title={`Vouchers · ${offer.name}`} />
 
-            <div className="flex flex-1 flex-col gap-4 p-4">
+            <OfferPage offer={offer} canUpdate={can.update}>
                 <div className="flex flex-wrap items-start justify-between gap-4">
                     <Heading
-                        title={`Vouchers of ${offer.name}`}
-                        description={`${discountSummary(offer)}. ${offer.issued_count}${offer.voucher_limit !== null ? ` of ${offer.voucher_limit}` : ''} issued.`}
+                        variant="small"
+                        title="Vouchers"
+                        description="Codes issued for this offer. Find one by the first 4 characters of its code, reveal it again or void it."
                     />
                     {can.issue && (
                         <ActionButton form={store.form(offer.id)}>
@@ -158,9 +158,10 @@ export default function OfferVouchers({ offer, vouchers, can }: Props) {
                     )}
                 </div>
 
-                <PageErrors />
-
-                {shownVoucher && <VoucherCodeNotice voucher={shownVoucher} />}
+                <VoucherCodeDialog
+                    voucher={shownVoucher}
+                    onClose={() => setShownVoucher(undefined)}
+                />
 
                 <DataTable
                     rows={vouchers}
@@ -182,7 +183,7 @@ export default function OfferVouchers({ offer, vouchers, can }: Props) {
                     emptyTitle="No vouchers yet"
                     emptyIcon={Ticket}
                 />
-            </div>
+            </OfferPage>
         </>
     );
 }

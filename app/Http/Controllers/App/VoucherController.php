@@ -63,6 +63,7 @@ class VoucherController extends Controller
             'offer' => OfferData::fromModel($offer),
             'vouchers' => VoucherData::collect($vouchers, PaginatedDataCollection::class),
             'can' => [
+                'update' => $request->user()->can('update', $offer),
                 'issue' => $request->user()->can('issueVouchers', $offer),
                 'void' => $request->user()->can('voidVouchers', $offer),
             ],

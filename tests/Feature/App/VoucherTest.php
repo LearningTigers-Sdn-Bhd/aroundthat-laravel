@@ -27,6 +27,7 @@ test('the voucher list shows the code prefix and status but never the code', fun
             ->where('vouchers.data.1.status', 'active')
             ->where('vouchers.data.0.status', 'expired')
             ->missing('vouchers.data.0.code')
+            ->where('can.update', true)
             ->where('can.issue', true)
             ->where('can.void', true));
 

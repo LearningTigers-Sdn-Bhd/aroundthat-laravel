@@ -8,6 +8,7 @@ import {
     DialogContent,
     DialogDescription,
     DialogFooter,
+    DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
@@ -45,10 +46,12 @@ export default function FormDialog({
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger render={trigger} />
             <DialogContent>
-                <DialogTitle>{title}</DialogTitle>
-                {description && (
-                    <DialogDescription>{description}</DialogDescription>
-                )}
+                <DialogHeader>
+                    <DialogTitle>{title}</DialogTitle>
+                    {description && (
+                        <DialogDescription>{description}</DialogDescription>
+                    )}
+                </DialogHeader>
 
                 <Form
                     {...form}

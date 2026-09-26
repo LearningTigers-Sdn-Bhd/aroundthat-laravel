@@ -205,6 +205,22 @@ test('an offer cannot be activated while hidden, ended, without outlets or befor
     expect($offer->refresh()->status)->not->toBe(OfferStatus::Active);
 })->with(['hidden', 'ended', 'no outlets', 'business pending']);
 
+test('the outlets tab lists the business outlets that are not archived', function () {
+    $owner = offerOwner();
+    $outlet = Outlet::factory()->for($owner->business)->create();
+    Outlet::factory()->for($owner->business)->archived()->create();
+    $offer = VoucherOffer::factory()->for($owner->business)->at($outlet)->create();
+
+    $this->actingAs($owner->user)
+        ->get(route('offers.outlets.index', $offer))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('app/offers/outlets')
+            ->where('offer.id', $offer->id)
+            ->has('outletOptions', 1)
+            ->where('outletOptions.0.id', $outlet->id)
+            ->where('can.update', true));
+});
+
 test('an owner changes the outlets and keeps the sponsored ones', function () {
     $owner = offerOwner();
     [$first, $second] = Outlet::factory()->for($owner->business)->count(2)->create()->all();
@@ -226,5 +242,6 @@ test('an offer of another business returns not found', function () {
     $offer = VoucherOffer::factory()->create();
 
     $this->actingAs($owner->user)->get(route('offers.edit', $offer))->assertNotFound();
+    $this->get(route('offers.outlets.index', $offer))->assertNotFound();
     $this->post(route('offers.activate', $offer))->assertNotFound();
 });

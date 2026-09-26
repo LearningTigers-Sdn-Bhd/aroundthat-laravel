@@ -81,7 +81,10 @@ Route::middleware(['auth', 'verified', 'business'])->prefix('app')->group(functi
         Route::post('pause', 'pause')->name('pause');
     });
 
-    Route::put('offers/{offer}/outlets', [OfferOutletController::class, 'update'])->name('offers.outlets.update');
+    Route::controller(OfferOutletController::class)->prefix('offers/{offer}/outlets')->name('offers.outlets.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::put('/', 'update')->name('update');
+    });
 
     Route::controller(VoucherController::class)->prefix('offers/{offer}/vouchers')->name('offers.vouchers.')->scopeBindings()->group(function () {
         Route::get('/', 'index')->name('index');

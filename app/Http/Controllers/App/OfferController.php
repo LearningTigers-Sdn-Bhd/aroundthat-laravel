@@ -11,8 +11,6 @@ use App\Data\OfferData;
 use App\Data\OutletOptionData;
 use App\Enums\Ability;
 use App\Http\Controllers\Controller;
-use App\Models\Business;
-use App\Models\Outlet;
 use App\Models\VoucherOffer;
 use App\Support\Workspace;
 use Illuminate\Http\RedirectResponse;
@@ -24,7 +22,7 @@ use Inertia\Response;
 use InertiaUI\Modal\Modal;
 
 /**
- * The business's voucher offers: list, add and edit them. New offers start as drafts.
+ * The business's voucher offers: list, add and edit them. Editing is the Details tab of an offer. New offers start as drafts.
  */
 class OfferController extends Controller
 {
@@ -50,7 +48,9 @@ class OfferController extends Controller
 
         return Inertia::modal('app/offers/create', [
             'timezone' => $this->workspace->business()->timezone,
-            'outletOptions' => $this->outletOptions($this->workspace->business()),
+            'outletOptions' => OutletOptionData::collect(
+                $this->workspace->business()->outlets()->whereNull('archived_at')->orderBy('name')->get(),
+            ),
             'currency' => config('vouchers.currency'),
         ])->baseRoute('offers.index');
     }
@@ -79,7 +79,6 @@ class OfferController extends Controller
         return Inertia::render('app/offers/edit', [
             'offer' => OfferData::fromModel($offer),
             'timezone' => $offer->business->timezone,
-            'outletOptions' => $this->outletOptions($offer->business),
             'can' => [
                 'update' => $request->user()->can('update', $offer),
             ],
@@ -105,17 +104,5 @@ class OfferController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Offer saved.')]);
 
         return back();
-    }
-
-    /**
-     * The business's outlets that can be chosen for an offer.
-     *
-     * @return list<OutletOptionData>
-     */
-    protected function outletOptions(Business $business): array
-    {
-        return array_values($business->outlets()->whereNull('archived_at')->orderBy('name')->get()
-            ->map(fn (Outlet $outlet): OutletOptionData => OutletOptionData::fromModel($outlet))
-            ->all());
     }
 }
