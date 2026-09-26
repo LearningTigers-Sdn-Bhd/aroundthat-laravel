@@ -50,45 +50,42 @@ export default function StaffIndex({
                     except={['email', 'role', 'outlet_ids', 'reason']}
                 />
 
-                <section className="space-y-3">
-                    <Heading variant="small" title="Members" />
-                    <DataTable
-                        rows={members}
-                        columns={memberColumns((member) =>
-                            member.user_id === auth.user.id ? (
-                                <p className="text-muted-foreground">You</p>
-                            ) : (
-                                <MemberActions
-                                    member={member}
-                                    roles={roles}
-                                    outletOptions={outletOptions}
-                                />
-                            ),
-                        )}
-                        rowKey={(member) => member.id}
-                        searchPlaceholder="Search name or email"
-                        filters={[
-                            {
-                                name: 'role',
-                                label: 'Roles',
-                                options: roles.map((role) => ({
-                                    value: role,
-                                    label: humanize(role),
-                                })),
-                            },
-                            {
-                                name: 'status',
-                                label: 'Statuses',
-                                options: [
-                                    { value: 'active', label: 'Active' },
-                                    { value: 'suspended', label: 'Suspended' },
-                                ],
-                            },
-                        ]}
-                        emptyTitle="No members yet"
-                        emptyIcon={Users}
+                <DataTable
+                    rows={members}
+                    columns={memberColumns((member) =>
+                        member.user_id === auth.user.id ? (
+                            <p className="text-muted-foreground">You</p>
+                        ) : (
+                            <MemberActions
+                                member={member}
+                                roles={roles}
+                                outletOptions={outletOptions}
+                            />
+                        ),
+                    )}
+                    rowKey={(member) => member.id}
+                    searchPlaceholder="Search name or email"
+                    filters={[
+                        {
+                            name: 'role',
+                            label: 'Roles',
+                            options: roles.map((role) => ({
+                                value: role,
+                                label: humanize(role),
+                            })),
+                        },
+                        {
+                            name: 'status',
+                            label: 'Statuses',
+                            options: [
+                                { value: 'active', label: 'Active' },
+                                { value: 'suspended', label: 'Suspended' },
+                            ],
+                        },
+                    ]}
+                    emptyTitle="No members yet"
+                    emptyIcon={Users}
                     />
-                </section>
 
                 {invitations.length > 0 && (
                     <section className="space-y-3">
