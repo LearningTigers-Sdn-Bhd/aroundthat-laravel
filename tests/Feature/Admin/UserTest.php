@@ -1,10 +1,10 @@
 <?php
 
+use App\Actions\Users\RecoverUserAccess;
 use App\Models\Activity;
 use App\Models\Membership;
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -88,10 +88,8 @@ test('an admin emails a user a password reset link', function () {
     expect(Activity::forSubject($user)->where('event', 'password_reset_sent')->exists())->toBeTrue();
 });
 
-test('an admin sets a temporary password that signs the user out everywhere', function () {
-    config(['session.driver' => 'database']);
+test('an admin sets a temporary password that the user must change', function () {
     $user = User::factory()->create();
-    DB::table('sessions')->insert(['id' => 'their-session', 'user_id' => $user->id, 'payload' => '', 'last_activity' => now()->timestamp]);
 
     $this->actingAs($this->admin)
         ->post(route('admin.users.recovery.temporary-password', $user), ['password' => 'Temporary-Pass-2026'])
@@ -99,11 +97,20 @@ test('an admin sets a temporary password that signs the user out everywhere', fu
 
     $user->refresh();
     expect(Hash::check('Temporary-Pass-2026', $user->password))->toBeTrue()
-        ->and($user->must_change_password)->toBeTrue()
-        ->and(DB::table('sessions')->where('user_id', $user->id)->exists())->toBeFalse();
+        ->and($user->must_change_password)->toBeTrue();
 
     $activity = Activity::forSubject($user)->where('event', 'temporary_password_set')->sole();
     expect(json_encode($activity->properties))->not->toContain('Temporary-Pass-2026');
+});
+
+test('a temporary password signs the user out of their open session', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user)->get(route('profile.edit'))->assertOk();
+
+    app(RecoverUserAccess::class)->setTemporaryPassword($this->admin, $user, 'Temporary-Pass-2026');
+
+    $this->get(route('profile.edit'))->assertRedirect(route('login'));
+    $this->assertGuest();
 });
 
 test('a temporary password needs a password', function () {

@@ -39,7 +39,10 @@ class RecoverUserAccess
     }
 
     /**
-     * Replace the password with one the admin passes on. The user is signed out everywhere and must change it at their next login.
+     * Replace the password with one the admin passes on. The user must change it at their next login.
+     *
+     * Every session and remember-me cookie holding the old password is signed out on its next request by the
+     * AuthenticateSession middleware, whatever the session driver.
      *
      * @throws ValidationException
      */
@@ -53,8 +56,6 @@ class RecoverUserAccess
                 'must_change_password' => true,
                 'remember_token' => Str::random(60),
             ])->save();
-
-            $this->signOutEverywhere($user);
 
             $this->audit->record($user, 'temporary_password_set');
         });
@@ -93,16 +94,6 @@ class RecoverUserAccess
 
         if ($refusal !== null) {
             throw ValidationException::withMessages(['user' => $refusal]);
-        }
-    }
-
-    protected function signOutEverywhere(User $user): void
-    {
-        if (config('session.driver') === 'database') {
-            DB::connection(config('session.connection'))
-                ->table(config('session.table'))
-                ->where('user_id', $user->getKey())
-                ->delete();
         }
     }
 }
