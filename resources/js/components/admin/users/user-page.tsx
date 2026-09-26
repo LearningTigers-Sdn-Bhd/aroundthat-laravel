@@ -1,3 +1,4 @@
+import { Building2, FileText, History, LifeBuoy } from 'lucide-react';
 import type { ReactNode } from 'react';
 import ActionButton from '@/components/action-button';
 import Notice from '@/components/notice';
@@ -30,10 +31,10 @@ export default function UserPage({
     children,
 }: Props) {
     const tabs: NavItem[] = [
-        { title: 'Details', href: show(user.id) },
-        { title: 'Businesses', href: businesses(user.id) },
-        { title: 'Recovery', href: recovery(user.id) },
-        { title: 'Activity', href: activity(user.id) },
+        { title: 'Details', href: show(user.id), icon: FileText },
+        { title: 'Businesses', href: businesses(user.id), icon: Building2 },
+        { title: 'Recovery', href: recovery(user.id), icon: LifeBuoy },
+        { title: 'Activity', href: activity(user.id), icon: History },
     ];
 
     return (

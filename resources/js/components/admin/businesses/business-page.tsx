@@ -1,3 +1,4 @@
+import { FileText, History, Store, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import BusinessActions from '@/components/admin/businesses/business-actions';
 import Notice from '@/components/notice';
@@ -21,10 +22,10 @@ type Props = {
  */
 export default function BusinessPage({ business, children }: Props) {
     const tabs: NavItem[] = [
-        { title: 'Details', href: show(business.id) },
-        { title: 'Outlets', href: outlets(business.id) },
-        { title: 'Members', href: members(business.id) },
-        { title: 'Activity', href: activity(business.id) },
+        { title: 'Details', href: show(business.id), icon: FileText },
+        { title: 'Outlets', href: outlets(business.id), icon: Store },
+        { title: 'Members', href: members(business.id), icon: Users },
+        { title: 'Activity', href: activity(business.id), icon: History },
     ];
 
     return (

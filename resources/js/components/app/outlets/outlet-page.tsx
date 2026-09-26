@@ -1,4 +1,13 @@
 import { usePage } from '@inertiajs/react';
+import {
+    Clock,
+    Eye,
+    FileText,
+    Globe,
+    Images,
+    Link2,
+    MapPin,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 import ActionButton from '@/components/action-button';
 import RevertNotices from '@/components/app/revert-notices';
@@ -38,15 +47,27 @@ export default function OutletPage({
         workspace?.abilities.includes('manage_public_content') ?? false;
 
     const tabs: NavItem[] = [
-        { title: 'Details', href: edit(outlet.id) },
+        { title: 'Details', href: edit(outlet.id), icon: FileText },
         ...(canManagePublicContent
             ? [
-                  { title: 'Public page', href: editPublic(outlet.id) },
-                  { title: 'Location', href: editLocation(outlet.id) },
-                  { title: 'Social links', href: editLinks(outlet.id) },
-                  { title: 'Hours', href: editHours(outlet.id) },
-                  { title: 'Photos', href: photos(outlet.id) },
-                  { title: 'Preview', href: preview(outlet.id) },
+                  {
+                      title: 'Public page',
+                      href: editPublic(outlet.id),
+                      icon: Globe,
+                  },
+                  {
+                      title: 'Location',
+                      href: editLocation(outlet.id),
+                      icon: MapPin,
+                  },
+                  {
+                      title: 'Social links',
+                      href: editLinks(outlet.id),
+                      icon: Link2,
+                  },
+                  { title: 'Hours', href: editHours(outlet.id), icon: Clock },
+                  { title: 'Photos', href: photos(outlet.id), icon: Images },
+                  { title: 'Preview', href: preview(outlet.id), icon: Eye },
               ]
             : []),
     ];

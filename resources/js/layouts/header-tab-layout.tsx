@@ -72,6 +72,7 @@ export default function HeaderTabLayout({
                                 nativeButton={false}
                                 render={<Link href={tab.href} prefetch />}
                             >
+                                {tab.icon && <tab.icon />}
                                 {tab.title}
                             </TabsTrigger>
                         ))}
