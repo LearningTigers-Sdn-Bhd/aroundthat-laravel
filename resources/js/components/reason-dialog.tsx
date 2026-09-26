@@ -77,12 +77,19 @@ export default function ReasonDialog({
                             </div>
 
                             <DialogFooter className="gap-2">
-                                <DialogClose render={<Button
-                                        type="button"
-                                        variant="secondary"
-                                        onClick={() => resetAndClearErrors()} />}>
-                                        Cancel
-                                    </DialogClose>
+                                <DialogClose
+                                    render={
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            onClick={() =>
+                                                resetAndClearErrors()
+                                            }
+                                        />
+                                    }
+                                >
+                                    Cancel
+                                </DialogClose>
                                 <Button
                                     type="submit"
                                     variant={

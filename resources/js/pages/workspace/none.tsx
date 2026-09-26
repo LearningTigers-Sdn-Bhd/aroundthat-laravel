@@ -13,9 +13,14 @@ export default function NoWorkspace() {
                     finishes onboarding your business, it will appear here.
                 </p>
 
-                <ButtonLink variant="outline" className="w-full" href={logout()} as="button">
-                        Log out
-                    </ButtonLink>
+                <ButtonLink
+                    variant="outline"
+                    className="w-full"
+                    href={logout()}
+                    as="button"
+                >
+                    Log out
+                </ButtonLink>
             </div>
         </>
     );

@@ -51,12 +51,11 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                 className={cn('w-full justify-start', {
                                     'bg-muted': isCurrentOrParentUrl(item.href),
                                 })}
-                             href={item.href}>
-                                    {item.icon && (
-                                        <item.icon className="h-4 w-4" />
-                                    )}
-                                    {item.title}
-                                </ButtonLink>
+                                href={item.href}
+                            >
+                                {item.icon && <item.icon className="h-4 w-4" />}
+                                {item.title}
+                            </ButtonLink>
                         ))}
                     </nav>
                 </aside>

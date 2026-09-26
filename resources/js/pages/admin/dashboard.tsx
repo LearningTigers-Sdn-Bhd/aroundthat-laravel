@@ -46,17 +46,18 @@ export default function AdminDashboard({
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ButtonLink variant="outline"
-                                    href={businessesIndex({
-                                        query: {
-                                            filter: {
-                                                onboarding_status: 'pending',
-                                            },
+                            <ButtonLink
+                                variant="outline"
+                                href={businessesIndex({
+                                    query: {
+                                        filter: {
+                                            onboarding_status: 'pending',
                                         },
-                                    })}
-                                >
-                                    Review businesses
-                                </ButtonLink>
+                                    },
+                                })}
+                            >
+                                Review businesses
+                            </ButtonLink>
                         </CardContent>
                     </Card>
 

@@ -28,13 +28,18 @@ export function NavUser() {
         <SidebarMenu>
             <SidebarMenuItem>
                 <DropdownMenu>
-                    <DropdownMenuTrigger render={<SidebarMenuButton
-                            size="lg"
-                            className="group text-sidebar-accent-foreground data-popup-open:bg-sidebar-accent"
-                            data-test="sidebar-menu-button" />}>
-                            <UserInfo user={auth.user} />
-                            <ChevronsUpDown className="ml-auto size-4" />
-                        </DropdownMenuTrigger>
+                    <DropdownMenuTrigger
+                        render={
+                            <SidebarMenuButton
+                                size="lg"
+                                className="group text-sidebar-accent-foreground data-popup-open:bg-sidebar-accent"
+                                data-test="sidebar-menu-button"
+                            />
+                        }
+                    >
+                        <UserInfo user={auth.user} />
+                        <ChevronsUpDown className="ml-auto size-4" />
+                    </DropdownMenuTrigger>
                     <DropdownMenuContent
                         className="w-(--anchor-width) min-w-56 rounded-lg"
                         align="end"

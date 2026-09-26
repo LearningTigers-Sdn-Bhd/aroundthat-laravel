@@ -403,8 +403,14 @@ function PageLink({ url, label }: { url: string | null; label: string }) {
     }
 
     return (
-        <ButtonLink variant="outline" size="sm" href={url} preserveScroll preserveState>
-                {label}
-            </ButtonLink>
+        <ButtonLink
+            variant="outline"
+            size="sm"
+            href={url}
+            preserveScroll
+            preserveState
+        >
+            {label}
+        </ButtonLink>
     );
 }

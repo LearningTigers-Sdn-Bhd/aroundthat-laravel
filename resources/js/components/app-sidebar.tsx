@@ -87,9 +87,12 @@ export function AppSidebar() {
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" render={<Link href={dashboard()} prefetch />}>
-                                <AppLogo />
-                            </SidebarMenuButton>
+                        <SidebarMenuButton
+                            size="lg"
+                            render={<Link href={dashboard()} prefetch />}
+                        >
+                            <AppLogo />
+                        </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
                 <BusinessSwitcher />

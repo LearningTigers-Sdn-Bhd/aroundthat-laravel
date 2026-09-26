@@ -99,7 +99,9 @@ function ClosedInvitation({ message }: { message: string }) {
     return (
         <div className="space-y-6 text-center text-sm text-muted-foreground">
             <p>{message}</p>
-            <ButtonLink variant="outline" className="w-full" href={home()}>Go to home page</ButtonLink>
+            <ButtonLink variant="outline" className="w-full" href={home()}>
+                Go to home page
+            </ButtonLink>
         </div>
     );
 }
@@ -117,9 +119,14 @@ function WrongAccount({
                 You are logged in as {signedInEmail}, but this invitation is for{' '}
                 {invitedEmail}. Log out, then open the link again.
             </p>
-            <ButtonLink variant="outline" className="w-full" href={logout()} as="button">
-                    Log out
-                </ButtonLink>
+            <ButtonLink
+                variant="outline"
+                className="w-full"
+                href={logout()}
+                as="button"
+            >
+                Log out
+            </ButtonLink>
         </div>
     );
 }
@@ -130,7 +137,9 @@ function LogInFirst({ token, email }: { token: string; email: string }) {
             <p className="text-center text-sm text-muted-foreground">
                 {email} already has a login. Log in with it to accept.
             </p>
-            <ButtonLink className="w-full" href={login()}>Log in to accept</ButtonLink>
+            <ButtonLink className="w-full" href={login()}>
+                Log in to accept
+            </ButtonLink>
             <DeclineButton token={token} />
         </div>
     );

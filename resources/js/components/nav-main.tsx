@@ -30,10 +30,12 @@ export function NavMain({
                                 undefined,
                                 item.matchChildren,
                             )}
-                            tooltip={{ children: item.title }} render={<Link href={item.href} prefetch />}>
-                                {item.icon && <item.icon />}
-                                <span>{item.title}</span>
-                            </SidebarMenuButton>
+                            tooltip={{ children: item.title }}
+                            render={<Link href={item.href} prefetch />}
+                        >
+                            {item.icon && <item.icon />}
+                            <span>{item.title}</span>
+                        </SidebarMenuButton>
                     </SidebarMenuItem>
                 ))}
             </SidebarMenu>
