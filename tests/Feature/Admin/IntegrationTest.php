@@ -27,7 +27,7 @@ test('an admin adds an integration with its capabilities and Malaysian access da
     ]);
 
     $integration = Integration::query()->sole();
-    $response->assertRedirect(route('admin.integrations.show', $integration));
+    $response->assertRedirect(route('admin.integrations.keys.index', $integration));
 
     expect($integration->capabilities)->toBe(['places:read'])
         ->and($integration->starts_at->equalTo(Carbon::parse('2026-10-01 00:00', 'Asia/Kuala_Lumpur')))->toBeTrue()
@@ -92,18 +92,42 @@ test('a key cannot be changed through another integration', function () {
     expect($otherKey->fresh())->not->toBeNull();
 });
 
-test('an integration page lists its keys without the key itself', function () {
+test('the API keys tab lists its keys without the key itself', function () {
     $integration = Integration::factory()->create();
     $integration->createToken('Production server');
 
     $this->actingAs($this->admin)
-        ->get(route('admin.integrations.show', $integration))
+        ->get(route('admin.integrations.keys.index', $integration))
         ->assertInertia(fn (Assert $page) => $page
-            ->component('admin/integrations/show')
+            ->component('admin/integrations/keys')
             ->where('integration.keys_count', 1)
             ->where('keys.0.name', 'Production server')
             ->missing('keys.0.token'));
 });
+
+test('the activity tab loads only the integration\'s own history', function () {
+    $integration = Integration::factory()->create();
+    $integration->update(['name' => 'Renamed Integration']);
+    Integration::factory()->create()->update(['name' => 'Someone else']);
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.integrations.activity.index', $integration))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/integrations/activity')
+            ->where('integration.id', $integration->id)
+            ->missing('activities')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->where('activities.0.event', 'updated')
+                ->where('activities', fn ($activities) => collect($activities)->every(
+                    fn (array $activity) => $activity['subject_id'] === $integration->id,
+                ))));
+});
+
+test('only admins can open the integration tabs', function (string $route) {
+    $integration = Integration::factory()->create();
+
+    $this->actingAs(User::factory()->create())->get(route($route, $integration))->assertForbidden();
+})->with(['admin.integrations.show', 'admin.integrations.keys.index', 'admin.integrations.activity.index']);
 
 test('suspending an integration needs a reason', function () {
     $integration = Integration::factory()->create();

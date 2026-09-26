@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Integrations\ManageApiKeys;
+use App\Data\Admin\ApiKeyData as ApiKeyRowData;
+use App\Data\Admin\IntegrationData;
 use App\Data\Forms\ApiKeyData;
 use App\Http\Controllers\Controller;
 use App\Models\Integration;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Inertia\Response;
 use Laravel\Sanctum\PersonalAccessToken;
 
 /**
@@ -16,6 +19,21 @@ use Laravel\Sanctum\PersonalAccessToken;
  */
 class ApiKeyController extends Controller
 {
+    /**
+     * The API keys tab of an integration. The key itself is never sent, only its name and dates.
+     */
+    public function index(Integration $integration): Response
+    {
+        $integration->load('suspendedBy')->loadCount('tokens');
+
+        return Inertia::render('admin/integrations/keys', [
+            'integration' => IntegrationData::fromModel($integration),
+            'keys' => ApiKeyRowData::collect(
+                $integration->tokens()->latest('id')->get()->map(fn (PersonalAccessToken $token): ApiKeyRowData => ApiKeyRowData::fromModel($token)),
+            ),
+        ]);
+    }
+
     public function store(Integration $integration, ApiKeyData $data, ManageApiKeys $keys): RedirectResponse
     {
         $key = $keys->create($integration, $data->name, $data->expiresAt());

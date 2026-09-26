@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\BusinessStatusController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ChangeController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\IntegrationActivityController;
 use App\Http\Controllers\Admin\IntegrationController;
 use App\Http\Controllers\Admin\IntegrationStatusController;
 use App\Http\Controllers\Admin\InvitationController;
@@ -95,7 +96,9 @@ Route::middleware(['auth', 'verified', 'can:admin', 'business:optional'])->prefi
     Route::resource('integrations', IntegrationController::class)->only(['index', 'store', 'show', 'update']);
     Route::post('integrations/{integration}/suspend', [IntegrationStatusController::class, 'suspend'])->name('integrations.suspend');
     Route::post('integrations/{integration}/reactivate', [IntegrationStatusController::class, 'reactivate'])->name('integrations.reactivate');
+    Route::get('integrations/{integration}/activity', [IntegrationActivityController::class, 'index'])->name('integrations.activity.index');
     Route::controller(ApiKeyController::class)->prefix('integrations/{integration}/keys')->name('integrations.keys.')->group(function () {
+        Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
         Route::post('{key}/rotate', 'rotate')->whereNumber('key')->name('rotate');
         Route::delete('{key}', 'destroy')->whereNumber('key')->name('destroy');
