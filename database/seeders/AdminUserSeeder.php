@@ -17,7 +17,7 @@ class AdminUserSeeder extends Seeder
         $password = config('seeding.admin_password');
 
         if (blank($email) || blank($password)) {
-            $this->command?->warn('Skipping Admin account: ADMIN_SEED_EMAIL or ADMIN_SEED_PASSWORD is not set.');
+            $this->command->warn('Skipping Admin account: ADMIN_SEED_EMAIL or ADMIN_SEED_PASSWORD is not set.');
 
             return;
         }
