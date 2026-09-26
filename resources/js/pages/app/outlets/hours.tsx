@@ -43,7 +43,13 @@ const days = [
 const newPeriod = (): Period => ({ opens: '09:00', closes: '17:00' });
 const allDay = (): Period[] => [{ opens: '00:00', closes: '00:00' }];
 
-export default function OutletHours({ outlet, recentReverts, hours, today, can }: Props) {
+export default function OutletHours({
+    outlet,
+    recentReverts,
+    hours,
+    today,
+    can,
+}: Props) {
     setLayoutProps({
         breadcrumbs: [
             { title: 'Outlets', href: index() },
@@ -88,7 +94,11 @@ export default function OutletHours({ outlet, recentReverts, hours, today, can }
             <Head title={`${outlet.name} · Hours`} />
 
             <div className="flex max-w-2xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader outlet={outlet} can={can} recentReverts={recentReverts} />
+                <OutletHeader
+                    outlet={outlet}
+                    can={can}
+                    recentReverts={recentReverts}
+                />
 
                 <PageErrors
                     except={Object.keys(errors).filter(

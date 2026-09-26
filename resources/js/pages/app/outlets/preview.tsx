@@ -11,7 +11,12 @@ type Props = {
     can: { submit: boolean; archive: boolean };
 };
 
-export default function OutletPreview({ outlet, recentReverts, preview, can }: Props) {
+export default function OutletPreview({
+    outlet,
+    recentReverts,
+    preview,
+    can,
+}: Props) {
     setLayoutProps({
         breadcrumbs: [
             { title: 'Outlets', href: index() },
@@ -25,15 +30,19 @@ export default function OutletPreview({ outlet, recentReverts, preview, can }: P
             <Head title={`${outlet.name} · Preview`} />
 
             <div className="flex max-w-3xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader outlet={outlet} can={can} recentReverts={recentReverts} />
+                <OutletHeader
+                    outlet={outlet}
+                    can={can}
+                    recentReverts={recentReverts}
+                />
 
                 {!preview.place.is_public && (
                     <Notice title="Visitors cannot see this yet">
                         {preview.place.hidden_reason
                             ? `An admin hid this outlet: ${preview.place.hidden_reason}`
                             : preview.place.is_listed
-                            ? 'It shows once an admin has approved the outlet and its business, and its public page is complete.'
-                            : 'List the outlet on the Public page tab when it is ready.'}
+                              ? 'It shows once an admin has approved the outlet and its business, and its public page is complete.'
+                              : 'List the outlet on the Public page tab when it is ready.'}
                     </Notice>
                 )}
 

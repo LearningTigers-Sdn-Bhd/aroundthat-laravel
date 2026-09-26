@@ -75,7 +75,11 @@ export default function OutletPublicPage({
             <Head title={`${outlet.name} · Public page`} />
 
             <div className="flex max-w-2xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader outlet={outlet} can={can} recentReverts={recentReverts} />
+                <OutletHeader
+                    outlet={outlet}
+                    can={can}
+                    recentReverts={recentReverts}
+                />
 
                 <PageErrors except={fieldNames} />
 

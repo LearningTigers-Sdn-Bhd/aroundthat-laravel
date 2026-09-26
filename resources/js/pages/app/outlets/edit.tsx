@@ -13,7 +13,12 @@ type Props = {
     can: { update: boolean; submit: boolean; archive: boolean };
 };
 
-export default function EditOutlet({ outlet, recentReverts, locationOptions, can }: Props) {
+export default function EditOutlet({
+    outlet,
+    recentReverts,
+    locationOptions,
+    can,
+}: Props) {
     setLayoutProps({
         breadcrumbs: [
             { title: 'Outlets', href: index() },
@@ -26,7 +31,11 @@ export default function EditOutlet({ outlet, recentReverts, locationOptions, can
             <Head title={outlet.name} />
 
             <div className="flex max-w-2xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader outlet={outlet} can={can} recentReverts={recentReverts} />
+                <OutletHeader
+                    outlet={outlet}
+                    can={can}
+                    recentReverts={recentReverts}
+                />
 
                 <PageErrors except={outletFieldNames} />
 

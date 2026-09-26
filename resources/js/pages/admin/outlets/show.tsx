@@ -140,8 +140,8 @@ export default function ShowOutlet({
                                 : outlet.hidden_at
                                   ? 'Hidden by an admin, so visitors cannot see it.'
                                   : preview.place.is_listed
-                                  ? 'Listed by the owner, but not visible yet.'
-                                  : 'Not listed by the owner.'
+                                    ? 'Listed by the owner, but not visible yet.'
+                                    : 'Not listed by the owner.'
                         }
                     />
                     <PlacePreview preview={preview} />

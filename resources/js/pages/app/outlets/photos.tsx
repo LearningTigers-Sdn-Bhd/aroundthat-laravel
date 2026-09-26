@@ -57,7 +57,11 @@ export default function OutletPhotos({
             <Head title={`${outlet.name} · Photos`} />
 
             <div className="flex max-w-3xl flex-1 flex-col gap-6 p-4">
-                <OutletHeader outlet={outlet} can={can} recentReverts={recentReverts} />
+                <OutletHeader
+                    outlet={outlet}
+                    can={can}
+                    recentReverts={recentReverts}
+                />
 
                 <PageErrors except={['file', 'alt_text', 'kind']} />
 
