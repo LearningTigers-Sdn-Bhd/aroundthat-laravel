@@ -37,19 +37,43 @@ test('members cannot open the admin offers', function () {
     $this->actingAs($owner->user)->get(route('admin.offers.index'))->assertForbidden();
 });
 
-test('the offer page lists trading outlets of other businesses as sponsor candidates', function () {
+test('the outlets tab lists trading outlets of other businesses as sponsor candidates', function () {
     $offer = VoucherOffer::factory()->for(Business::factory()->approved())->create();
     Outlet::factory()->for($offer->business)->approved()->create();
     $candidate = Outlet::factory()->publiclyVisible()->create();
     Outlet::factory()->pending()->create();
 
     $this->actingAs($this->admin)
-        ->get(route('admin.offers.show', $offer))
+        ->get(route('admin.offers.outlets.index', $offer))
         ->assertInertia(fn (Assert $page) => $page
-            ->component('admin/offers/show')
+            ->component('admin/offers/outlets')
             ->has('sponsorCandidates', 1)
             ->where('sponsorCandidates.0.id', $candidate->id));
 });
+
+test('the activity tab loads only the offer\'s own history', function () {
+    $offer = VoucherOffer::factory()->create();
+    $offer->update(['name' => 'Renamed Offer']);
+    VoucherOffer::factory()->create()->update(['name' => 'Someone else']);
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.offers.activity.index', $offer))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/offers/activity')
+            ->where('offer.offer.id', $offer->id)
+            ->missing('activities')
+            ->loadDeferredProps(fn (Assert $reload) => $reload
+                ->where('activities.0.event', 'updated')
+                ->where('activities', fn ($activities) => collect($activities)->every(
+                    fn (array $activity) => $activity['subject_id'] === $offer->id,
+                ))));
+});
+
+test('only admins can open the offer tabs', function (string $route) {
+    $offer = VoucherOffer::factory()->create();
+
+    $this->actingAs(User::factory()->create())->get(route($route, $offer))->assertForbidden();
+})->with(['admin.offers.show', 'admin.offers.outlets.index', 'admin.offers.activity.index']);
 
 test('an admin hides an offer with a reason and its managers are told', function () {
     Queue::fake([NotifyOfferModeration::class]);

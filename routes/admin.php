@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\IntegrationController;
 use App\Http\Controllers\Admin\IntegrationStatusController;
 use App\Http\Controllers\Admin\InvitationController;
+use App\Http\Controllers\Admin\OfferActivityController;
 use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\OfferOutletController;
 use App\Http\Controllers\Admin\OfferStatusController;
@@ -58,6 +59,8 @@ Route::middleware(['auth', 'verified', 'can:admin', 'business:optional'])->prefi
     Route::resource('offers', OfferController::class)->only(['index', 'show']);
     Route::post('offers/{offer}/hide', [OfferStatusController::class, 'hide'])->name('offers.hide');
     Route::post('offers/{offer}/unhide', [OfferStatusController::class, 'unhide'])->name('offers.unhide');
+    Route::get('offers/{offer}/outlets', [OfferOutletController::class, 'index'])->name('offers.outlets.index');
+    Route::get('offers/{offer}/activity', [OfferActivityController::class, 'index'])->name('offers.activity.index');
     Route::post('offers/{offer}/outlets', [OfferOutletController::class, 'store'])->name('offers.outlets.store');
     Route::delete('offers/{offer}/outlets/{outlet}', [OfferOutletController::class, 'destroy'])->name('offers.outlets.destroy');
 

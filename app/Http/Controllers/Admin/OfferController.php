@@ -2,12 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Data\Admin\ActivityData;
-use App\Data\Admin\HostOutletOptionData;
 use App\Data\Admin\OfferData;
 use App\Http\Controllers\Controller;
-use App\Models\Activity;
-use App\Models\Outlet;
 use App\Models\VoucherOffer;
 use App\Support\QueryFilters\SearchFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -49,7 +45,7 @@ class OfferController extends Controller
     }
 
     /**
-     * One offer: its terms, where it can be redeemed, and its change history.
+     * The Terms tab of an offer.
      */
     public function show(VoucherOffer $offer): Response
     {
@@ -57,17 +53,6 @@ class OfferController extends Controller
 
         return Inertia::render('admin/offers/show', [
             'offer' => OfferData::fromModel($offer),
-            'sponsorCandidates' => HostOutletOptionData::collect(
-                Outlet::operational()
-                    ->where('business_id', '<>', $offer->business_id)
-                    ->whereNotIn('id', $offer->outlets->modelKeys())
-                    ->with('business')
-                    ->orderBy('name')
-                    ->get(),
-            ),
-            'activities' => Inertia::defer(fn () => ActivityData::collect(
-                Activity::forSubject($offer)->with('causer')->latest('id')->limit(100)->get(),
-            )),
         ]);
     }
 }
