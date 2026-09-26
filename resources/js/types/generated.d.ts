@@ -59,7 +59,7 @@ is_cancelled: boolean,
 };
 export type DashboardTileData = {
 label: string,
-value: number | string | null,
+value: string | number | null,
 format: App.Enums.ReportValueFormat,
 hint: string | null,
 report: string,
