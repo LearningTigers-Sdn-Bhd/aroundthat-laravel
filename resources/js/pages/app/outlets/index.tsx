@@ -1,37 +1,61 @@
 import { Head, Link } from '@inertiajs/react';
 import { Plus, Store } from 'lucide-react';
+import type { DataTableColumn } from '@/components/data-table';
+import DataTable from '@/components/data-table';
 import Heading from '@/components/heading';
 import StatusBadge, { recordStatus } from '@/components/status-badge';
 import ModalButtonLink from '@/components/modal-button-link';
-import {
-    Empty,
-    EmptyContent,
-    EmptyDescription,
-    EmptyHeader,
-    EmptyMedia,
-    EmptyTitle,
-} from '@/components/ui/empty';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import { humanize } from '@/lib/format';
 import { create, edit, index } from '@/routes/outlets';
 
 type Props = {
-    outlets: App.Data.OutletData[];
+    outlets: Illuminate.LengthAwarePaginator<number, App.Data.OutletData>;
+    onboardingStatuses: App.Enums.OnboardingStatus[];
     canCreate: boolean;
 };
 
-export default function OutletsIndex({ outlets, canCreate }: Props) {
+const columns: DataTableColumn<App.Data.OutletData>[] = [
+    {
+        key: 'name',
+        header: 'Outlet',
+        sort: 'name',
+        cell: (outlet) => (
+            <Link
+                href={edit(outlet.id)}
+                className="font-medium hover:underline"
+            >
+                {outlet.name}
+            </Link>
+        ),
+    },
+    {
+        key: 'city',
+        header: 'City',
+        sort: 'city',
+        cell: (outlet) => outlet.city,
+    },
+    {
+        key: 'status',
+        header: 'Status',
+        cell: (outlet) => <StatusBadge status={recordStatus(outlet)} />,
+    },
+    {
+        key: 'host_outlet',
+        header: 'Inside',
+        cell: (outlet) => outlet.host_outlet?.name ?? '—',
+    },
+];
+
+export default function OutletsIndex({
+    outlets,
+    onboardingStatuses,
+    canCreate,
+}: Props) {
     return (
         <>
             <Head title="Outlets" />
 
-            <div className="flex flex-1 flex-col gap-6 p-4">
+            <div className="flex flex-1 flex-col gap-4 p-4">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                     <Heading
                         title="Outlets"
@@ -45,64 +69,24 @@ export default function OutletsIndex({ outlets, canCreate }: Props) {
                     )}
                 </div>
 
-                {outlets.length === 0 ? (
-                    <Empty className="border">
-                        <EmptyHeader>
-                            <EmptyMedia variant="icon">
-                                <Store />
-                            </EmptyMedia>
-                            <EmptyTitle>No outlets yet</EmptyTitle>
-                            <EmptyDescription>
-                                Add the places where your business trades. An
-                                admin reviews each one before it goes live.
-                            </EmptyDescription>
-                        </EmptyHeader>
-                        {canCreate && (
-                            <EmptyContent>
-                                <ModalButtonLink href={create().url}>
-                                    <Plus />
-                                    Add outlet
-                                </ModalButtonLink>
-                            </EmptyContent>
-                        )}
-                    </Empty>
-                ) : (
-                    <div className="rounded-md border">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Outlet</TableHead>
-                                    <TableHead>City</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Inside</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {outlets.map((outlet) => (
-                                    <TableRow key={outlet.id}>
-                                        <TableCell className="font-medium">
-                                            <Link
-                                                href={edit(outlet.id)}
-                                                className="hover:underline"
-                                            >
-                                                {outlet.name}
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell>{outlet.city}</TableCell>
-                                        <TableCell>
-                                            <StatusBadge
-                                                status={recordStatus(outlet)}
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            {outlet.host_outlet?.name ?? '—'}
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                )}
+                <DataTable
+                    rows={outlets}
+                    columns={columns}
+                    rowKey={(outlet) => outlet.id}
+                    searchPlaceholder="Search name or city"
+                    filters={[
+                        {
+                            name: 'onboarding_status',
+                            label: 'Statuses',
+                            options: onboardingStatuses.map((status) => ({
+                                value: status,
+                                label: humanize(status),
+                            })),
+                        },
+                    ]}
+                    emptyTitle="No outlets yet"
+                    emptyIcon={Store}
+                />
             </div>
         </>
     );

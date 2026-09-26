@@ -10,8 +10,10 @@ use App\Data\OutletData;
 use App\Data\PlaceProfileData;
 use App\Data\RevertNoticeData;
 use App\Enums\Ability;
+use App\Enums\OnboardingStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Outlet;
+use App\Support\QueryFilters\SearchFilter;
 use App\Support\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,6 +22,9 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use InertiaUI\Modal\Modal;
+use Spatie\LaravelData\PaginatedDataCollection;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 /**
  * The owner's outlets: list, add and edit them. New outlets start as drafts until an admin approves them.
@@ -34,10 +39,22 @@ class OutletController extends Controller
 
         $business = $this->workspace->business();
 
+        $outlets = QueryBuilder::for($business->outlets(), $request)
+            ->allowedFilters(
+                SearchFilter::on(['name', 'city']),
+                AllowedFilter::exact('onboarding_status'),
+            )
+            ->allowedSorts('name', 'city')
+            ->defaultSort('name')
+            ->with('hostOutlet')
+            ->paginate(25)
+            ->withQueryString();
+
+        $outlets->getCollection()->each->setRelation('business', $business);
+
         return Inertia::render('app/outlets/index', [
-            'outlets' => OutletData::collect(
-                $business->outlets()->with('hostOutlet')->orderBy('name')->get()->each->setRelation('business', $business),
-            ),
+            'outlets' => OutletData::collect($outlets, PaginatedDataCollection::class),
+            'onboardingStatuses' => OnboardingStatus::cases(),
             'canCreate' => $request->user()->can('create', [Outlet::class, $business]),
         ]);
     }

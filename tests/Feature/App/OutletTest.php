@@ -28,9 +28,22 @@ test('the outlet list shows only the outlets of the business being worked in', f
         ->get(route('outlets.index'))
         ->assertInertia(fn (Assert $page) => $page
             ->component('app/outlets/index')
-            ->has('outlets', 1)
-            ->where('outlets.0.id', $outlet->id)
+            ->has('outlets.data', 1)
+            ->where('outlets.data.0.id', $outlet->id)
             ->where('canCreate', true));
+});
+
+test('the outlet list can be searched and filtered by status', function () {
+    $owner = Membership::factory()->owner()->create();
+    $approved = Outlet::factory()->for($owner->business)->create(['name' => 'Gaya Street', 'onboarding_status' => OnboardingStatus::Approved]);
+    Outlet::factory()->for($owner->business)->create(['name' => 'Gaya Street Annex', 'onboarding_status' => OnboardingStatus::Draft]);
+    Outlet::factory()->for($owner->business)->create(['name' => 'Imago', 'onboarding_status' => OnboardingStatus::Approved]);
+
+    $this->actingAs($owner->user)
+        ->get(route('outlets.index', ['filter' => ['search' => 'gaya', 'onboarding_status' => 'approved']]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('outlets.data', 1)
+            ->where('outlets.data.0.id', $approved->id));
 });
 
 test('staff without the manage outlets ability cannot open outlets', function () {
