@@ -179,7 +179,7 @@ export default function DataTable<T>({
             {(searchPlaceholder || filters.length > 0) && (
                 <div className="flex flex-wrap items-center gap-2">
                     {searchPlaceholder && (
-                        <div className="relative w-full sm:w-72">
+                        <div className="relative w-full sm:w-auto sm:flex-1">
                             <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
                             <Input
                                 type="search"
