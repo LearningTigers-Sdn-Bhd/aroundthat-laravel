@@ -1,18 +1,18 @@
-import { Head, Link } from "@inertiajs/react";
-import type { ReactNode } from "react";
-import ButtonLink from "@/components/button-link";
-import Heading from "@/components/heading";
-import { Badge } from "@/components/ui/badge";
-import { formatRelative } from "@/lib/format";
-import { cn } from "@/lib/utils";
-import { dashboard } from "@/routes/admin";
+import { Head, Link } from '@inertiajs/react';
+import type { ReactNode } from 'react';
+import ButtonLink from '@/components/button-link';
+import Heading from '@/components/heading';
+import { Badge } from '@/components/ui/badge';
+import { formatRelative } from '@/lib/format';
+import { cn } from '@/lib/utils';
+import { dashboard } from '@/routes/admin';
 import {
     index as businessesIndex,
     show as showBusiness,
-} from "@/routes/admin/businesses";
-import { index as changesIndex } from "@/routes/admin/changes";
-import { show as showOutlet } from "@/routes/admin/outlets";
-import { index as tagsIndex } from "@/routes/admin/tags";
+} from '@/routes/admin/businesses';
+import { index as changesIndex } from '@/routes/admin/changes';
+import { show as showOutlet } from '@/routes/admin/outlets';
+import { index as tagsIndex } from '@/routes/admin/tags';
 
 type Props = {
     pendingBusinessCount: number;
@@ -36,9 +36,9 @@ export default function AdminDashboard({
     pendingOutlets,
 }: Props) {
     const businessesHref = businessesIndex({
-        query: { filter: { onboarding_status: "pending" } },
+        query: { filter: { onboarding_status: 'pending' } },
     });
-    const tagsHref = tagsIndex({ query: { filter: { status: "pending" } } });
+    const tagsHref = tagsIndex({ query: { filter: { status: 'pending' } } });
 
     return (
         <>
@@ -102,7 +102,7 @@ export default function AdminDashboard({
                                 title={tag.name}
                                 detail={
                                     tag.created_by_business_name ??
-                                    "Created by an admin"
+                                    'Created by an admin'
                                 }
                                 time={tag.created_at}
                             />
@@ -123,17 +123,17 @@ export default function AdminDashboard({
                                 href={
                                     subject === null
                                         ? changesIndex()
-                                        : subject.type === "outlet"
+                                        : subject.type === 'outlet'
                                           ? showOutlet(subject.id)
                                           : showBusiness(subject.id)
                                 }
-                                title={subject?.name ?? "Deleted page"}
+                                title={subject?.name ?? 'Deleted page'}
                                 detail={[
-                                    activity.causer_name ?? "Someone",
+                                    activity.causer_name ?? 'Someone',
                                     activity.changes.length === 1
-                                        ? "changed 1 field"
+                                        ? 'changed 1 field'
                                         : `changed ${activity.changes.length} fields`,
-                                ].join(" ")}
+                                ].join(' ')}
                                 time={activity.created_at}
                             />
                         ))}
@@ -173,7 +173,7 @@ function Column({
         <section className="flex flex-col gap-3 rounded-xl border bg-card p-4 lg:h-[76dvh] lg:bg-muted/40 lg:p-3">
             <header className="flex items-center justify-between gap-2 lg:px-1">
                 <h2 className="text-sm font-medium">{title}</h2>
-                <Badge variant={count === 0 ? "outline" : "secondary"}>
+                <Badge variant={count === 0 ? 'outline' : 'secondary'}>
                     {count}
                 </Badge>
             </header>
@@ -185,8 +185,8 @@ function Column({
             ) : (
                 <ul
                     className={cn(
-                        "-mx-1 flex-col gap-2 overflow-y-auto px-1 lg:min-h-0 lg:flex-1",
-                        href === undefined ? "flex" : "hidden lg:flex",
+                        '-mx-1 flex-col gap-2 overflow-y-auto px-1 lg:min-h-0 lg:flex-1',
+                        href === undefined ? 'flex' : 'hidden lg:flex',
                     )}
                 >
                     {children}
@@ -234,5 +234,5 @@ function ColumnItem({ href, title, detail, time }: ColumnItemProps) {
 }
 
 AdminDashboard.layout = {
-    breadcrumbs: [{ title: "Admin", href: dashboard() }],
+    breadcrumbs: [{ title: 'Admin', href: dashboard() }],
 };

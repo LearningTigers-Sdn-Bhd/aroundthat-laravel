@@ -85,7 +85,7 @@ export default function StaffIndex({
                     ]}
                     emptyTitle="No members yet"
                     emptyIcon={Users}
-                    />
+                />
 
                 {invitations.length > 0 && (
                     <section className="space-y-3">
