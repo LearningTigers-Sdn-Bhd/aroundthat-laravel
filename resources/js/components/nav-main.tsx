@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import ConfirmLink from '@/components/confirm-link';
 import {
     SidebarGroup,
     SidebarGroupLabel,
@@ -31,7 +32,17 @@ export function NavMain({
                                 item.matchChildren,
                             )}
                             tooltip={{ children: item.title }}
-                            render={<Link href={item.href} prefetch />}
+                            render={
+                                item.confirm ? (
+                                    <ConfirmLink
+                                        href={item.href}
+                                        confirmation={item.confirm}
+                                        prefetch
+                                    />
+                                ) : (
+                                    <Link href={item.href} prefetch />
+                                )
+                            }
                         >
                             {item.icon && <item.icon />}
                             <span>{item.title}</span>

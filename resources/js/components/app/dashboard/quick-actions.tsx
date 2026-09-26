@@ -1,5 +1,7 @@
 import { Download, Plus, ScanLine, Store, UserPlus } from 'lucide-react';
+import { openCounterConfirmation } from '@/components/app/counter/open-confirmation';
 import ButtonLink from '@/components/button-link';
+import ConfirmLink from '@/components/confirm-link';
 import ModalButtonLink from '@/components/modal-button-link';
 import { buttonVariants } from '@/components/ui/button';
 import { show as counter } from '@/routes/counter';
@@ -27,10 +29,17 @@ export default function QuickActions({ actions }: { actions: QuickAction[] }) {
                 switch (action) {
                     case 'counter':
                         return (
-                            <ButtonLink key={action} href={counter()} prefetch>
+                            <ConfirmLink
+                                key={action}
+                                href={counter()}
+                                confirmation={openCounterConfirmation}
+                                prefetch
+                                data-slot="button"
+                                className={buttonVariants()}
+                            >
                                 <ScanLine data-icon="inline-start" />
                                 Open counter
-                            </ButtonLink>
+                            </ConfirmLink>
                         );
                     case 'new_offer':
                         return (

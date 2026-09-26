@@ -19,6 +19,7 @@ import {
     Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
+import { openCounterConfirmation } from '@/components/app/counter/open-confirmation';
 import { BusinessSwitcher } from '@/components/business-switcher';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -58,7 +59,14 @@ export function AppSidebar() {
         ? [
               { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
               ...(can('scan')
-                  ? [{ title: 'Counter', href: counter(), icon: ScanLine }]
+                  ? [
+                        {
+                            title: 'Counter',
+                            href: counter(),
+                            icon: ScanLine,
+                            confirm: openCounterConfirmation,
+                        },
+                    ]
                   : []),
               ...(can('manage_business')
                   ? [
