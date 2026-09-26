@@ -12,6 +12,7 @@ use App\Data\OutletOptionData;
 use App\Enums\Ability;
 use App\Http\Controllers\Controller;
 use App\Models\VoucherOffer;
+use App\Support\QueryFilters\SearchFilter;
 use App\Support\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,9 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use InertiaUI\Modal\Modal;
+use Spatie\LaravelData\PaginatedDataCollection;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 /**
  * The business's voucher offers: list, add and edit them. Editing is the Details tab of an offer. New offers start as drafts.
@@ -34,10 +38,21 @@ class OfferController extends Controller
 
         $business = $this->workspace->business();
 
+        $offers = QueryBuilder::for($business->voucherOffers(), $request)
+            ->allowedFilters(
+                SearchFilter::on(['name']),
+                AllowedFilter::exact('status'),
+            )
+            ->allowedSorts('name', 'created_at', 'starts_at', 'ends_at')
+            ->defaultSort('-created_at')
+            ->with('outlets.business')
+            ->paginate(25)
+            ->withQueryString();
+
+        $offers->getCollection()->each->setRelation('business', $business);
+
         return Inertia::render('app/offers/index', [
-            'offers' => OfferData::collect(
-                $business->voucherOffers()->with('outlets.business')->latest()->get()->each->setRelation('business', $business),
-            ),
+            'offers' => OfferData::collect($offers, PaginatedDataCollection::class),
             'canCreate' => $request->user()->can('create', [VoucherOffer::class, $business]),
         ]);
     }

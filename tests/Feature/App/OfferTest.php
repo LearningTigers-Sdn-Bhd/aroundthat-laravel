@@ -42,10 +42,23 @@ test('the offer list shows only the offers of the business being worked in', fun
         ->get(route('offers.index'))
         ->assertInertia(fn (Assert $page) => $page
             ->component('app/offers/index')
-            ->has('offers', 1)
-            ->where('offers.0.id', $offer->id)
-            ->where('offers.0.state', 'draft')
+            ->has('offers.data', 1)
+            ->where('offers.data.0.id', $offer->id)
+            ->where('offers.data.0.state', 'draft')
             ->where('canCreate', true));
+});
+
+test('the offer list can be searched and filtered by status', function () {
+    $owner = offerOwner();
+    $active = VoucherOffer::factory()->for($owner->business)->create(['name' => 'Dinner deal', 'status' => OfferStatus::Active]);
+    VoucherOffer::factory()->for($owner->business)->create(['name' => 'Dinner for two', 'status' => OfferStatus::Draft]);
+    VoucherOffer::factory()->for($owner->business)->create(['name' => 'Lunch deal', 'status' => OfferStatus::Active]);
+
+    $this->actingAs($owner->user)
+        ->get(route('offers.index', ['filter' => ['search' => 'dinner', 'status' => 'active']]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('offers.data', 1)
+            ->where('offers.data.0.id', $active->id));
 });
 
 test('cashiers cannot manage offers', function () {
