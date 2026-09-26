@@ -6,7 +6,9 @@ use App\Models\Integration;
 use App\Support\ActivityLog\AuditTrail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\NewAccessToken;
 use Laravel\Sanctum\PersonalAccessToken;
 
 /**
@@ -27,7 +29,7 @@ class ManageApiKeys
 
         $this->audit->record($integration, 'key_created', null, ['key' => $name]);
 
-        return $key->plainTextToken;
+        return $this->withoutId($key);
     }
 
     /**
@@ -47,7 +49,7 @@ class ManageApiKeys
 
             $this->audit->record($integration, 'key_rotated', null, ['key' => $token->name]);
 
-            return $key->plainTextToken;
+            return $this->withoutId($key);
         });
     }
 
@@ -61,6 +63,15 @@ class ManageApiKeys
         $token->delete();
 
         $this->audit->record($integration, 'key_revoked', null, ['key' => $token->name]);
+    }
+
+    /**
+     * Sanctum puts the row ID in front of the key (`12|art_…`). It finds the key by its hash without it, so partners
+     * get only the `art_…` part and never see how many keys exist.
+     */
+    protected function withoutId(NewAccessToken $key): string
+    {
+        return Str::after($key->plainTextToken, '|');
     }
 
     /**

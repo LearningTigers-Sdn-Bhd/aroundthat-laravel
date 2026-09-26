@@ -57,8 +57,8 @@ test('a new API key is shown once and only its hash is stored', function () {
     $key = session('inertia.flash_data.api_key.key');
     $token = $integration->tokens()->sole();
 
-    expect($key)->toBeString()->toStartWith("{$token->id}|art_")
-        ->and($token->token)->toBe(hash('sha256', explode('|', $key, 2)[1]))
+    expect($key)->toBeString()->toStartWith('art_')->not->toContain('|')
+        ->and($token->token)->toBe(hash('sha256', $key))
         ->and(PersonalAccessToken::findToken($key)?->is($token))->toBeTrue();
     expect(Activity::forSubject($integration)->where('event', 'key_created')->sole()->properties['key'])->toBe('Production server');
 });
