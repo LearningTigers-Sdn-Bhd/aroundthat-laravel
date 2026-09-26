@@ -1,15 +1,18 @@
 import { Head, usePage } from '@inertiajs/react';
+import { Users } from 'lucide-react';
 import InviteDialog from '@/components/app/staff/invite-dialog';
 import MemberActions from '@/components/app/staff/member-actions';
+import DataTable from '@/components/data-table';
 import Heading from '@/components/heading';
 import InvitationsTable from '@/components/invitations-table';
-import MembersTable from '@/components/members-table';
+import { memberColumns } from '@/components/members-table';
 import PageErrors from '@/components/page-errors';
+import { humanize } from '@/lib/format';
 import { index } from '@/routes/staff';
 import { destroy, resend } from '@/routes/staff/invitations';
 
 type Props = {
-    members: App.Data.MemberData[];
+    members: Illuminate.LengthAwarePaginator<number, App.Data.MemberData>;
     invitations: App.Data.InvitationData[];
     outletOptions: App.Data.OutletOptionData[];
     roles: App.Enums.MembershipRole[];
@@ -49,21 +52,41 @@ export default function StaffIndex({
 
                 <section className="space-y-3">
                     <Heading variant="small" title="Members" />
-                    <MembersTable
-                        members={members}
-                        actions={(member) =>
+                    <DataTable
+                        rows={members}
+                        columns={memberColumns((member) =>
                             member.user_id === auth.user.id ? (
-                                <p className="text-right text-muted-foreground">
-                                    You
-                                </p>
+                                <p className="text-muted-foreground">You</p>
                             ) : (
                                 <MemberActions
                                     member={member}
                                     roles={roles}
                                     outletOptions={outletOptions}
                                 />
-                            )
-                        }
+                            ),
+                        )}
+                        rowKey={(member) => member.id}
+                        searchPlaceholder="Search name or email"
+                        filters={[
+                            {
+                                name: 'role',
+                                label: 'Roles',
+                                options: roles.map((role) => ({
+                                    value: role,
+                                    label: humanize(role),
+                                })),
+                            },
+                            {
+                                name: 'status',
+                                label: 'Statuses',
+                                options: [
+                                    { value: 'active', label: 'Active' },
+                                    { value: 'suspended', label: 'Suspended' },
+                                ],
+                            },
+                        ]}
+                        emptyTitle="No members yet"
+                        emptyIcon={Users}
                     />
                 </section>
 

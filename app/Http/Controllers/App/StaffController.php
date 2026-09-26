@@ -13,13 +13,19 @@ use App\Enums\MembershipRole;
 use App\Http\Controllers\Controller;
 use App\Models\Invitation;
 use App\Models\Membership;
+use App\Models\User;
 use App\Support\Workspace;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\LaravelData\PaginatedDataCollection;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
+use Spatie\QueryBuilder\QueryBuilder;
 
 /**
  * The owner's staff page: members with their roles and outlets, and open invitations.
@@ -34,10 +40,32 @@ class StaffController extends Controller
 
         Gate::authorize('viewAny', [Membership::class, $business]);
 
+        $sortByName = AllowedSort::callback('name', fn (Builder $query, bool $descending) => $query->orderBy(
+            User::query()->select('name')->whereColumn('users.id', 'memberships.user_id'),
+            $descending ? 'desc' : 'asc',
+        ));
+
+        $members = QueryBuilder::for($business->memberships(), $request)
+            ->allowedFilters(
+                AllowedFilter::callback('search', fn (Builder $query, mixed $value) => $query->whereHas(
+                    'user',
+                    fn (Builder $user) => $user
+                        ->whereLike('name', '%'.trim((string) $value).'%')
+                        ->orWhereLike('email', '%'.trim((string) $value).'%'),
+                )),
+                AllowedFilter::exact('role'),
+                AllowedFilter::callback('status', fn (Builder $query, mixed $value) => $value === 'suspended'
+                    ? $query->whereNotNull('suspended_at')
+                    : $query->whereNull('suspended_at')),
+            )
+            ->allowedSorts($sortByName)
+            ->defaultSort($sortByName)
+            ->with(['user', 'outlets'])
+            ->paginate(25)
+            ->withQueryString();
+
         return Inertia::render('app/staff/index', [
-            'members' => MemberData::collect(
-                $business->memberships()->with(['user', 'outlets'])->get()->sortBy('user.name')->values(),
-            ),
+            'members' => MemberData::collect($members, PaginatedDataCollection::class),
             'invitations' => InvitationData::collect(
                 $business->invitations()->open()->with(['invitedBy', 'outlets'])->latest()->get(),
             ),

@@ -7,6 +7,7 @@ use App\Models\Business;
 use App\Models\Invitation;
 use App\Models\Membership;
 use App\Models\Outlet;
+use App\Models\User;
 use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -26,7 +27,7 @@ test('the staff page lists members, open invitations and the outlets staff can b
         ->get(route('staff.index'))
         ->assertInertia(fn (Assert $page) => $page
             ->component('app/staff/index')
-            ->has('members', 2)
+            ->has('members.data', 2)
             ->has('invitations', 1)
             ->where('invitations.0.id', $invitation->id)
             ->where('outletOptions', [['id' => $outlet->id, 'name' => $outlet->name]])
@@ -134,3 +135,26 @@ test('members and invitations of another business the user owns are not found fr
     'remove member' => ['DELETE', fn (Membership $member) => route('staff.destroy', $member)],
     'cancel invitation' => ['DELETE', fn (Membership $member, Invitation $invitation) => route('staff.invitations.destroy', $invitation)],
 ]);
+
+test('the member list can be searched and filtered by role and status', function () {
+    $cashier = Membership::factory()->cashier()->for($this->business)->for(User::factory()->state(['name' => 'Siti Aminah']))->create();
+    Membership::factory()->cashier()->for($this->business)->for(User::factory()->state(['name' => 'Siti Nur']))->create(['suspended_at' => now()]);
+    Membership::factory()->manager()->for($this->business)->for(User::factory()->state(['name' => 'Siti Hajar']))->create();
+
+    $this->actingAs($this->owner->user)
+        ->get(route('staff.index', ['filter' => ['search' => 'siti', 'role' => 'cashier', 'status' => 'active']]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('members.data', 1)
+            ->where('members.data.0.id', $cashier->id));
+});
+
+test('the member list is sorted by name', function () {
+    $zed = Membership::factory()->cashier()->for($this->business)->for(User::factory()->state(['name' => 'Zed']))->create();
+    $this->owner->user->update(['name' => 'Aisyah']);
+
+    $this->actingAs($this->owner->user)
+        ->get(route('staff.index', ['sort' => '-name']))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('members.data.0.id', $zed->id)
+            ->where('members.data.1.id', $this->owner->id));
+});
