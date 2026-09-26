@@ -11,6 +11,8 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             auth: Auth;
+            workspace: App.Data.CurrentWorkspaceData | null;
+            workspaces: App.Data.WorkspaceOptionData[];
             sidebarOpen: boolean;
             [key: string]: unknown;
         };

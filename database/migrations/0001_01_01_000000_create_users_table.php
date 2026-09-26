@@ -12,13 +12,23 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->timestampTz('email_verified_at')->nullable();
             $table->string('password');
+            $table->boolean('is_admin')->default(false);
+            $table->boolean('must_change_password')->default(false);
+            $table->timestampTz('last_login_at')->nullable();
+            $table->timestampTz('suspended_at')->nullable();
+            $table->uuid('suspended_by_id')->nullable()->index();
+            $table->text('suspension_reason')->nullable();
             $table->rememberToken();
-            $table->timestamps();
+            $table->timestampsTz();
+        });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreign('suspended_by_id')->references('id')->on('users')->nullOnDelete();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -29,7 +39,7 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->foreignUuid('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');

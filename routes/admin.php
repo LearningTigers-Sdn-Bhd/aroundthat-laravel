@@ -1,0 +1,109 @@
+<?php
+
+use App\Http\Controllers\Admin\ApiKeyController;
+use App\Http\Controllers\Admin\BusinessActivityController;
+use App\Http\Controllers\Admin\BusinessController;
+use App\Http\Controllers\Admin\BusinessMemberController;
+use App\Http\Controllers\Admin\BusinessStatusController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ChangeController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\IntegrationActivityController;
+use App\Http\Controllers\Admin\IntegrationController;
+use App\Http\Controllers\Admin\IntegrationStatusController;
+use App\Http\Controllers\Admin\InvitationController;
+use App\Http\Controllers\Admin\OfferActivityController;
+use App\Http\Controllers\Admin\OfferController;
+use App\Http\Controllers\Admin\OfferOutletController;
+use App\Http\Controllers\Admin\OfferStatusController;
+use App\Http\Controllers\Admin\OutletController;
+use App\Http\Controllers\Admin\OutletHostController;
+use App\Http\Controllers\Admin\OutletStatusController;
+use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\Admin\UserActivityController;
+use App\Http\Controllers\Admin\UserBusinessController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserRecoveryController;
+use App\Http\Controllers\Admin\UserStatusController;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware(['auth', 'verified', 'can:admin', 'business:optional'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', DashboardController::class)->name('dashboard');
+
+    Route::resource('businesses', BusinessController::class)->only(['index', 'create', 'store', 'show']);
+
+    Route::controller(BusinessStatusController::class)->prefix('businesses/{business}')->name('businesses.')->group(function () {
+        Route::post('approve', 'approve')->name('approve');
+        Route::post('reject', 'reject')->name('reject');
+        Route::post('suspend', 'suspend')->name('suspend');
+        Route::post('reactivate', 'reactivate')->name('reactivate');
+    });
+
+    Route::resource('businesses.outlets', OutletController::class)->only(['index', 'create', 'store', 'show'])->shallow();
+    Route::get('businesses/{business}/members', [BusinessMemberController::class, 'index'])->name('businesses.members.index');
+    Route::get('businesses/{business}/activity', [BusinessActivityController::class, 'index'])->name('businesses.activity.index');
+
+    Route::controller(OutletStatusController::class)->prefix('outlets/{outlet}')->name('outlets.')->group(function () {
+        Route::post('approve', 'approve')->name('approve');
+        Route::post('reject', 'reject')->name('reject');
+        Route::post('suspend', 'suspend')->name('suspend');
+        Route::post('reactivate', 'reactivate')->name('reactivate');
+        Route::post('archive', 'archive')->name('archive');
+        Route::post('restore', 'restore')->name('restore');
+        Route::post('hide', 'hide')->name('hide');
+        Route::post('unhide', 'unhide')->name('unhide');
+    });
+
+    Route::put('outlets/{outlet}/host', [OutletHostController::class, 'update'])->name('outlets.host.update');
+    Route::delete('outlets/{outlet}/host', [OutletHostController::class, 'destroy'])->name('outlets.host.destroy');
+
+    Route::resource('offers', OfferController::class)->only(['index', 'show']);
+    Route::post('offers/{offer}/hide', [OfferStatusController::class, 'hide'])->name('offers.hide');
+    Route::post('offers/{offer}/unhide', [OfferStatusController::class, 'unhide'])->name('offers.unhide');
+    Route::get('offers/{offer}/outlets', [OfferOutletController::class, 'index'])->name('offers.outlets.index');
+    Route::get('offers/{offer}/activity', [OfferActivityController::class, 'index'])->name('offers.activity.index');
+    Route::post('offers/{offer}/outlets', [OfferOutletController::class, 'store'])->name('offers.outlets.store');
+    Route::delete('offers/{offer}/outlets/{outlet}', [OfferOutletController::class, 'destroy'])->name('offers.outlets.destroy');
+
+    Route::resource('users', UserController::class)->only(['index', 'show']);
+    Route::post('users/{user}/suspend', [UserStatusController::class, 'suspend'])->name('users.suspend');
+    Route::post('users/{user}/reactivate', [UserStatusController::class, 'reactivate'])->name('users.reactivate');
+    Route::get('users/{user}/businesses', [UserBusinessController::class, 'index'])->name('users.businesses.index');
+    Route::get('users/{user}/activity', [UserActivityController::class, 'index'])->name('users.activity.index');
+
+    Route::controller(UserRecoveryController::class)->prefix('users/{user}/recovery')->name('users.recovery.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('password-reset', 'sendPasswordReset')->name('password-reset');
+        Route::post('temporary-password', 'setTemporaryPassword')->name('temporary-password');
+        Route::post('two-factor-reset', 'resetTwoFactor')->name('two-factor-reset');
+    });
+
+    Route::put('categories/order', [CategoryController::class, 'reorder'])->name('categories.reorder');
+    Route::resource('categories', CategoryController::class)->only(['index', 'store', 'update']);
+
+    Route::resource('tags', TagController::class)->only(['index', 'store', 'update']);
+    Route::controller(TagController::class)->prefix('tags/{tag}')->name('tags.')->group(function () {
+        Route::post('approve', 'approve')->name('approve');
+        Route::post('reject', 'reject')->name('reject');
+        Route::post('merge', 'merge')->name('merge');
+    });
+
+    Route::get('changes', [ChangeController::class, 'index'])->name('changes.index');
+    Route::post('changes/review', [ChangeController::class, 'reviewMany'])->name('changes.review-many');
+    Route::post('changes/{change}/review', [ChangeController::class, 'review'])->name('changes.review');
+    Route::post('changes/{change}/revert', [ChangeController::class, 'revert'])->name('changes.revert');
+
+    Route::resource('integrations', IntegrationController::class)->only(['index', 'store', 'show', 'update']);
+    Route::post('integrations/{integration}/suspend', [IntegrationStatusController::class, 'suspend'])->name('integrations.suspend');
+    Route::post('integrations/{integration}/reactivate', [IntegrationStatusController::class, 'reactivate'])->name('integrations.reactivate');
+    Route::get('integrations/{integration}/activity', [IntegrationActivityController::class, 'index'])->name('integrations.activity.index');
+    Route::controller(ApiKeyController::class)->prefix('integrations/{integration}/keys')->name('integrations.keys.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::post('{key}/rotate', 'rotate')->whereNumber('key')->name('rotate');
+        Route::delete('{key}', 'destroy')->whereNumber('key')->name('destroy');
+    });
+
+    Route::post('invitations/{invitation}/resend', [InvitationController::class, 'resend'])->name('invitations.resend');
+    Route::delete('invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');
+});

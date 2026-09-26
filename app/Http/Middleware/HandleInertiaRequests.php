@@ -2,6 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Data\CurrentWorkspaceData;
+use App\Data\WorkspaceOptionData;
+use App\Support\Workspace;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -41,6 +44,14 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'workspace' => fn (): ?CurrentWorkspaceData => app(Workspace::class)->isResolved()
+                ? CurrentWorkspaceData::fromMembership(app(Workspace::class)->membership())
+                : null,
+            'workspaces' => fn (): array => $request->user()
+                ? WorkspaceOptionData::collect(
+                    $request->user()->memberships()->active()->with('business')->get()->sortBy('business.name')->values()
+                )->all()
+                : [],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

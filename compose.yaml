@@ -1,69 +1,76 @@
 x-app: &app
-  build:
-    context: .
-    dockerfile: Dockerfile
-    args:
-      VITE_APP_NAME: ${APP_NAME:-Laravel}
-      VITE_REVERB_APP_KEY: ${REVERB_APP_KEY}
-      VITE_REVERB_HOST: ${REVERB_PUBLIC_HOST}
-      VITE_REVERB_PORT: ${REVERB_PUBLIC_PORT:-443}
-      VITE_REVERB_SCHEME: ${REVERB_PUBLIC_SCHEME:-https}
-  image: aroundthat-app:latest
-  restart: unless-stopped
-  environment: &app-env
-    APP_NAME: ${APP_NAME:-Laravel}
-    APP_ENV: ${APP_ENV:-production}
-    APP_DEBUG: ${APP_DEBUG:-false}
-    APP_KEY: ${APP_KEY}
-    APP_URL: ${APP_URL}
-    DB_CONNECTION: ${DB_CONNECTION:-pgsql}
-    DB_HOST: ${DB_HOST}
-    DB_PORT: ${DB_PORT:-5432}
-    DB_DATABASE: ${DB_DATABASE:-laravel}
-    DB_USERNAME: ${DB_USERNAME:-laravel}
-    DB_PASSWORD: ${DB_PASSWORD}
-    REDIS_HOST: ${REDIS_HOST}
-    REDIS_PORT: ${REDIS_PORT:-6379}
-    REDIS_PASSWORD: ${REDIS_PASSWORD:-null}
-    QUEUE_CONNECTION: redis
-    CACHE_STORE: redis
-    SESSION_DRIVER: redis
-    BROADCAST_CONNECTION: reverb
-    REVERB_APP_ID: ${REVERB_APP_ID}
-    REVERB_APP_KEY: ${REVERB_APP_KEY}
-    REVERB_APP_SECRET: ${REVERB_APP_SECRET}
-    REVERB_HOST: reverb
-    REVERB_PORT: 8000
-    REVERB_SCHEME: http
-    AUTORUN_ENABLED: "false"
+    build:
+        context: .
+        dockerfile: Dockerfile
+        args:
+            VITE_APP_NAME: ${APP_NAME:-Laravel}
+            VITE_REVERB_APP_KEY: ${REVERB_APP_KEY}
+            VITE_REVERB_HOST: ${REVERB_PUBLIC_HOST}
+            VITE_REVERB_PORT: ${REVERB_PUBLIC_PORT:-443}
+            VITE_REVERB_SCHEME: ${REVERB_PUBLIC_SCHEME:-https}
+    image: aroundthat-app:latest
+    restart: unless-stopped
+    environment: &app-env
+        APP_NAME: ${APP_NAME:-Laravel}
+        APP_ENV: ${APP_ENV:-production}
+        APP_DEBUG: ${APP_DEBUG:-false}
+        APP_KEY: ${APP_KEY}
+        APP_URL: ${APP_URL}
+        DB_CONNECTION: ${DB_CONNECTION:-pgsql}
+        DB_HOST: ${DB_HOST}
+        DB_PORT: ${DB_PORT:-5432}
+        DB_DATABASE: ${DB_DATABASE:-laravel}
+        DB_USERNAME: ${DB_USERNAME:-laravel}
+        DB_PASSWORD: ${DB_PASSWORD}
+        REDIS_HOST: ${REDIS_HOST}
+        REDIS_PORT: ${REDIS_PORT:-6379}
+        REDIS_PASSWORD: ${REDIS_PASSWORD:-null}
+        QUEUE_CONNECTION: redis
+        CACHE_STORE: redis
+        SESSION_DRIVER: redis
+        BROADCAST_CONNECTION: reverb
+        REVERB_APP_ID: ${REVERB_APP_ID}
+        REVERB_APP_KEY: ${REVERB_APP_KEY}
+        REVERB_APP_SECRET: ${REVERB_APP_SECRET}
+        REVERB_HOST: reverb
+        REVERB_PORT: 8000
+        REVERB_SCHEME: http
+        AUTORUN_ENABLED: 'false'
 
 services:
-  web:
-    <<: *app
-    environment:
-      <<: *app-env
-      AUTORUN_ENABLED: "true"
+    web:
+        <<: *app
+        environment:
+            <<: *app-env
+            AUTORUN_ENABLED: 'true'
 
-  horizon:
-    <<: *app
-    command: ["php", "/var/www/html/artisan", "horizon"]
-    stop_signal: SIGTERM
-    healthcheck:
-      test: ["CMD", "healthcheck-horizon"]
-      start_period: 10s
+    horizon:
+        <<: *app
+        command: ['php', '/var/www/html/artisan', 'horizon']
+        stop_signal: SIGTERM
+        healthcheck:
+            test: ['CMD', 'healthcheck-horizon']
+            start_period: 10s
 
-  scheduler:
-    <<: *app
-    command: ["php", "/var/www/html/artisan", "schedule:work"]
-    stop_signal: SIGTERM
-    healthcheck:
-      test: ["CMD", "healthcheck-schedule"]
-      start_period: 10s
+    scheduler:
+        <<: *app
+        command: ['php', '/var/www/html/artisan', 'schedule:work']
+        stop_signal: SIGTERM
+        healthcheck:
+            test: ['CMD', 'healthcheck-schedule']
+            start_period: 10s
 
-  reverb:
-    <<: *app
-    command: ["php", "/var/www/html/artisan", "reverb:start", "--host=0.0.0.0", "--port=8000"]
-    stop_signal: SIGTERM
-    healthcheck:
-      test: ["CMD", "healthcheck-reverb"]
-      start_period: 10s
+    reverb:
+        <<: *app
+        command:
+            [
+                'php',
+                '/var/www/html/artisan',
+                'reverb:start',
+                '--host=0.0.0.0',
+                '--port=8000',
+            ]
+        stop_signal: SIGTERM
+        healthcheck:
+            test: ['CMD', 'healthcheck-reverb']
+            start_period: 10s
